@@ -1,0 +1,259 @@
+#### functions handling parameter manipulation. par2nM nM2par etc
+
+### for info on models see Celeux and Govaert 1995
+
+#' @include Cholesky.R
+#' @include weight.R
+
+
+## map lower.tri to vec
+ld. <- function(mat){
+	x <- mat[lower.tri(mat, diag=FALSE)]
+	x
+}
+
+## map vec to lower.tri
+dl. <- function(d,x,p){
+	mat <- matrix(0,p,p)
+	mat[lower.tri(mat,diag=FALSE)==TRUE] <- x
+	mat.temp <- mat + diag(rep(1,p))  
+	mat <- mat.temp %*% diag(d) %*% t(mat.temp)
+	mat
+}
+
+
+#' normal multivariate mixture model to parameter for MLE
+#'
+#' \code{nMm2par} returns vector of parameters of norMmix objects
+#'
+#' This transformation forms a vector from the parameters of a normal
+#' mixture. These consist of weights, means and covariance matrices.
+#' Weights are transformed according to 'trafo' param; means are 
+#' unchanged.
+#' Cov mats are given as D and L from the LDLt decomposition
+#'
+#' @param obj list containing sig= covariance matrix array, mu= mean vector matrix, w= weights, k= number of clusters, p= dimension
+#' @param trafo either "clr1" or "logit"
+#' @param model one of "asdf..."
+#' @examples
+#' A  <- MW2nm4
+#' nMm2par( A, trafo="clr1", model=A$model )
+#'
+#' @export
+
+nMm2par <- function(obj, 
+		    trafo=c("clr1", "logit"),
+		    model=c("EII","VII","EEI","VEI",
+			    "EVI","VVI","EVV","VVV")
+		    ){
+
+	#transferring values of obj to handier variables
+	sig <- obj$Sigma
+	mu <- obj$mu
+	w <- obj$w
+	k <- obj$k
+	p <- obj$dim
+
+	trafo <- match.arg(trafo)
+	model <- match.arg(model)
+
+
+	#output vector of parameter values
+	c(
+	  w <- switch(trafo, #weights either logit or centered log ratio
+		    "logit" = qlogis(w[-1L]),
+
+		    "clr1" = clr1(w),
+
+		    stop("invalid argument trafo, ",trafo)
+		    ),
+	  mu, #means
+	  Sigma <- switch(model, #model dependent covariance values
+			  "EII" = sig[1,1,1],
+
+			  "VII" = sig[1,1,],
+
+			  "EEI" = {D.temp <- diag(sig[,,1])
+			  	   alpha <- (prod(D.temp)^(1/p))
+			  	   D. <- D.temp/alpha
+			  	   c(alpha, D.)
+			  	  },
+
+			  "VEI" = {alpha <- apply(sig, 3, function(j) prod(diag(j))^(1/p) )
+			  	   D. <- diag(sig[,,1])/alpha[1]
+			  	   c(alpha, D.)
+				  },
+			  
+			  "EVI" = {alpha <- prod(diag(sig[,,1]))^(1/p)
+			  	   D. <- apply(sig,3,diag)/alpha
+			  	   c(alpha,D.)
+			  	  },
+
+			  "VVI" = {alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
+			  	   D.temp <- apply(sig,3,diag)
+			 	   D. <- D.temp %*% diag(1/alpha) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
+				   c(alpha,D.)
+				  },
+
+			  "EVV" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
+			  	   D. <- apply(sig,3, function(j) ldl(j)$Diag/alpha)
+			  	   L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
+				   c(alpha, D., L.)},
+
+			  "VVV" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
+			  	   D.temp <- apply(sig,3, function(j) ldl(j)$Diag)
+			  	   D. <- D.temp %*% diag(1/alpha)
+			  	   L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
+			  	   c(alpha, D., L.)},
+
+			  stop("invalid argument in 'model'")
+			  )
+	)
+}
+
+
+
+
+
+#' transform of parameter vector to normal mixture
+#'
+#' \code{par2nMm} returns list containing weight, mu, Sigma, k, dim
+#'
+#' this is the inverse function to nMm2par. Given a numeric vector
+#' dimension and cluster number this function reconstructs a normal mixture
+#' object.
+#'
+#' @param par. numeric vector of parameters
+#' @param p dimension of space
+#' @param trafo either "clr1" or "logit"
+#' @param model See description 
+#' @param MLE boolean, TRUE if nonnegative entries are permitted in par.
+#' 
+#' @export
+
+par2nMm <- function(par., p, k,
+		    trafo=c("clr1", "logit"),
+		    model=c("EII","VII","EEI","VEI",
+			    "EVI","VVI","EVV","VVV"),
+		    MLE=FALSE) {
+
+	trafo <- match.arg(trafo)
+	model <- match.arg(model)
+
+	f <- k+p*k # start of Sigma/alpha
+	f1 <- f + k - 1L # end of alpha if variable
+
+	if (k ==1) {w.temp <- vector()}
+	else {w.temp <- par.[1:(k-1)]}
+	w <- switch(trafo,
+	"plogit" = {w.temp <- plogis(w.temp)
+		    if ((sp. <- sum(w.temp)) > 1) {
+			    stop("weights add to greater than 1")
+		    }
+		    w <- c((1-sp.), w.temp)
+		   },
+
+	"clr1" = clr1inv(w.temp), 
+		    )
+
+	mu <- matrix(par.[k:(k+p*k-1)], p, k)
+
+
+
+	Sigma <- switch(model,
+	
+	# diagonal cases
+	
+	"EII" = {lambda <- par.[f]
+
+		 sig <- array( rep(diag(lambda, p),k), c(p,p,k) )},
+
+	"VII" = {lambda <- par.[f:f1]
+
+		 sig <- array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k)) },
+
+	"EEI" = {lambda <- par.[f]
+
+		 D.temp <- par.[f+1:f+p]
+		 
+		 sig <- array( rep(diag(lambda*D.temp),k), c(p,p,k) )},
+
+	"VEI" = {lambda <- par.[f:f1]
+			
+		 D.temp <- par.[f1+1:f1+p]
+		
+		 D. <- tcrossprod(D.temp,lambda)
+
+		 sig <- array( apply(D.,2, diag), c(p,p,k)) },
+
+	"EVI" = {lambda <- par.[f]
+			
+		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
+
+		 D. <- D.temp*lambda
+
+		 sig <- array( apply(D.,2, diag), c(p,p,k)) },
+
+	"VVI" = {lambda <- par.[f:f1]
+			
+		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
+	
+		 D. <- D.temp %*% diag(lambda)
+
+		 sig <- array( apply(D.,2, diag), c(p,p,k)) },
+
+	# variable cases
+
+	"EVV" = {lambda <- par.[f]
+
+		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
+
+		 f2 <- f1 + p*k +1 # start of L_k
+		 f3 <- (p*(p-1)/2)
+		 f4 <- (p*(p-1)/2)*k
+		 f5 <- f2 + f4 -1
+
+		 L.temp <- matrix(par.[f2:f5],f3,k)
+
+		 sig <- array(0, c(p,p,k))
+		 for (i in 1:k) {
+			 sig[,,i] <- dl.(D.[,i],L.temp[,i],p)
+		 }
+		 sig
+		},
+		 
+
+	"VVV" = {lambda <- par.[f:f1]
+
+		 D.temp <- matrix(par.[(f1+1):(f1+p*k)],p,k)
+
+		 D. <- D.temp %*% diag(lambda)
+
+		 f2 <- f1 + p*k +1 # start of L_k
+		 f3 <- (p*(p-1)/2)
+		 f4 <- (p*(p-1)/2)*k
+		 f5 <- f2 + f4 -1
+
+		 L.temp <- matrix(par.[f2:f5],f3,k)
+
+		 sig <- array(0, c(p,p,k))
+		 for (i in 1:k) {
+			 sig[,,i] <- dl.(D.[,i],L.temp[,i],p)
+		 }
+		 sig
+		},
+	stop("error in Sigma switch statement")
+	
+	)
+
+
+	list( weight=w, mu=mu, Sigma=Sigma, k=k, dim=p )
+
+}
+
+
+
+
+
+
+
