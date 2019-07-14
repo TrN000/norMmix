@@ -2,22 +2,31 @@
 
 #' @include norMmixEM.R
 
+
+
+
+
+{}
+
+
 #' Maximum likelihood Estimation for normal mixture models
 #' 
 #' \code{norMmixMLE} returns fitted nMm obj
 #' 
-#' @param x
-#' @param trafo
-#' @param model
+#'
+#'
+#' @param x sample matrix
+#' @param k number of clusters
+#' @param trafo transformation to be used
+#' @param model model to be assumed
 #' 
 #' @export
-
 norMmixMLE <- function(
 		       x,
 		       k,
 		       trafo = c("clr1", "logit"),
-		       model = c("EII","VII","EEI","VEI",
-			      "EVI","VVI","EVV","VVV")
+		       model = c("EII","VII","EEI","VEI","EVI",
+				 "VVI","EEE","VEE","EVV","VVV")
 		       ) {
 	
 	# 1. san check call
@@ -31,28 +40,45 @@ norMmixMLE <- function(
 	trafo <- match.arg(trafo)
 	model <- match.arg(model)
 
-	stopifnot(is.numeric(x), is.numeric(k), (n <- ncol(x))>1)
-	p <- nrow(x)
+	stopifnot(is.numeric(x), is.numeric(k), (n <- nrow(x))>1)
+	p <- ncol(x)
 
 	k <- as.integer(k)
 
+	#init tau??
+
+	clus <- cluster::clara(x=x, k)
+
+	index <- clus$clustering
+
+	tau <- matrix(0,n,k)
+	tau[cbind(1:n,index)] <- 1
 
 
 	# 2.
 
-	par.temp <- mstep.nMm(x, tau, mu, Sigma, weight)
+	# one m-step
+	nMm.temp <- mstep.nMm(x, tau, mu, Sigma, weight, k, p)
+
+	# create par. vector out of m-step
+	par.temp <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
+
+	# log of alpha, D. 
+	par. <- par2nMmMLE_inv(par.temp, p, k, trafo=trafo, model=model)
 
 
 	# 3.
 
-	neglogl <- function(par.) -llnorMmix(par., x=x, p=p, k=k, trafo=trafo, model=model)
+	neglogl <- function(par.) {
+		-llnorMmix(par.,x=x,p=p,k=k,trafo=trafo,model=model)
+		}
 
+	optr <- optim(par., neglogl, method = "BFGS")
 
-	#optr <- #here optidd
+	nMm <- par2nMmMLE(optr$par, p, k, trafo=trafo, model=model)
 
 
 	# 4.
 
-	list(weight=weight, mu=mu, Sigma=Sigma)
-
+	nMm
 }

@@ -7,25 +7,33 @@
 
 
 
-#' log likelihood of parameter vector given data
-#' 
+
+#{}
+
+
+
+#' Log-likelihood of parameter vector given data
+#'
+#' \code{llnorMmix} returns scalar log-likelihood 
+#'
+#'
+#' description
+#'
+#' @param par. parameter vector
+#' @param x sample matrix
+#' @param p dimension
+#' @param k number of clusters
+#' @param trafo either centered log ratio or logit
+#' @param model assumed distribution model of normal mixture
+#'
+#' @export
 
 llnorMmix <- function(par., x, p, k,
 		      trafo=c("clr1", "logit"),
-		      model=c("EII","VII","EEI","VEI",
-			      "EVI","VVI","EVV","VVV") ){
+		      model=c("EII","VII","EEI","VEI","EVI",
+			      "VVI","EEE","VEE","EVV","VVV"),
+		      MLE=FALSE ) {
 
-	## Purpose: calculates log-likelihood of fitted norMmix model
-	## ------------------------------------------------------------
-	## Arguments: par.: parameter vector
-	##	p: dimension
-	##	k: number of clusters
-	##	trafo: either centered log ratio or logit
-	##	model: assumed distribution model of normal mixture
-	## ------------------------------------------------------------
-	## value: integer
-	## ------------------------------------------------------------
-	## Author: Nicolas Trutmann
 	# 1. sanity check on arguments
 	# 2. transform par. to norMmix
 	# 3. calculate log-lik
@@ -36,11 +44,11 @@ llnorMmix <- function(par., x, p, k,
 
 	# 2. transform
 
-	nMmobj <- par2nMm(par., p, k,
-			  trafo=c("clr1", "logit"),
-			  model=c("EII","VII","EEI","VEI",
-				  "EVI","VVI","EVV","VVV"),
-			  MLE=TRUE) 
+	trafo <- match.arg(trafo)
+	model <- match.arg(model)
+
+	if (MLE) {nMmobj <- par2nMm(par., p, k, trafo=trafo, model=model)}
+	else {nMmobj <- par2nMmMLE(par., p, k, trafo=trafo, model=model)}
 
 	# 3. calc log-lik
 

@@ -9,8 +9,6 @@ tole <- 1000*.Machine$double.eps
 
 # do I really need this many?
 library(abind) # can replace these with base function
-library(matrixcalc)
-library(scatterplot3d)
 
 Shilf <- function(L, p){ # help function for norMmix
 	Shilfarray <- array(0, c(p,p,length(L)))
@@ -29,9 +27,10 @@ Shilf <- function(L, p){ # help function for norMmix
 
 hilf <- function(x, k){ # help function evals to true if x is sym pos def array
 	for (i in 1:k){
-		if ( !(isSymmetric(x[,,i], tol=tole)&& is.positive.semi.definite(x[,,i],tol=tole)) )
+		if ( !(isSymmetric(x[,,i], tol=tole)&& matrixcalc::is.positive.semi.definite(x[,,i],tol=tole)) )
 			stop("Sigma is not sym pos def")
 	}
+
 	return(TRUE)
 }
 
@@ -41,7 +40,8 @@ hilf <- function(x, k){ # help function evals to true if x is sym pos def array
 
 #' Constructor for nMm 'objects'
 #'
-#' \code{norMmix} returns structure containing defining parameters of a normal mixture
+#' \code{norMmix} returns structure containing defining parameters of a normal
+#' mixture
 #'
 #'
 #'
@@ -58,7 +58,8 @@ norMmix <- function(
 		    Sigma = abind( rep(list(diag(p)), k), along = 3),
 		    weight = rep(1/k, k),
 		    name = NULL,
-		    model= c("EII","VII","EEI","VEI","EVI","VVI","EVV","VVV")
+		    model= c("EII","VII","EEI","VEI","EVI",
+			     "VVI","EEE","VEE","EVV","VVV")
 		    )
 {
 	## Purpose: constructor for 'norMmix' (multivariate normix)
@@ -103,7 +104,7 @@ norMmix <- function(
 		Sigma <- Shilf(L=Sigma, p=p) 
 	else if (is.array(Sigma) && dim(Sigma) == c(p,p,k))
 		Sigma <- Sigma
-	else stop("'Sigma not among recognized formats, see source code for help'")
+	else stop("'Sigma' not among recognized formats")
 	if (!hilf(Sigma,k)) stop("error with sym pos def Sigma")
 
 	#inspect weight
@@ -187,5 +188,5 @@ rnorMmix <- function(
 	nj <- rmultinom(n=1, size=n, prob=weight)
 #	a <- matrix(unlist(lapply( seq(along=nj), function(j)mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) )), ncol=p, byrow=TRUE)
 	## this approach doesnt work matrices arent concatenated properly
-	a <- do.call( rbind, lapply( seq(along=nj), function(j)MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
+	a <- do.call( rbind,lapply( seq(along=nj),function(j)MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
 }
