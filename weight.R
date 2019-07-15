@@ -1,7 +1,7 @@
 
 clr1 <- function(w) {
 
-	stopifnot(is.numeric(w) && all(w >= 0))
+	stopifnot(is.numeric(w) ,all(w >= 0), all.equal(sum(w),1))
 
 	# calculate clr1
 	ln <- log(w)

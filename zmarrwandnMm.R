@@ -37,3 +37,27 @@ MW2nm4 <- norMmix(
 		  weight = c(2/3, 1/3),
 		  model = "VII"
 		  )
+
+MW2nm5 <- norMmix(
+		  name = "#5 test5",
+		  mu = cbind( c(0,0), c(0,0)),
+		  Sigma = c(1,.1),
+		  weight = c(2/3, 1/3),
+		  model = "VII"
+		  )
+
+MW26 <- norMmix(
+		name = "#6 test EEI",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(rep(diag(c(4,5)),2),c(2,2,2)),
+		model = "EEI"
+		)
+
+MW27 <- norMmix(
+		name = "#7 test VEI",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c(diag(c(4,5)),diag(c(8,10))),c(2,2,2)),
+		model = "VEI"
+		)
