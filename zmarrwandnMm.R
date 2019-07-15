@@ -61,3 +61,51 @@ MW27 <- norMmix(
 		Sigma = array(c(diag(c(4,5)),diag(c(8,10))),c(2,2,2)),
 		model = "VEI"
 		)
+
+MW28 <- norMmix(
+		name = "#8 test EVI",
+		weight = c(0.2, 0.2, 0.6),
+		mu = cbind( c(0,0), c(1,1), c(-1,-1) ),
+		Sigma = array(c(diag(c(2,9)),diag(c(9,2)),diag(c(3,6))),c(2,2,3)),
+		model = "EVI"
+		)
+
+MW29 <- norMmix(
+		name = "#9 test VVI",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c(diag(c(4,5)),diag(c(7,11))),c(2,2,2)),
+		model = "VVI"
+		)
+
+MW210 <- norMmix(
+		name = "#10 test EEE",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c( 1,3,3,11, 1,3,3,11 ),c(2,2,2)),
+		model = "EEE"
+		)
+
+MW211 <- norMmix(
+		name = "#11 test VEE",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c( 1,3,3,11, 2,6,6,22 ),c(2,2,2)),
+		model = "VEE"
+		)
+
+MW212 <- norMmix(
+		name = "#12 test EVV",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c( 1,3,3,11, 2,4,4,9 ),c(2,2,2)),
+		model = "EVV"
+		)
+
+MW213 <- norMmix(
+		name = "#13 test VVV",
+		weight = c(0.5, 0.5),
+		mu = cbind( c(0,0), c(3,3) ),
+		Sigma = array(c( 1,3,3,11, 3,6,6,13 ),c(2,2,2)),
+		model = "VVV"
+		)

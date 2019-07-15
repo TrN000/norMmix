@@ -20,3 +20,25 @@ clr1inv <- function(p) {
 	pp <- p1/f
 	pp
 }
+
+
+logit <- function(e) {
+
+	stopifnot(is.numeric(e) ,all(e >= 0), all.equal(sum(e),1))
+
+	qlogis(e[-1L])
+}
+
+logitinv <- function(e) {
+
+	if (length(e)==0) {return(c(1))}
+	stopifnot(is.numeric(e))
+
+	e<- plogis(e)
+	if ((sp. <- sum(e)) > 1) {
+		stop("weights add to greater than 1")
+	}
+	
+	w <- c((1-sp.), e)
+}
+

@@ -48,30 +48,54 @@ nMm2par <- function(obj,
 		    ){
 
 	#transferring values of obj to handier variables
-	sig <- obj$Sigma
-	mu <- obj$mu
 	w <- obj$w
-	k <- obj$k
+	mu <- obj$mu
+	sig <- obj$Sigma
 	p <- obj$dim
+	k <- obj$k
 
 	trafo <- match.arg(trafo)
 	model <- match.arg(model)
 
-	#checks
+	##checks
 
-	stopifnot( isTRUE(all.equal(sum(w),1)) )
+	# weights
 
+	stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k), is.numeric(w) )
+
+	if ( any(is.na(w))||any(is.nan(w))||
+	     any(is.null(w))||any(is.infinite(w)) ) {
+		warning("result may contain: NA, Nan, NULL, Inf in weight")
+	}
+
+	# mu
+
+	stopifnot( (dim(mu)==c(p,k)), (is.numeric(mu)) )
+
+	if ( any(is.na(mu))||any(is.nan(mu))||
+	     any(is.null(mu))||any(is.infinite(mu)) ) {
+		warning("result may contain: NA, Nan, NULL, Inf in mu")
+	}
+
+	# Sigma
+
+	stopifnot( (dim(sig)==c(p,p,k)), (is.numeric(sig)) )
 	stopifnot( isTRUE( all( apply(sig,3, function(j) (ldl(j)$Diag >= 0 )))))
+
+	if ( any(is.na(sig))||any(is.nan(sig))||
+	     any(is.null(sig))||any(is.infinite(sig)) ) {
+		warning("result may contain: NA, Nan, NULL, Inf in sig")
+	}
 
 
 	#output vector of parameter values
 	c(
 	  w <- switch(trafo, #weights either logit or centered log ratio
-		"logit" = qlogis(w[-1L]),
+		"logit" = logit(w),
 
     		"clr1" = clr1(w),
 
-		stop("invalid argument trafo, ",trafo)
+		stop("Error in weight trafo, ",trafo)
 	    	),
 	  mu, #means
 	  Sigma <- switch(model, #model dependent covariance values
@@ -103,11 +127,11 @@ nMm2par <- function(obj,
 
 		"EEE" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
 			A. <- ldl(sig[,,1])
-			c(alpha, A.$Diag/alpha, A.$L)},
+			c(alpha, A.$Diag/alpha, ld.(A.$L))},
 
 		"VEE" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
 			A. <- ldl(sig[,,1])
-			c(alpha, A.$Diag/alpha[1], A.$L)},
+			c(alpha, A.$Diag/alpha[1], ld.(A.$L))},
 
 		"EVV" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
 			D. <- apply(sig,3, function(j) ldl(j)$Diag/alpha)
