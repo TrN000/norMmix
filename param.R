@@ -9,16 +9,14 @@
 ## map lower.tri to vec
 ld. <- function(mat){
 	x <- mat[lower.tri(mat, diag=FALSE)]
-	x
 }
 
 ## map vec to lower.tri
 dl. <- function(d,x,p){
 	mat <- matrix(0,p,p)
-	mat[lower.tri(mat,diag=FALSE)==TRUE] <- x
+	mat[lower.tri(mat,diag=FALSE)] <- x
 	mat.temp <- mat + diag(rep(1,p))  
-	mat <- mat.temp %*% diag(d) %*% t(mat.temp)
-	mat
+	mat.temp %*% diag(d) %*% t(mat.temp)
 }
 
 
@@ -61,34 +59,25 @@ nMm2par <- function(obj,
 
 	# weights
 
-	stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k), is.numeric(w) )
+	stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k), 
+		  is.numeric(w), is.finite(w) )
 
-	if ( any(is.na(w))||any(is.nan(w))||
-	     any(is.null(w))||any(is.infinite(w)) ) {
-		warning("result may contain: NA, Nan, NULL, Inf in weight")
-	}
 
 	# mu
 
-	stopifnot( (dim(mu)==c(p,k)), (is.numeric(mu)) )
+	stopifnot( (dim(mu)==c(p,k)), (is.numeric(mu)),
+		  is.matrix(mu), is.finite(mu) )
 
-	if ( any(is.na(mu))||any(is.nan(mu))||
-	     any(is.null(mu))||any(is.infinite(mu)) ) {
-		warning("result may contain: NA, Nan, NULL, Inf in mu")
-	}
 
 	# Sigma
 
-	stopifnot( (dim(sig)==c(p,p,k)), (is.numeric(sig)) )
+	stopifnot( (dim(sig)==c(p,p,k)), (is.numeric(sig)),
+		  length(dim(sig))==3, is.array(sig) )
 	stopifnot( isTRUE( all( apply(sig,3, function(j) (ldl(j)$Diag >= 0 )))))
-
-	if ( any(is.na(sig))||any(is.nan(sig))||
-	     any(is.null(sig))||any(is.infinite(sig)) ) {
-		warning("result may contain: NA, Nan, NULL, Inf in sig")
-	}
 
 
 	#output vector of parameter values
+
 	c(
 	  w <- switch(trafo, #weights either logit or centered log ratio
 		"logit" = logit(w),
@@ -99,50 +88,46 @@ nMm2par <- function(obj,
 	    	),
 	  mu, #means
 	  Sigma <- switch(model, #model dependent covariance values
-		"EII" = sig[1,1,1],
+		"EII" = log(sig[1,1,1]),
 
-		"VII" = sig[1,1,],
+		"VII" = log(sig[1,1,]),
 
 		"EEI" = {D.temp <- diag(sig[,,1])
-			alpha <- (prod(D.temp)^(1/p))
-			D. <- D.temp/alpha
-			c(alpha, D.)
-			},
+			alpha <- log(prod(D.temp)^(1/p))
+			D. <- log(D.temp) - alpha
+			c(alpha, D.)},
 
-		"VEI" = {alpha <- apply(sig, 3, function(j) prod(diag(j))^(1/p) )
-			D. <- diag(sig[,,1])/alpha[1]
-			c(alpha, D.)
-			},
+		"VEI" = {alpha <- log(apply(sig,3,function(j) prod(diag(j))^(1/p)))
+			D. <- log(diag(sig[,,1])) - alpha[1]
+			c(alpha, D.)},
 			  
-		"EVI" = {alpha <- prod(diag(sig[,,1]))^(1/p)
-			D. <- apply(sig,3,diag)/alpha
-			c(alpha,D.)
-			},
+		"EVI" = {alpha <- log(prod(diag(sig[,,1]))^(1/p))
+			D. <- log(apply(sig,3,diag)) - alpha
+			c(alpha,D.)},
 
 		"VVI" = {alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
 			D.temp <- apply(sig,3,diag)
 			D. <- D.temp %*% diag(1/alpha) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
-			c(alpha,D.)
-			},
+			c(log(alpha),log(D.))},
 
 		"EEE" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
 			A. <- ldl(sig[,,1])
-			c(alpha, A.$Diag/alpha, ld.(A.$L))},
+			c(log(alpha), log(A.$Diag/alpha), ld.(A.$L))},
 
 		"VEE" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
 			A. <- ldl(sig[,,1])
-			c(alpha, A.$Diag/alpha[1], ld.(A.$L))},
+			c(log(alpha), log(A.$Diag/alpha[1]), ld.(A.$L))},
 
 		"EVV" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
 			D. <- apply(sig,3, function(j) ldl(j)$Diag/alpha)
 			L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-			c(alpha, D., L.)},
+			c(log(alpha), log(D.), L.)},
 
 		"VVV" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
 			D.temp <- apply(sig,3, function(j) ldl(j)$Diag)
 			D. <- D.temp %*% diag(1/alpha)
 			L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-			c(alpha, D., L.)},
+			c(log(alpha), log(D.), L.)},
 
 		stop("invalid argument in 'model'")
 		)
@@ -178,18 +163,69 @@ par2nMm <- function(par., p, k,
 	trafo <- match.arg(trafo)
 	model <- match.arg(model)
 
-	f <- k+p*k # start of Sigma/alpha
-	f1 <- f + k - 1L # end of alpha if variable
+	p <- as.integer(p)
+	k <- as.integer(k)
+
+
+	# start of relevant parameters:
+
+	f <- k + p*k # weights -1 + means +1 => start of alpha
+
+	f1 <- f # end of alpha if uniform
+	f2 <- f+k-1L # end of alpha if var
+
+	f1.1 <- f1 +1L #start of D. if alpha unif.
+	f2.1 <- f1 + k # start of D. if alpha varialbe
+
+	f11 <- f1 + p # end of D. if D. uniform and alpha uniform
+	f12 <- f1 + p*k # end D. if D. var and alpha unif.
+	f21 <- f2.1 + p # end of D. if D. uniform and alpha variable
+	f22 <- f2.1 + p*k # end of D. if D.var and alpha var
+
+	f11.1 <- f11 +1L # start of L if alpha unif D unif
+	f21.1 <- f21 +1L # start of L if alpha var D unif
+	f12.1 <- f12 +1L # start of L if alpha unif D var
+	f22.1 <- f22 +1L # start of L if alpha var D var
+
+	f111 <- f11 + p*(p-1)/2 # end of L if alpha unif D unif
+	f211 <- f21 + p*(p-1)/2 # end of L if alpha var D unif
+	f121 <- f12 + k*p*(p-1)/2 # end of L if alpha unif D var
+	f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
+
+	#only important ones are f1.2, f1.3, f2.2, f2.3
+
+
+	par. <- switch(model,
+
+	"EII" = {par.[f] <- exp(par.[f])
+		 par.},
+
+	"VII" = {par.[f:f2]<- exp(par.[f:f2])
+		 par.},
+
+	"EEI" = ,
+	"EEE" = {par.[f:f11] <- exp(par.[f:f11])
+		 par.},
+
+	"VEI" = ,
+	"VEE" = {par.[f:f21] <- exp(par.[f:f21])
+		 par.},
+
+	"EVI" = ,
+	"EVV" = {par.[f:f12] <- exp(par.[f:f12])
+		 par.},
+
+	"VVI" = ,
+	"VVV" = {par.[f:f22] <- exp(par.[f:f22])
+		 par.},
+
+	stop("Error in exp switch statement in par2nMm")
+	)
 
 	if (k ==1) {w.temp <- vector()}
 	else {w.temp <- par.[1:(k-1)]}
 	w <- switch(trafo,
-	"logit" = {w.temp <- plogis(w.temp)
-		   if ((sp. <- sum(w.temp)) > 1) {
-			stop("weights add to greater than 1")
-		   }
-		 
-     		   w <- c((1-sp.), w.temp)	},
+	"logit" = logitinv(w.temp),
 
 	"clr1" = clr1inv(w.temp), 
 	)
@@ -211,13 +247,13 @@ par2nMm <- function(par., p, k,
 
 	"EEI" = {lambda <- par.[f]
 
-		 D.temp <- par.[f+1:f+p]
+		 D.temp <- par.[f1.1:f11]
 
 		 sig <- array( rep(diag(lambda*D.temp),k), c(p,p,k) )},
 
-	"VEI" = {lambda <- par.[f:f1]
+	"VEI" = {lambda <- par.[f:f2]
 
-		 D.temp <- par.[f1+1:f1+p]
+		 D.temp <- par.[f2.1:f21]
 
 		 D. <- tcrossprod(D.temp,lambda)
 
@@ -225,15 +261,13 @@ par2nMm <- function(par., p, k,
 
 	"EVI" = {lambda <- par.[f]
 
-		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
-
-		 D. <- D.temp*lambda
+		 D. <- matrix(par.[f1.1:f12],p,k)*lambda
 
 		 sig <- array( apply(D.,2, diag), c(p,p,k)) },
 
-	"VVI" = {lambda <- par.[f:f1]
+	"VVI" = {lambda <- par.[f:f2]
 
-		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
+		 D.temp <- matrix(par.[f2.1:f22],p,k)
 
 		 D. <- D.temp %*% diag(lambda)
 
@@ -242,12 +276,10 @@ par2nMm <- function(par., p, k,
 	# variable cases
 
 	"EEE" = {lambda <- par.[f]
-		 D.temp <- par.[f+1:f+p]
+		 D.temp <- par.[f1.1:f11]
 		 D. <- D.temp*lambda
 
-		 f3 <- (p*(p-1)/2)
-
-		 L. <- par.[f+p+1:f+p+f3]
+		 L. <- par.[f11.1:f111]
 		 A. <- dl.(D.,L.,p)
 
 		 sig.temp <- array(0, c(p,p,k))
@@ -256,15 +288,14 @@ par2nMm <- function(par., p, k,
 		 }
 		 sig},
 
-
-	"VEE" = {lambda <- par.[f:f1]
-		 D.temp <- par.[f1+1:f1+p]
+	"VEE" = {lambda <- par.[f:f2]
+		 D.temp <- par.[f2.1:f21]
 
 		 D. <- tcrossprod(D.temp,lambda)
 
 		 f3 <- (p*(p-1)/2)
 
-		 L. <- par.[f1+p+1:f1+p+f3]
+		 L. <- par.[f21.1:f211]
 
 		 sig.temp <- array(0, c(p,p,k))
 		 for (i in i:k){
@@ -274,14 +305,9 @@ par2nMm <- function(par., p, k,
 
 	"EVV" = {lambda <- par.[f]
 
-		 D.temp <- matrix(par.[f1+1:f1+p*k],p,k)
+		 D.temp <- matrix(par.[f1.1:f12],p,k)
 
-		 f2 <- f1 + p*k +1 # start of L_k
-		 f3 <- (p*(p-1)/2)
-		 f4 <- (p*(p-1)/2)*k
-		 f5 <- f2 + f4 -1
-
-		 L.temp <- matrix(par.[f2:f5],f3,k)
+		 L.temp <- matrix(par.[f12.1:f121],f3,k)
 
 		 sig <- array(0, c(p,p,k))
 		 for (i in 1:k) {
@@ -289,18 +315,13 @@ par2nMm <- function(par., p, k,
 		 }
 		 sig},
 
-	"VVV" = {lambda <- par.[f:f1]
+	"VVV" = {lambda <- par.[f:f2]
 
-		 D.temp <- matrix(par.[(f1+1):(f1+p*k)],p,k)
+		 D.temp <- matrix(par.[f2.1:f22],p,k)
 
 		 D. <- D.temp %*% diag(lambda)
 
-		 f2 <- f1 + p*k +1 # start of L_k
-		 f3 <- (p*(p-1)/2)
-		 f4 <- (p*(p-1)/2)*k
-		 f5 <- f2 + f4 -1
-
-		 L.temp <- matrix(par.[f2:f5],f3,k)
+		 L.temp <- matrix(par.[f22.1:f221],f3,k)
 
 		 sig <- array(0, c(p,p,k))
 		 for (i in 1:k) {
@@ -317,126 +338,3 @@ par2nMm <- function(par., p, k,
 
 
 
-
-#' wrapper function for par2nMm that preprocesses for norMmixMLE
-#' 
-#' \code{par2nMmMLE} returns nMm list guarantees that Sigma are sym. pos def
-#' and alpha are nonnegative.
-#'
-#' This variant of par2nMm applies exp to mixture parameters alpha and D.
-#' to guarantee that Sigma are always sym pos def. Note here that this does not
-#' affect weight parameter. Those may still be out of bounds of permissible 
-#' values.
-#' 
-#' @inheritParams par2nMm
-#'
-#' @export
-
-par2nMmMLE <- function(par., p, k,
-		    trafo=c("clr1", "logit"),
-		    model=c("EII","VII","EEI","VEI","EEE",
-			    "VEE","EVI","VVI","EVV","VVV")
-		    ) {
-
-	# start of relevant parameters:
-
-	f <- k + p*k # weights -1 + means +1 => start of alpha
-	f1 <- f # end of alpha if alpha uniform
-	f1.1 <- f1 +1L #start of D. if alpha unif.
-	f1.2 <- f1 + p # end of D. if D. uniform and alpha uniform
-	f1.3 <- f1 + p*k # end D. if D. var and alpha unif.
-	
-	f2.1 <- f1 + k # start of D. if alpha varialbe
-	f2.2 <- f2.1 + p # end of D. if D. uniform and alpha variable
-	f2.3 <- f2.1 + p*k # end of D. if D.var and alpha var
-
-	#only important ones are f1.2, f1.3, f2.2, f2.3
-
-
-	model <- match.arg(model)
-
-	par. <- switch(model,
-
-	"EII" = {par.[f] <- exp(par.[f])
-		 par.},
-
-	"VII" = {par.[f:f2] <- exp(par.[f:f2])
-		 par.},
-
-	"EEI" = ,
-	"EEE" = {par.[f:f1.1] <- exp(par.[f:f1.1])
-		 par.},
-
-	"VEI" = ,
-	"VEE" = {par.[f:f2.2] <- exp(par.[f:f2.2])
-		 par.},
-
-	"EVI" = ,
-	"EVV" = {par.[f:f1.3] <- exp(par.[f:f1.3])
-		 par.},
-
-	"VVI" = ,
-	"VVV" = {par.[f:f2.3] <- exp(par.[f:f2.3])
-		 par.}
-	)
-
-
-	par2nMm(par., p, k, trafo=trafo, model=model)
-
-}
-
-
-
-
-
-
-par2nMmMLE_inv <- function(par., p, k,
-		    trafo=c("clr1", "logit"),
-		    model=c("EII","VII","EEI","VEI","EEE",
-			    "VEE","EVI","VVI","EVV","VVV")
-		    ) {
-
-	# start of relevant parameters:
-
-	f <- k + p*k # weights -1 + means +1 => start of alpha
-	f1 <- f # end of alpha if alpha uniform
-	f1.1 <- f1 +1L #start of D. if alpha unif.
-	f1.2 <- f1 + p # end of D. if D. uniform and alpha uniform
-	f1.3 <- f1 + p*k # end D. if D. var and alpha unif.
-	
-	f2.1 <- f1 + k # start of D. if alpha varialbe
-	f2.2 <- f2.1 + p # end of D. if D. uniform and alpha variable
-	f2.3 <- f2.1 + p*k # end of D. if D.var and alpha var
-
-	#only important ones are f1.2, f1.3, f2.2, f2.3
-
-
-	model <- match.arg(model)
-
-	par. <- switch(model,
-
-	"EII" = {par.[f] <- log(par.[f])
-		 par.},
-
-	"VII" = {par.[f:f2.1] <- log(par.[f:f2.1])
-		 par.},
-
-	"EEI" = ,
-	"EEE" = {par.[f:f1.1] <- log(par.[f:f1.1])
-		 par.},
-
-	"VEI" = ,
-	"VEE" = {par.[f:f2.2] <- log(par.[f:f2.2])
-		 par.},
-
-	"EVI" = ,
-	"EVV" = {par.[f:f1.3] <- log(par.[f:f1.3])
-		 par.},
-
-	"VVI" = ,
-	"VVV" = {par.[f:f2.3] <- log(par.[f:f2.3])
-		 par.}
-	)
-
-	par.
-}

@@ -8,7 +8,7 @@
 
 
 
-#{}
+{}
 
 
 
@@ -65,6 +65,5 @@ llnorMmix <- function(par., x, p, k,
 	# 4. return
 
 	res <- sum(log(y))
-	res
 
 }

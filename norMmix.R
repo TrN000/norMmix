@@ -123,6 +123,15 @@ norMmix <- function(
 		  		k=k, dim=p, model=model)
 	)
 
+	#nMm <- list(mu = mu , Sigma = Sigma, weight = weight,
+	#	    k=k, dim=p, model=model)
+        #
+	#attr(nMm,"name") <- name
+        #
+	#class(nMm) <- "norMmix"
+
+
+
 }
 
 
