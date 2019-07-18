@@ -30,6 +30,8 @@ dl. <- function(d,x,p){
 #' unchanged.
 #' Cov mats are given as D and L from the LDLt decomposition
 #'
+#' @seealso n2p
+#'
 #' @param obj list containing sig= covariance matrix array, mu= mean vector matrix, w= weights, k= number of clusters, p= dimension
 #' @param trafo either "clr1" or "logit"
 #' @param model one of "asdf..."
@@ -97,9 +99,9 @@ nMm2par <- function(obj,
 			D. <- log(D.temp) - alpha
 			c(alpha, D.)},
 
-		"VEI" = {alpha <- log(apply(sig,3,function(j) prod(diag(j))^(1/p)))
-			D. <- log(diag(sig[,,1])) - alpha[1]
-			c(alpha, D.)},
+		"VEI" = {alpha <- (apply(sig,3,function(j) prod(diag(j))^(1/p)))
+			D. <- (diag(sig[,,1]))/alpha[1]
+			c(log(alpha), log(D.))},
 			  
 		"EVI" = {alpha <- log(prod(diag(sig[,,1]))^(1/p))
 			D. <- log(apply(sig,3,diag)) - alpha
@@ -134,6 +136,14 @@ nMm2par <- function(obj,
 	)
 }
 
+
+#' wrapper function for nMm objs in zmarrwandMm
+#'
+#' \code{n2p} returns same as nMm2par with clr1
+#'
+#' @export
+
+n2p <- function(obj) nMm2par(obj, trafo="clr1", model=obj$model)
 
 
 
@@ -179,8 +189,8 @@ par2nMm <- function(par., p, k,
 
 	f11 <- f1 + p # end of D. if D. uniform and alpha uniform
 	f12 <- f1 + p*k # end D. if D. var and alpha unif.
-	f21 <- f2.1 + p # end of D. if D. uniform and alpha variable
-	f22 <- f2.1 + p*k # end of D. if D.var and alpha var
+	f21 <- f2 + p # end of D. if D. uniform and alpha variable
+	f22 <- f2 + p*k # end of D. if D.var and alpha var
 
 	f11.1 <- f11 +1L # start of L if alpha unif D unif
 	f21.1 <- f21 +1L # start of L if alpha var D unif
@@ -241,7 +251,7 @@ par2nMm <- function(par., p, k,
 
 		 sig <- array( rep(diag(lambda, p),k), c(p,p,k) )},
 
-	"VII" = {lambda <- par.[f:f1]
+	"VII" = {lambda <- par.[f:f2]
 
 		 sig <- array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k)) },
 
@@ -282,8 +292,8 @@ par2nMm <- function(par., p, k,
 		 L. <- par.[f11.1:f111]
 		 A. <- dl.(D.,L.,p)
 
-		 sig.temp <- array(0, c(p,p,k))
-		 for (i in i:k){
+		 sig <- array(0, c(p,p,k))
+		 for (i in 1:k){
 			 sig[,,i] <- A.
 		 }
 		 sig},
@@ -297,15 +307,17 @@ par2nMm <- function(par., p, k,
 
 		 L. <- par.[f21.1:f211]
 
-		 sig.temp <- array(0, c(p,p,k))
-		 for (i in i:k){
+		 sig <- array(0, c(p,p,k))
+		 for (i in 1:k){
 			 sig[,,i] <- dl.(D.[,i],L.,p)
 		 }
 		 sig},
 
 	"EVV" = {lambda <- par.[f]
 
-		 D.temp <- matrix(par.[f1.1:f12],p,k)
+		 D. <- matrix(par.[f1.1:f12],p,k) * lambda
+
+		 f3 <- (p*(p-1)/2)
 
 		 L.temp <- matrix(par.[f12.1:f121],f3,k)
 
@@ -320,6 +332,8 @@ par2nMm <- function(par., p, k,
 		 D.temp <- matrix(par.[f2.1:f22],p,k)
 
 		 D. <- D.temp %*% diag(lambda)
+
+		 f3 <- (p*(p-1)/2)
 
 		 L.temp <- matrix(par.[f22.1:f221],f3,k)
 

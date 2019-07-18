@@ -13,7 +13,8 @@
 #' 
 #' \code{norMmixMLE} returns fitted nMm obj
 #' 
-#'
+#' Uses clara() and one M-step from EM-algorithm to initialize parameters
+#' after that uses general optimizer optim() to calculate ML.
 #'
 #' @param x sample matrix
 #' @param k number of clusters
@@ -61,24 +62,22 @@ norMmixMLE <- function(
 	nMm.temp <- mstep.nMm(x, tau, mu, Sigma, weight, k, p)
 
 	# create par. vector out of m-step
-	par.temp <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
-
-	# log of alpha, D. 
-	par. <- par2nMmMLE_inv(par.temp, p, k, trafo=trafo, model=model)
+	par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
 
 
 	# 3.
 
+	# define function to optimize as negative log-lik
+	# also reduces the number of arguments to par.
 	neglogl <- function(par.) {
 		-llnorMmix(par.,x=x,p=p,k=k,trafo=trafo,model=model)
 		}
 
 	optr <- optim(par., neglogl, method = "BFGS")
 
-	nMm <- par2nMmMLE(optr$par, p, k, trafo=trafo, model=model)
-
 
 	# 4.
 
-	nMm
+	nMm <- par2nMmMLE(optr$par, p, k, trafo=trafo, model=model)
+
 }

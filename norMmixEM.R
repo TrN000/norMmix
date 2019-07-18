@@ -67,7 +67,7 @@ mstep.nMm <- function( x, tau, mu, Sigma, weighti, k ,p){
 
 }
 
-# estep doesn't work yet
+# estep doesn't work yet, also not necessary.
 
 #estep.nMm <- function(x, par){
 #

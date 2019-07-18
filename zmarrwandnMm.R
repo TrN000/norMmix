@@ -109,3 +109,25 @@ MW213 <- norMmix(
 		Sigma = array(c( 1,3,3,11, 3,6,6,13 ),c(2,2,2)),
 		model = "VVV"
 		)
+
+
+
+n2m <- function(obj) nMm2par(obj , trafo="clr1", obj$model)
+
+par210 <- n2m(MW210)
+par211 <- n2m(MW211)
+par212 <- n2m(MW212)
+par213 <- n2m(MW213)
+par26 <- n2m(MW26)
+par27 <- n2m(MW27)
+par28 <- n2m(MW28)
+par29 <- n2m(MW29)
+par2nm1 <- n2m(MW2nm1)
+par2nm1.2 <- n2m(MW2nm1.2)
+par2nm2 <- n2m(MW2nm2)
+par2nm4 <- n2m(MW2nm4)
+par2nm5 <- n2m(MW2nm5)
+
+
+
+

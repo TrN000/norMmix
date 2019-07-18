@@ -47,8 +47,7 @@ llnorMmix <- function(par., x, p, k,
 	trafo <- match.arg(trafo)
 	model <- match.arg(model)
 
-	if (MLE) {nMmobj <- par2nMm(par., p, k, trafo=trafo, model=model)}
-	else {nMmobj <- par2nMmMLE(par., p, k, trafo=trafo, model=model)}
+	nMmobj <- par2nMm(par., p, k, trafo=trafo, model=model)
 
 	# 3. calc log-lik
 
@@ -59,6 +58,7 @@ llnorMmix <- function(par., x, p, k,
 	y <- 0
 
 	for (i in 1:k) {
+		## this part only temporary until a faster solution is found
 		y <- y + w[i]*mvtnorm::dmvnorm(x,mean=mu[,i],sigma=sig[,,i])
 	}
 
