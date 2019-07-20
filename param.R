@@ -13,10 +13,9 @@ ld. <- function(mat){
 
 ## map vec to lower.tri
 dl. <- function(d,x,p){
-	mat <- matrix(0,p,p)
+	mat <- diag(1,p)
 	mat[lower.tri(mat,diag=FALSE)] <- x
-	mat.temp <- mat + diag(rep(1,p))  
-	mat.temp %*% diag(d) %*% t(mat.temp)
+	mat %*% diag(d) %*% t(mat)
 }
 
 

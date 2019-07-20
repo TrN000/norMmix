@@ -129,5 +129,19 @@ par2nm4 <- n2m(MW2nm4)
 par2nm5 <- n2m(MW2nm5)
 
 
+ln2m <- function(obj) nMm2par(obj , trafo="logit", obj$model)
 
 
+lpar210 <- ln2m(MW210)
+lpar211 <- ln2m(MW211)
+lpar212 <- ln2m(MW212)
+lpar213 <- ln2m(MW213)
+lpar26 <- ln2m(MW26)
+lpar27 <- ln2m(MW27)
+lpar28 <- ln2m(MW28)
+lpar29 <- ln2m(MW29)
+lpar2nm1 <- ln2m(MW2nm1)
+lpar2nm1.2 <- ln2m(MW2nm1.2)
+lpar2nm2 <- ln2m(MW2nm2)
+lpar2nm4 <- ln2m(MW2nm4)
+lpar2nm5 <- ln2m(MW2nm5)
