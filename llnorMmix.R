@@ -62,7 +62,7 @@ llnorMmix <- function(par., x, p, k,
 		    stop("error in w switch in llnorMmix")
 		    )
 
-	if (!(sum(w)==1)) return(Inf)
+	if (!(sum(w)==1)) return(-Inf)
 
 
 	# get mu
@@ -103,9 +103,9 @@ llnorMmix <- function(par., x, p, k,
 	"EII" = {alpha <- par.[f]
 		for (i in 1:k) {
 			rss <- colSums(exp(alpha)*(t(x)-mu[,i])^2)
-			retval <- retval+sum(-0.5*p*(alpha+log(2*pi))-0.5*rss)
+			retval <- retval+w[i]*exp(-0.5*p*(alpha+log(2*pi))-0.5*rss)
 		}
-		retval},
+		sum(log(retval))},
 
 	"VII" = {alpha <- par.[f:f2]
 		for (i in 1:k) {
