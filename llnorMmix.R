@@ -118,7 +118,7 @@ llnorMmix <- function(par., x, p, k,
 		D. <- par.[f1.1:f11]
 		for (i in 1:k) {
 			rss <- colSums(exp(alpha+D.)*(t(x)-mu[,i])^2)
-			retval <- retval-0.5*p*(alpha+log(2*pi))-0.5*rss
+			retval <- retval+sum(-0.5*p*(alpha+log(2*pi))-0.5*rss)
 		}
 		retval},
 
@@ -126,7 +126,7 @@ llnorMmix <- function(par., x, p, k,
 		D. <- par.[f2.1:f21]
 		for (i in 1:k) {
 			rss <- colSums(exp(alpha[i]+D.[,i])*(t(x)-mu[,i])^2)
-			retval <- retval-0.5*p*(alpha[i]+log(2*pi))-0.5*rss
+			retval <- retval+sum(-0.5*p*(alpha[i]+log(2*pi))-0.5*rss)
 		}
 		retval},
 
