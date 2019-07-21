@@ -108,7 +108,7 @@ llnorMmix <- function(par., x, p, k,
 		
 	"EII" = {alpha <- par.[f]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha)*(x-mu[,i])^2)
+			rss <- colSums((1/exp(alpha))*(x-mu[,i])^2)
 			# this is vector of length n=sample size
 			# calculates (x-mu)t * Sigma^-1 * (x-mu) for diagonal
 			# cases.
@@ -124,15 +124,15 @@ llnorMmix <- function(par., x, p, k,
 
 	"VII" = {alpha <- par.[f:f2]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha[i])*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			rss <- colSums((1/exp(alpha[i]))*(x-mu[,i])^2)
+			retval <- retval+w[i]*exp(-0.5*p*(alpha[i]+l2pi)-0.5*rss)
 		}
 		sum(log(retval))},
 
 	"EEI" = {alpha <- par.[f]
 		D. <- par.[f1.1:f11]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha+D.)*(x-mu[,i])^2)
+			rss <- colSums((1/exp(alpha+D.))*(x-mu[,i])^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
 		sum(log(retval))},
@@ -140,7 +140,7 @@ llnorMmix <- function(par., x, p, k,
 	"VEI" = {alpha <- par.[f:f2]
 		D. <- par.[f2.1:f21]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha[i]+D.)*(t(x)-mu[,i])^2)
+			rss <- colSums((1/exp(alpha[i]+D.))*(x-mu[,i])^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
@@ -148,7 +148,7 @@ llnorMmix <- function(par., x, p, k,
 	"EVI" = {alpha <- par.[f]
 		D. <- matrix(par.[f1.1:f12],p,k)
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha+D.[,i])*(t(x)-mu[,i])^2)
+			rss <- colSums((1/exp(alpha+D.[,i]))*(x-mu[,i])^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
 		sum(log(retval))},
@@ -156,8 +156,8 @@ llnorMmix <- function(par., x, p, k,
 	"VVI" = {alpha <- par.[f:f2]
 		D. <- matrix(par.[f2.1:f22],p,k)
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha+D.[,i])*(t(x)-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			rss <- colSums((1/exp(alpha[i]+D.[,i]))*(x-mu[,i])^2)
+			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
 
@@ -166,8 +166,9 @@ llnorMmix <- function(par., x, p, k,
 		L. <- diag(1,p)
 		L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha+D.)*backsolve(L., (t(x)-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha+D.))*backsolve(L.,(x-mu[,i]))^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			print(sum(log(retval)))
 		}
 		sum(log(retval))},
 
@@ -176,29 +177,29 @@ llnorMmix <- function(par., x, p, k,
 		L. <- diag(1,p)
 		L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
 		for (i in 1:k) {
-			rss <- colSums(exp(alpha[i]+D.)*backsolve(L., (t(x)-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]))^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
 
 	"EVV" = {alpha <- par.[f]
-		D. <- par.[f1.1:f12]
+		D. <- matrix(par.[f1.1:f12],p,k)
 		L.temp <- matrix(par.[f12.1:f121],p*(p-1),k)
 		for (i in 1:k) {
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-			rss <- colSums(exp(alpha[i]+D.)*backsolve(L., (t(x)-mu[,i]))^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			rss <- colSums((1/exp(alpha+D.[i]))*backsolve(L., (x-mu[,i]))^2)
+			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
 		sum(log(retval))},
 
 	"VVV" = {alpha <- par.[f:f2]
-		D. <- par.[f2.1:f22]
+		D. <- matrix(par.[f2.1:f22],p,k)
 		L.temp <- matrix(par.[f22.1:f221],p*(p-1),k)
 		for (i in 1:k) {
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-			rss <- colSums(exp(alpha[i]+D.)*backsolve(L., (t(x)-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha[i]+D.[,i]))*backsolve(L., (x-mu[,i]))^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
@@ -213,14 +214,45 @@ retval
 
 
 
-#	y <- 0
-#
-#	for (i in 1:k) {
-#		## this part only temporary until a faster solution is found
-#		y <- y + w[i]*mvtnorm::dmvnorm(x,mean=mu[,i],sigma=sig[,,i])
-#	}
 
-	# 4. return
+}
 
+
+
+
+
+llmvtnorm <- function(par., x, p, k,
+		      trafo=c("clr1","logit"),
+		      model=c("EII","VII","EEI","VEI","EEE",
+			      "VEE","EVI","VVI","EVV","VVV")
+		      ) {
+
+
+	p <- as.integer(p)
+	k <- as.integer(k)
+
+	tr <- match.arg(trafo)
+	mo <- match.arg(model)
+
+	if (ncol(x)!=p && nrow(x)==p) x <- t(x)
+
+
+
+	nmm <- par2nMm(par., p, k, trafo=tr, model=mo)
+
+	w <- nmm$w
+	mu <- nmm$mu
+	sig <- nmm$Sigma
+
+
+	y <- 0
+
+	for (i in 1:k) {
+		y <- y + w[i]*mvtnorm::dmvnorm(x,mean=mu[,i],sigma=sig[,,i])
+		print(sum(log(y)))
+	}
+
+
+	sum(log(y))
 
 }
