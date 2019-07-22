@@ -63,7 +63,7 @@ mstep.nMm <- function( x, tau, mu, Sigma, weighti, k ,p){
 
 	##return params
 
-	list(tau=tau, weight=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
+	list(tau=tau, w=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
 
 }
 

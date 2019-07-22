@@ -24,6 +24,7 @@
 #' @export
 norMmixMLE <- function(
 		       x,
+		       p,
 		       k,
 		       trafo = c("clr1", "logit"),
 		       model = c("EII","VII","EEI","VEI","EVI",
@@ -42,9 +43,9 @@ norMmixMLE <- function(
 	model <- match.arg(model)
 
 	stopifnot(is.numeric(x), is.numeric(k), (n <- nrow(x))>1)
-	p <- ncol(x)
 
 	k <- as.integer(k)
+	
 
 	#init tau??
 
@@ -64,20 +65,29 @@ norMmixMLE <- function(
 	# create par. vector out of m-step
 	par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
 
-
+	print(nMm.temp)
+	print(sum(nMm.temp$w))
 	# 3.
 
 	# define function to optimize as negative log-lik
 	# also reduces the number of arguments to par.
 	neglogl <- function(par.) {
-		-llnorMmix(par.,x=x,p=p,k=k,trafo=trafo,model=model)
+		-llmvtnorm(par.,x=x,p=p,k=k,trafo=trafo,model=model)
 		}
 
-	optr <- optim(par., neglogl, method = "BFGS")
+	maxiter <- 100
+	tol <- sqrt(.Machine$double.eps)
+	trace <- 2
+
+	optr <- optim(par., neglogl, method = "BFGS", control =
+                list(maxit=maxiter, reltol = tol,
+                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace)))
+
 
 
 	# 4.
 
-	nMm <- par2nMmMLE(optr$par, p, k, trafo=trafo, model=model)
+	nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
 
+	nMm
 }

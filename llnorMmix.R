@@ -63,7 +63,8 @@ llnorMmix <- function(par., x, p, k,
 		    "clr1" = {if (k==1) 1
 		    	     else clr1inv(par.[1:(k-1)])},
 
-		    "logit" = logitinv(par.[1:(k-1)]),
+		    "logit" = {if (k==1) 1
+		    	      logitinv(par.[1:(k-1)])},
 
 		    stop("error in w switch in llnorMmix")
 		    )
@@ -102,8 +103,10 @@ llnorMmix <- function(par., x, p, k,
 	f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
 
 
+	# initialize return value
 	retval <- 0
 
+	# calculate log-lik, see first case for explanation
 	retval <- switch(model,
 		
 	"EII" = {alpha <- par.[f]
@@ -121,6 +124,9 @@ llnorMmix <- function(par., x, p, k,
 		sum(log(retval))},
 		# here transform back to log
 		# then sum over sample
+
+	# hereafter differences are difference in dimension in alpha and D.
+	# alpha / alpha[i] and D. / D.[,i]
 
 	"VII" = {alpha <- par.[f:f2]
 		for (i in 1:k) {
@@ -160,6 +166,12 @@ llnorMmix <- function(par., x, p, k,
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
+
+	# here start the non-diagonal cases. main difference is the use
+	# of backsolve() to calculate x^t Sigma^-1 x, works as follows:
+	# assume Sigma = L D L^t, then Sigma^-1 = (L^t)^-1 D^-1 L^-1
+	# y = L^-1 x  => x^t Sigma^-1 x = y^t D^-1 y
+	# y = backsolve(L., x)
 
 	"EEE" = {alpha <- par.[f]
 		D. <- par.[f1.1:f11]
@@ -217,9 +229,18 @@ retval
 }
 
 
-
-
-
+#' log-likelihood function relying on mvtnorm function
+#'
+#' \code{llmvtnorm} returns scalar value of log-likelihood
+#'
+#' @param par. parameter vector as calculated by nMm2par
+#' @param x matrix of samples
+#' @param p dimension of sample
+#' @param k number of cluster
+#' @param trafo transformation of weights
+#' @param model assumed model of the distribution
+#'
+#' @export
 llmvtnorm <- function(par., x, p, k,
 		      trafo=c("clr1","logit"),
 		      model=c("EII","VII","EEI","VEI","EEE",
