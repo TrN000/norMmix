@@ -166,9 +166,8 @@ llnorMmix <- function(par., x, p, k,
 		L. <- diag(1,p)
 		L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
 		for (i in 1:k) {
-			rss <- colSums((1/exp(alpha+D.))*backsolve(L.,(x-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha+D.))*backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
-			print(sum(log(retval)))
 		}
 		sum(log(retval))},
 
@@ -177,29 +176,29 @@ llnorMmix <- function(par., x, p, k,
 		L. <- diag(1,p)
 		L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
 		for (i in 1:k) {
-			rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
 
 	"EVV" = {alpha <- par.[f]
 		D. <- matrix(par.[f1.1:f12],p,k)
-		L.temp <- matrix(par.[f12.1:f121],p*(p-1),k)
+		L.temp <- matrix(par.[f12.1:f121],p*(p-1)/2,k)
 		for (i in 1:k) {
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-			rss <- colSums((1/exp(alpha+D.[i]))*backsolve(L., (x-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
 		sum(log(retval))},
 
 	"VVV" = {alpha <- par.[f:f2]
 		D. <- matrix(par.[f2.1:f22],p,k)
-		L.temp <- matrix(par.[f22.1:f221],p*(p-1),k)
+		L.temp <- matrix(par.[f22.1:f221],p*(p-1)/2,k)
 		for (i in 1:k) {
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-			rss <- colSums((1/exp(alpha[i]+D.[,i]))*backsolve(L., (x-mu[,i]))^2)
+			rss <- colSums((1/exp(alpha[i]+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
 			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
 		sum(log(retval))},
@@ -249,7 +248,6 @@ llmvtnorm <- function(par., x, p, k,
 
 	for (i in 1:k) {
 		y <- y + w[i]*mvtnorm::dmvnorm(x,mean=mu[,i],sigma=sig[,,i])
-		print(sum(log(y)))
 	}
 
 

@@ -197,5 +197,5 @@ rnorMmix <- function(
 	nj <- rmultinom(n=1, size=n, prob=weight)
 #	a <- matrix(unlist(lapply( seq(along=nj), function(j)mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) )), ncol=p, byrow=TRUE)
 	## this approach doesnt work matrices arent concatenated properly
-	a <- do.call( rbind,lapply( seq(along=nj),function(j)MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
+	a <- do.call( rbind,lapply( seq(along=nj), function(j) MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
 }
