@@ -26,7 +26,7 @@ MW2nm2 <- norMmix(
 		  name = "#2 skewed",
 		  mu = cbind( c(0,0), c(0.5,0), c(13/12,0)),
 		  Sigma = c(1, (2/3), (5/9)),
-		  weight = c(.2, .2, .6),
+		  weight = c(.6, .2, .2),
 		  model = "VII"
 		  )
 
@@ -105,7 +105,7 @@ MW212 <- norMmix(
 MW213 <- norMmix(
 		name = "#13 test VVV",
 		weight = c(0.5, 0.5),
-		mu = cbind( c(0,0), c(3,3) ),
+		mu = cbind( c(0,0), c(30,30) ),
 		Sigma = array(c( 1,3,3,11, 3,6,6,13 ),c(2,2,2)),
 		model = "VVV"
 		)

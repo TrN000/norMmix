@@ -345,7 +345,14 @@ par2nMm <- function(par., p, k,
 	)
 
 
-	list( weight=w, mu=mu, Sigma=Sigma, k=k, dim=p )
+	name <- sprintf("model = %s , clusters = %s", model, k)
+
+
+	structure(
+		  name = name,
+		  class = "norMmix",
+		  list( mu=mu, Sigma=Sigma, weight=w, k=k, dim=p , model=model)
+		  )
 
 }
 

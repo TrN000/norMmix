@@ -66,7 +66,6 @@ norMmixMLE <- function(
 	par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
 
 	print(nMm.temp)
-	print(sum(nMm.temp$w))
 	# 3.
 
 	# define function to optimize as negative log-lik

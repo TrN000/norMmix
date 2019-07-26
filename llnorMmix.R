@@ -43,7 +43,7 @@ llnorMmix <- function(par., x, p, k,
 	# 1. san check
 
 	stopifnot( (ncol(x)==p || nrow(x)==p) )
-	if (ncol(x)==p && nrow(x)!=p) x <- t(x)
+	if (ncol(x)==p && nrow(x)!=p) x <- t(x) # should give error
 
 	# 2. transform
 
@@ -104,24 +104,26 @@ llnorMmix <- function(par., x, p, k,
 
 
 	# initialize return value
-	retval <- 0
+	invl <- 0
 
 	# calculate log-lik, see first case for explanation
 	retval <- switch(model,
 		
-	"EII" = {alpha <- par.[f]
+	"EII" = {
+		alpha <- par.[f]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha))*(x-mu[,i])^2)
 			# this is vector of length n=sample size
 			# calculates (x-mu)t * Sigma^-1 * (x-mu) for diagonal
 			# cases.
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
-			# adds likelihood of one component to retval
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			# adds likelihood of one component to invl
 			# the formula in exp() is the log of likelihood
 			# still of length n,
 			# here we implicitly sum over components
 		}
-		sum(log(retval))},
+		sum(log(invl))
+		},
 		# here transform back to log
 		# then sum over sample
 
@@ -131,41 +133,41 @@ llnorMmix <- function(par., x, p, k,
 	"VII" = {alpha <- par.[f:f2]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha[i]))*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*p*(alpha[i]+l2pi)-0.5*rss)
+			invl <- invl+w[i]*exp(-0.5*p*(alpha[i]+l2pi)-0.5*rss)
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"EEI" = {alpha <- par.[f]
 		D. <- par.[f1.1:f11]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha+D.))*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"VEI" = {alpha <- par.[f:f2]
 		D. <- par.[f2.1:f21]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha[i]+D.))*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"EVI" = {alpha <- par.[f]
 		D. <- matrix(par.[f1.1:f12],p,k)
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha+D.[,i]))*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"VVI" = {alpha <- par.[f:f2]
 		D. <- matrix(par.[f2.1:f22],p,k)
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha[i]+D.[,i]))*(x-mu[,i])^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	# here start the non-diagonal cases. main difference is the use
 	# of backsolve() to calculate x^t Sigma^-1 x, works as follows:
@@ -179,9 +181,9 @@ llnorMmix <- function(par., x, p, k,
 		L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha+D.))*backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"VEE" = {alpha <- par.[f:f2]
 		D. <- par.[f2.1:f21]
@@ -189,9 +191,9 @@ llnorMmix <- function(par., x, p, k,
 		L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
 		for (i in 1:k) {
 			rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"EVV" = {alpha <- par.[f]
 		D. <- matrix(par.[f1.1:f12],p,k)
@@ -200,9 +202,9 @@ llnorMmix <- function(par., x, p, k,
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
 			rss <- colSums((1/exp(alpha+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 	"VVV" = {alpha <- par.[f:f2]
 		D. <- matrix(par.[f2.1:f22],p,k)
@@ -211,9 +213,9 @@ llnorMmix <- function(par., x, p, k,
 			L. <- diag(1,p)
 			L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
 			rss <- colSums((1/exp(alpha[i]+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
-			retval <- retval+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
+			invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
 		}
-		sum(log(retval))},
+		sum(log(invl))},
 
 
 

@@ -117,6 +117,8 @@ norMmix <- function(
 	if (missing(model)) {model <- "VVV"}
 	else {model <- match.arg(model)}
 
+	name <- sprintf("model = %s , clusters = %s", model, k)
+
 	structure( name = name,
 		  class = "norMmix",
 		  .Data = list(mu = mu , Sigma = Sigma, weight = weight,
@@ -170,8 +172,8 @@ mean.norMmix <- function(obj){
 ### rnorMmix
 
 rnorMmix <- function(
-		     obj,
-		     n = 511
+		     n = 511,
+		     obj
 	  )
 {
 
@@ -198,4 +200,67 @@ rnorMmix <- function(
 #	a <- matrix(unlist(lapply( seq(along=nj), function(j)mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) )), ncol=p, byrow=TRUE)
 	## this approach doesnt work matrices arent concatenated properly
 	a <- do.call( rbind,lapply( seq(along=nj), function(j) MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
+}
+
+
+
+
+
+
+plot2d.norMmix <- function(nMm, lty="l")
+{
+	w <- nMm$weight
+	mu <- nMm$mu
+	sig <- nMm$Sigma
+	k <- nMm$k
+
+	ddd <- 0
+
+	for (i in 1:k) {
+		ddd  <- rbind(ddd, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE))
+	}
+
+	xlim <- c(min(ddd[,1]), max(ddd[,1]))
+	ylim <- c(min(ddd[,2]), max(ddd[,2]))
+
+	diffx <- abs(xlim[1]-xlim[2])*0.05
+	diffy <- abs(ylim[1]-ylim[2])*0.05
+
+	xlim <- c(min(ddd[,1])-diffx, max(ddd[,1])+diffx)
+	ylim <- c(min(ddd[,2])-diffy, max(ddd[,2])+diffy)
+
+	alpha <- apply(sig,3, det)
+
+	
+
+	plot.new()
+	plot.window(xlim=xlim, ylim=ylim)
+
+	if ( !require("car") ) {
+		for (i in 1:k) {
+			mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type="l")
+		}
+	} else {
+		for (i in 1:k) {
+			car::ellipse(mu[,i], sig[,,i], alpha[i], fill=TRUE, fill.alpha=w[i], center.pch=FALSE)
+		}
+	}
+
+	axis(1)
+	axis(2)
+	grid()
+
+	text( mu[1,], mu[2,], sprintf("mu %s", 1:k) )
+
+
+}
+
+
+
+
+plot.norMmix <- function(nMm, ... ) {
+
+	if (nMm$dim==2) plot2d.norMmix(nMm, ... )
+
+
 }
