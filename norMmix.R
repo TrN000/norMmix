@@ -7,27 +7,12 @@
 
 tole <- 1000*.Machine$double.eps
 
-# do I really need this many?
-library(abind) # can replace these with base function
-
-Shilf <- function(L, p){ # help function for norMmix
-	Shilfarray <- array(0, c(p,p,length(L)))
-	for (i in 1:length(L)){
-		Shilfarray[,,i] <- L[i]*diag(p)
-	}
-	return(Shilfarray)
-}
-
-
-
-
-
 
 
 
 hilf <- function(x, k){ # help function evals to true if x is sym pos def array
 	for (i in 1:k){
-		if ( !(isSymmetric(x[,,i], tol=tole)&& matrixcalc::is.positive.semi.definite(x[,,i],tol=tole)) )
+		if ( !(isSymmetric(as.matrix(x[,,i]), tol=tole)&& matrixcalc::is.positive.semi.definite(x[,,i],tol=tole)) )
 			stop("Sigma is not sym pos def")
 	}
 
@@ -55,7 +40,7 @@ hilf <- function(x, k){ # help function evals to true if x is sym pos def array
 
 norMmix <- function(
 		    mu,
-		    Sigma = abind( rep(list(diag(p)), k), along = 3),
+		    Sigma = NULL,
 		    weight = rep(1/k, k),
 		    name = NULL,
 		    model= c("EII","VII","EEI","VEI","EVI",
@@ -87,21 +72,23 @@ norMmix <- function(
 
 	# ispect mu 
 	if (!is.numeric(mu)) stop("'mu' must be numeric")
-	if (is.matrix(mu) == FALSE){
-		p <- 1
-		k <- length(mu)
-	} else {
+
+	if ( is.vector(mu) ){
+		k <- 1
+		p <- length(mu)
+	} else if ( is.matrix(mu) ) {
 		k <- ncol(mu)
 		p <- nrow(mu)
-	}
+	} else stop("mu is neither vector nor matrix")
+
 
 
 	#ispect Sigma
 	if (!is.numeric(Sigma)) stop("'Sigma' must be numeric")
 	if (is.vector(Sigma) && length(Sigma)==1)
-		Sigma <- abind( rep(list(Sigma*diag(p)), k), along = 3)
+		Sigma <- array( diag(Sigma,p), c(p,p,k) )
 	else if (is.vector(Sigma) && length(Sigma)==k)
-		Sigma <- Shilf(L=Sigma, p=p) 
+		Sigma <- array(unlist(lapply(Sigma, function(j) diag(j,p))), c(p,p,k))
 	else if (is.array(Sigma) && dim(Sigma) == c(p,p,k))
 		Sigma <- Sigma
 	else stop("'Sigma' not among recognized formats")
@@ -124,15 +111,6 @@ norMmix <- function(
 		  .Data = list(mu = mu , Sigma = Sigma, weight = weight,
 		  		k=k, dim=p, model=model)
 	)
-
-	#nMm <- list(mu = mu , Sigma = Sigma, weight = weight,
-	#	    k=k, dim=p, model=model)
-        #
-	#attr(nMm,"name") <- name
-        #
-	#class(nMm) <- "norMmix"
-
-
 
 }
 
@@ -207,17 +185,19 @@ rnorMmix <- function(
 
 
 
-plot2d.norMmix <- function(nMm, lty="l")
+plot2d.norMmix <- function(nMm, lty="l", newWindow=TRUE, col="red", npoints=250, carp=TRUE, fill=TRUE)
 {
 	w <- nMm$weight
 	mu <- nMm$mu
 	sig <- nMm$Sigma
 	k <- nMm$k
 
-	ddd <- 0
+	## calculate smart values for xlim, ylim
+
+	ddd <- vector()
 
 	for (i in 1:k) {
-		ddd  <- rbind(ddd, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE))
+		ddd  <- rbind(ddd, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
 	}
 
 	xlim <- c(min(ddd[,1]), max(ddd[,1]))
@@ -229,38 +209,91 @@ plot2d.norMmix <- function(nMm, lty="l")
 	xlim <- c(min(ddd[,1])-diffx, max(ddd[,1])+diffx)
 	ylim <- c(min(ddd[,2])-diffy, max(ddd[,2])+diffy)
 
-	alpha <- apply(sig,3, det)
 
+	## if newWindow draw canvas from scratch
 	
-
-	plot.new()
-	plot.window(xlim=xlim, ylim=ylim)
-
-	if ( !require("car") ) {
-		for (i in 1:k) {
-			mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type="l")
-		}
-	} else {
-		for (i in 1:k) {
-			car::ellipse(mu[,i], sig[,,i], alpha[i], fill=TRUE, fill.alpha=w[i], center.pch=FALSE)
-		}
+	if (newWindow) {
+		plot.new()
+		plot.window(xlim=xlim, ylim=ylim)
 	}
 
+	## add ellipses 
+
+	for (i in 1:k) {
+		x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type="l", col=col, npoints=npoints)
+		if (fill) polygon(x[,1], x[,2], col=rgb(1,0,0,w[i]))
+	}
+
+	## axes and grid
+		
 	axis(1)
 	axis(2)
 	grid()
 
-	text( mu[1,], mu[2,], sprintf("mu %s", 1:k) )
+	## label clusters
+	
+	text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
+
+
+	invisible(ddd)
+}
+
+
+#' plot function for norMmix objects
+#'
+#' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
+#'
+#' This is the S3 method for plotting norMmix objects. atm only 2 dimensional objects are supported.
+#'
+#' @examples
+#' plot(MW212) ; points(rnorMmix(n=500, MW212))
+#' @export
+
+plot.norMmix <- function(nMm, ... ) {
+
+	if (nMm$dim==2) plot2d.norMmix(nMm, ... )
+
+	else if (nMm$dim>2) warning("methods for more than 2 dim not yet done")
 
 
 }
 
 
 
+metric.norMmix <- function(n1,n2, type="2", matchby=c("mu")) {
 
-plot.norMmix <- function(nMm, ... ) {
+	stopifnot( is.norMmix(n1), is.norMmix(n2) )
+	stopifnot( isTRUE(all.equal(n1$k, n2$k)) )
 
-	if (nMm$dim==2) plot2d.norMmix(nMm, ... )
+	matchby <- match.arg(matchby)
 
+	k <- n1$k
+
+	# sort cluster to compare by difference in means
+
+	order. <- switch(matchby,
+
+		"mu" = {
+				order. <- vector()
+				m1 <- n1$mu
+				m2 <- n2$mu
+				for (i in 1:k) {
+					diffmu <- apply((m1-m2[,i]),2,norm,type=type)
+					order.[i] <-  which.min(diffmu)
+				}
+				order.
+			},
+
+		stop("error in matchby statement")
+		)
+
+
+	deltamu <- apply(m1-m2[,order.],2,norm,type=type)
+
+	deltasig <- apply(n1$Sigma-n2$Sigma[,,order.],3,norm,type=type)
+
+	deltaweight <- n1$weight - n2$weight[order.]
+
+	list(order.=order., deltamu=deltamu, deltasig=deltasig, deltaweight=deltaweight)
 
 }

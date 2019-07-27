@@ -110,6 +110,15 @@ MW213 <- norMmix(
 		model = "VVV"
 		)
 
+MW31 <- norMmix(
+		name = "#1 3d EII",
+		weight = 1,
+		mu = c(0,0,0),
+		Sigma = c(1),
+		model = "EII"
+		)
+
+
 
 
 n2m <- function(obj) nMm2par(obj , trafo="clr1", obj$model)
