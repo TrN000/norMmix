@@ -185,7 +185,7 @@ rnorMmix <- function(
 
 
 
-plot2d.norMmix <- function(nMm, lty="l", newWindow=TRUE, col="red", npoints=250, carp=TRUE, fill=TRUE)
+plot2d.norMmix <- function(nMm,type="l", lty=2, newWindow=TRUE, col="red", npoints=250, carp=TRUE, fill=TRUE, fillcolor="red", bounds=0.05)
 {
 	w <- nMm$weight
 	mu <- nMm$mu
@@ -194,20 +194,20 @@ plot2d.norMmix <- function(nMm, lty="l", newWindow=TRUE, col="red", npoints=250,
 
 	## calculate smart values for xlim, ylim
 
-	ddd <- vector()
+	ellipsecoords <- vector()
 
 	for (i in 1:k) {
-		ddd  <- rbind(ddd, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
+		ellipsecoords  <- rbind(ellipsecoords, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
 	}
 
-	xlim <- c(min(ddd[,1]), max(ddd[,1]))
-	ylim <- c(min(ddd[,2]), max(ddd[,2]))
+	xlim <- c(min(ellipsecoords[,1]), max(ellipsecoords[,1]))
+	ylim <- c(min(ellipsecoords[,2]), max(ellipsecoords[,2]))
 
-	diffx <- abs(xlim[1]-xlim[2])*0.05
-	diffy <- abs(ylim[1]-ylim[2])*0.05
+	diffx <- abs(xlim[1]-xlim[2])*bounds
+	diffy <- abs(ylim[1]-ylim[2])*bounds
 
-	xlim <- c(min(ddd[,1])-diffx, max(ddd[,1])+diffx)
-	ylim <- c(min(ddd[,2])-diffy, max(ddd[,2])+diffy)
+	xlim <- c(min(ellipsecoords[,1])-diffx, max(ellipsecoords[,1])+diffx)
+	ylim <- c(min(ellipsecoords[,2])-diffy, max(ellipsecoords[,2])+diffy)
 
 
 	## if newWindow draw canvas from scratch
@@ -217,11 +217,15 @@ plot2d.norMmix <- function(nMm, lty="l", newWindow=TRUE, col="red", npoints=250,
 		plot.window(xlim=xlim, ylim=ylim)
 	}
 
+	## determine fill color
+
+	fco <- c(col2rgb(fillcolor)/255,(w[i]*0.8+0.1))
+
 	## add ellipses 
 
 	for (i in 1:k) {
-		x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type="l", col=col, npoints=npoints)
-		if (fill) polygon(x[,1], x[,2], col=rgb(1,0,0,w[i]))
+		x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type=type, lty=lty, col=col, npoints=npoints)
+		if (fill) polygon(x[,1], x[,2], col=rgb(red=fco[1],green=fco[2],blue=fco[3],alpha=fco[4]), border= NA )
 	}
 
 	## axes and grid
@@ -235,7 +239,7 @@ plot2d.norMmix <- function(nMm, lty="l", newWindow=TRUE, col="red", npoints=250,
 	text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
 
 
-	invisible(ddd)
+	invisible(ellipsecoords)
 }
 
 
@@ -260,7 +264,7 @@ plot.norMmix <- function(nMm, ... ) {
 
 
 
-metric.norMmix <- function(n1,n2, type="2", matchby=c("mu")) {
+metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
 
 	stopifnot( is.norMmix(n1), is.norMmix(n2) )
 	stopifnot( isTRUE(all.equal(n1$k, n2$k)) )
@@ -272,6 +276,8 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu")) {
 	# sort cluster to compare by difference in means
 
 	order. <- switch(matchby,
+
+		"id" = 1:k,
 
 		"mu" = {
 				order. <- vector()
