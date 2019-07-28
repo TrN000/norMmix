@@ -108,7 +108,7 @@ nMm2par <- function(obj,
 
 		"VVI" = {alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
 			D.temp <- apply(sig,3,diag)
-			D. <- D.temp %*% diag(1/alpha) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
+			D. <- D.temp %*% diag(1/alpha,k) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
 			c(log(alpha),log(D.))},
 
 		"EEE" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
@@ -126,7 +126,7 @@ nMm2par <- function(obj,
 
 		"VVV" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
 			D.temp <- apply(sig,3, function(j) ldl(j)$Diag)
-			D. <- D.temp %*% diag(1/alpha)
+			D. <- D.temp %*% diag(1/alpha,k)
 			L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
 			c(log(alpha), log(D.), L.)},
 
@@ -278,7 +278,7 @@ par2nMm <- function(par., p, k,
 
 		 D.temp <- matrix(par.[f2.1:f22],p,k)
 
-		 D. <- D.temp %*% diag(lambda)
+		 D. <- D.temp %*% diag(lambda,k)
 
 		 sig <- array( apply(D.,2, diag), c(p,p,k)) },
 
@@ -330,7 +330,7 @@ par2nMm <- function(par., p, k,
 
 		 D.temp <- matrix(par.[f2.1:f22],p,k)
 
-		 D. <- D.temp %*% diag(lambda)
+		 D. <- D.temp %*% diag(lambda,k)
 
 		 f3 <- (p*(p-1)/2)
 

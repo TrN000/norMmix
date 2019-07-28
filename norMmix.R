@@ -185,7 +185,9 @@ rnorMmix <- function(
 
 
 
-plot2d.norMmix <- function(nMm,type="l", lty=2, newWindow=TRUE, col="red", npoints=250, carp=TRUE, fill=TRUE, fillcolor="red", bounds=0.05)
+plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
+			   type="l", lty=2, newWindow=TRUE, npoints=250, 
+			   col="red",  fill=TRUE, fillcolor="red")
 {
 	w <- nMm$weight
 	mu <- nMm$mu
@@ -196,18 +198,30 @@ plot2d.norMmix <- function(nMm,type="l", lty=2, newWindow=TRUE, col="red", npoin
 
 	ellipsecoords <- vector()
 
-	for (i in 1:k) {
-		ellipsecoords  <- rbind(ellipsecoords, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
+	if ( is.null(xlim) || is.null(ylim) ) {
+		for (i in 1:k) {
+			ellipsecoords  <- rbind(ellipsecoords, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
+		}
 	}
 
-	xlim <- c(min(ellipsecoords[,1]), max(ellipsecoords[,1]))
-	ylim <- c(min(ellipsecoords[,2]), max(ellipsecoords[,2]))
+	xbounds <- 0
+	ybounds <- 0
 
-	diffx <- abs(xlim[1]-xlim[2])*bounds
-	diffy <- abs(ylim[1]-ylim[2])*bounds
+	if (is.null(xlim)) {
+		xlim <- c(min(ellipsecoords[,1]), max(ellipsecoords[,1]))
+		xbounds <- bounds
+	}
 
-	xlim <- c(min(ellipsecoords[,1])-diffx, max(ellipsecoords[,1])+diffx)
-	ylim <- c(min(ellipsecoords[,2])-diffy, max(ellipsecoords[,2])+diffy)
+	if (is.null(ylim)) {
+		ylim <- c(min(ellipsecoords[,2]), max(ellipsecoords[,2]))
+		ybounds <- bounds
+	}
+
+	diffx <- abs(xlim[1]-xlim[2])*xbounds
+	diffy <- abs(ylim[1]-ylim[2])*ybounds
+
+	xlim <- c(xlim[1]-diffx, xlim[2]+diffx)
+	ylim <- c(ylim[1]-diffy, ylim[2]+diffy)
 
 
 	## if newWindow draw canvas from scratch
@@ -300,6 +314,16 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
 
 	deltaweight <- n1$weight - n2$weight[order.]
 
-	list(order.=order., deltamu=deltamu, deltasig=deltasig, deltaweight=deltaweight)
+	## some penalty value
+
+	p <- n1$dim
+
+	pmu <- sqrt(deltamu^2)/(p*k)
+	psig <- sqrt(deltasig^2)/(p*p*k)
+	pweight <- sqrt(deltaweight^2)/k
+
+	penalty <- sum( pmu+psig+pweight )
+
+	list(order.=order., deltamu=deltamu, deltasig=deltasig, deltaweight=deltaweight, penalty=penalty)
 
 }

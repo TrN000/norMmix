@@ -23,12 +23,11 @@
 #' 
 #' @export
 norMmixMLE <- function(
-		       x,
-		       p,
-		       k,
+		       x, p, k,
 		       trafo = c("clr1", "logit"),
 		       model = c("EII","VII","EEI","VEI","EVI",
-				 "VVI","EEE","VEE","EVV","VVV")
+				 "VVI","EEE","VEE","EVV","VVV"),
+		       maxiter=100, trace=2, tol=sqrt(.Machine$double.eps)
 		       ) {
 	
 	# 1. san check call
@@ -38,7 +37,6 @@ norMmixMLE <- function(
 
 
 	# 1.
-
 	trafo <- match.arg(trafo)
 	model <- match.arg(model)
 
@@ -50,9 +48,7 @@ norMmixMLE <- function(
 	#init tau??
 
 	clus <- cluster::clara(x=x, k)
-
 	index <- clus$clustering
-
 	tau <- matrix(0,n,k)
 	tau[cbind(1:n,index)] <- 1
 
@@ -61,11 +57,10 @@ norMmixMLE <- function(
 
 	# one m-step
 	nMm.temp <- mstep.nMm(x, tau, mu, Sigma, weight, k, p)
-
 	# create par. vector out of m-step
 	par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
+	
 
-	print(nMm.temp)
 	# 3.
 
 	# define function to optimize as negative log-lik
@@ -74,13 +69,10 @@ norMmixMLE <- function(
 		-llmvtnorm(par.,x=x,p=p,k=k,trafo=trafo,model=model)
 		}
 
-	maxiter <- 100
-	tol <- sqrt(.Machine$double.eps)
-	trace <- 2
+	control <- list(maxit=maxiter, reltol = tol,
+                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace))
 
-	optr <- optim(par., neglogl, method = "BFGS", control =
-                list(maxit=maxiter, reltol = tol,
-                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace)))
+	optr <- optim(par., neglogl, method = "BFGS", control=control)
 
 
 
@@ -88,5 +80,5 @@ norMmixMLE <- function(
 
 	nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
 
-	nMm
+	ret <- list(norMmix=nMm, optr=optr)
 }
