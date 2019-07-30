@@ -30,7 +30,8 @@ hilf <- function(x, k){ # help function evals to true if x is sym pos def array
 #'
 #'
 #'
-#' @param mu matrix of means
+#' @param mu matrix of means. should mu be a vector it will assume k=1
+#' to circumvent this behavoiur use as.matrix(mu) beforehand
 #' @param Sigma array of covariance matrices
 #' @param weight weights of mixture model components
 #' @param name gives the option of naming mixture
@@ -76,6 +77,7 @@ norMmix <- function(
 	if ( is.vector(mu) ){
 		k <- 1
 		p <- length(mu)
+		as.matrix(mu)
 	} else if ( is.matrix(mu) ) {
 		k <- ncol(mu)
 		p <- nrow(mu)
@@ -179,6 +181,30 @@ rnorMmix <- function(
 	## this approach doesnt work matrices arent concatenated properly
 	a <- do.call( rbind,lapply( seq(along=nj), function(j) MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
 }
+
+
+dnorMmix <- function(x, nMm) {
+
+	is.norMmix(nMm)
+
+	p <- nMm$dim
+	k <- nMm$k
+
+	if (is.vector(x)) stopifnot(length(x)==p)
+	if (is.matrix(x)) stopifnot(ncol(x)==p)
+
+	ret <- 0
+
+	for (i in 1:k) {
+		ret <- ret + nMm$weight[i]*mvtnorm::dmvnorm(x, mean=nMm$mu[,i], sigma=nMm$Sigma[,,i])
+	}
+
+	ret
+}
+
+
+
+	
 
 
 

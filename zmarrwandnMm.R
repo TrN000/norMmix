@@ -113,7 +113,7 @@ MW213 <- norMmix(
 MW31 <- norMmix(
 		name = "#1 3d EII",
 		weight = 1,
-		mu = c(0,0,0),
+		mu = as.matrix(c(0,0,0)),
 		Sigma = c(1),
 		model = "EII"
 		)
@@ -122,35 +122,4 @@ MW31 <- norMmix(
 
 
 n2m <- function(obj) nMm2par(obj , trafo="clr1", obj$model)
-
-par210 <- n2m(MW210)
-par211 <- n2m(MW211)
-par212 <- n2m(MW212)
-par213 <- n2m(MW213)
-par26 <- n2m(MW26)
-par27 <- n2m(MW27)
-par28 <- n2m(MW28)
-par29 <- n2m(MW29)
-par2nm1 <- n2m(MW2nm1)
-par2nm1.2 <- n2m(MW2nm1.2)
-par2nm2 <- n2m(MW2nm2)
-par2nm4 <- n2m(MW2nm4)
-par2nm5 <- n2m(MW2nm5)
-
-
 ln2m <- function(obj) nMm2par(obj , trafo="logit", obj$model)
-
-
-lpar210 <- ln2m(MW210)
-lpar211 <- ln2m(MW211)
-lpar212 <- ln2m(MW212)
-lpar213 <- ln2m(MW213)
-lpar26 <- ln2m(MW26)
-lpar27 <- ln2m(MW27)
-lpar28 <- ln2m(MW28)
-lpar29 <- ln2m(MW29)
-lpar2nm1 <- ln2m(MW2nm1)
-lpar2nm1.2 <- ln2m(MW2nm1.2)
-lpar2nm2 <- ln2m(MW2nm2)
-lpar2nm4 <- ln2m(MW2nm4)
-lpar2nm5 <- ln2m(MW2nm5)

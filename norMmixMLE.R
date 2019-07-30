@@ -59,6 +59,9 @@ norMmixMLE <- function(
 	nMm.temp <- mstep.nMm(x, tau, mu, Sigma, weight, k, p)
 	# create par. vector out of m-step
 	par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
+
+	#degrees of freedom
+	parlen <- length(par.)
 	
 
 	# 3.
@@ -74,11 +77,12 @@ norMmixMLE <- function(
 
 	optr <- optim(par., neglogl, method = "BFGS", control=control)
 
+	optr$value <- -optr$value
 
 
 	# 4.
 
 	nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
 
-	ret <- list(norMmix=nMm, optr=optr)
+	ret <- list(norMmix=nMm, optr=optr, parlen=parlen)
 }
