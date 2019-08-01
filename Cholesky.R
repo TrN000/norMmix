@@ -3,22 +3,22 @@
 
 ldl <- function(mat){
 
-	stopifnot( is.matrix(mat)&&is.numeric(mat)&&nrow(mat)==ncol(mat) )
+    stopifnot( is.matrix(mat)&&is.numeric(mat)&&nrow(mat)==ncol(mat) )
 
-	n <- ncol(mat)
-	Diag <- rep(0,n)
-	L <- matrix(0,n,n)
-	mat.copy <- mat
+    n <- ncol(mat)
+    Diag <- rep(0,n)
+    L <- matrix(0,n,n)
+    mat.copy <- mat
 
-	for (i in 1:n){
-		Diag[i] <- mat[i,i]
-		L[,i] <- mat[,i]/Diag[i]
-		mat <- mat - Diag[i]*tcrossprod(L[,i],L[,i])
-		mat[,i] <- rep(0,n)
-		mat[i,] <- rep(0,n)
-	}
+    for (i in 1:n){
+        Diag[i] <- mat[i,i]
+        L[,i] <- mat[,i]/Diag[i]
+        mat <- mat - Diag[i]*tcrossprod(L[,i],L[,i])
+        mat[,i] <- rep(0,n)
+        mat[i,] <- rep(0,n)
+    }
 
-	list(L=L, Diag=Diag)
+    list(L=L, Diag=Diag)
 }
 
 
