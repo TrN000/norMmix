@@ -21,11 +21,12 @@
 
 # M step
 
-mstep.nMm <- function( x, tau, mu, Sigma, weighti, k ,p){
+mstep.nMm <- function( x, tau, k){
     
     if (!is.matrix(x)) stop("in mstep x is not matrix")
 
     n <- nrow(x)
+    p <- ncol(x)
 
     # x is n x p matrix
     # tau is n x k
@@ -47,7 +48,7 @@ mstep.nMm <- function( x, tau, mu, Sigma, weighti, k ,p){
 
     #mu
 
-    mu <- t(T2)/T1
+    mu <- t(T2)/rep(T1,each=p)
 
     #sigma
 
@@ -63,7 +64,7 @@ mstep.nMm <- function( x, tau, mu, Sigma, weighti, k ,p){
 
     ##return params
 
-    list(tau=tau, w=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
+    list(tau=tau, weight=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
 
 }
 

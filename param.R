@@ -103,7 +103,8 @@ nMm2par <- function(obj,
             c(log(alpha), log(D.))},
               
         "EVI" = {alpha <- log(prod(diag(sig[,,1]))^(1/p))
-            D. <- log(apply(sig,3,diag)) - alpha
+            D. <- log(apply(sig,3,diag))
+            D. <- apply(D.,2, function(j) j-sum(j)/p)
             c(alpha,D.)},
 
         "VVI" = {alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
@@ -120,7 +121,8 @@ nMm2par <- function(obj,
             c(log(alpha), log(A.$Diag/alpha[1]), ld.(A.$L))},
 
         "EVV" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
-            D. <- apply(sig,3, function(j) ldl(j)$Diag/alpha)
+            D. <- apply(sig,3, function(j) ldl(j)$Diag)
+            D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
             L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
             c(log(alpha), log(D.), L.)},
 
@@ -206,27 +208,39 @@ par2nMm <- function(par., p, k,
 
     par. <- switch(model,
 
-    "EII" = {par.[f] <- exp(par.[f])
-         par.},
+    "EII" = {
+        par.[f] <- exp(par.[f])
+        par.
+        },
 
-    "VII" = {par.[f:f2]<- exp(par.[f:f2])
-         par.},
+    "VII" = {
+        par.[f:f2]<- exp(par.[f:f2])
+        par.
+        },
 
     "EEI" = ,
-    "EEE" = {par.[f:f11] <- exp(par.[f:f11])
-         par.},
+    "EEE" = {
+        par.[f:f11] <- exp(par.[f:f11])
+        par.
+        },
 
     "VEI" = ,
-    "VEE" = {par.[f:f21] <- exp(par.[f:f21])
-         par.},
+    "VEE" = {
+        par.[f:f21] <- exp(par.[f:f21])
+        par.
+        },
 
     "EVI" = ,
-    "EVV" = {par.[f:f12] <- exp(par.[f:f12])
-         par.},
+    "EVV" = {
+        par.[f:f12] <- exp(par.[f:f12])
+        par.
+        },
 
     "VVI" = ,
-    "VVV" = {par.[f:f22] <- exp(par.[f:f22])
-         par.},
+    "VVV" = {
+        par.[f:f22] <- exp(par.[f:f22])
+        par.
+        },
 
     stop("Error in exp switch statement in par2nMm")
     )
@@ -262,16 +276,18 @@ par2nMm <- function(par., p, k,
         lambda <- par.[f]
 
         D.temp <- par.[f1.1:f11]
+        D. <- D.temp/(prod(D.temp)^(1/p))
 
-        sig <- array( rep(diag(lambda*D.temp),k), c(p,p,k) )
+        sig <- array( rep(diag(lambda*D.),k), c(p,p,k) )
         },
 
     "VEI" = {
         lambda <- par.[f:f2]
 
         D.temp <- par.[f2.1:f21]
+        D. <- D.temp/(prod(D.temp)^(1/p))
 
-        D. <- tcrossprod(D.temp,lambda)
+        D. <- tcrossprod(D.,lambda)
 
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
@@ -279,7 +295,8 @@ par2nMm <- function(par., p, k,
     "EVI" = {
         lambda <- par.[f]
 
-        D. <- matrix(par.[f1.1:f12],p,k)*lambda
+        D. <- apply(matrix(par.[f1.1:f12],p,k),2, function(j) j/(prod(j)^(1/p)))
+        D. <- D.*lambda
 
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
@@ -288,8 +305,9 @@ par2nMm <- function(par., p, k,
         lambda <- par.[f:f2]
 
         D.temp <- matrix(par.[f2.1:f22],p,k)
+        D. <- apply(D.temp,2, function(j) j/(prod(j)^(1/p)))
 
-        D. <- D.temp %*% diag(lambda,k)
+        D. <- D. %*% diag(lambda,k)
 
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
@@ -298,7 +316,8 @@ par2nMm <- function(par., p, k,
 
     "EEE" = {
         lambda <- par.[f]
-        D.temp <- par.[f1.1:f11]
+        D.temp <- par.[f1.1:f11]/(prod(par.[f1.1:f11])^(1/p))
+
         D. <- D.temp*lambda
 
         L. <- par.[f11.1:f111]
@@ -313,7 +332,7 @@ par2nMm <- function(par., p, k,
 
     "VEE" = {
         lambda <- par.[f:f2]
-        D.temp <- par.[f2.1:f21]
+        D.temp <- par.[f2.1:f21]/(prod(par.[f2.1:f21])^(1/p))
 
         D. <- tcrossprod(D.temp,lambda)
 
@@ -331,7 +350,7 @@ par2nMm <- function(par., p, k,
     "EVV" = {
         lambda <- par.[f]
 
-        D. <- matrix(par.[f1.1:f12],p,k) * lambda
+        D. <- apply(matrix(par.[f1.1:f12],p,k),2,function(j) j/(prod(j)^(1/p))) * lambda
 
         f3 <- (p*(p-1)/2)
 
@@ -347,7 +366,7 @@ par2nMm <- function(par., p, k,
     "VVV" = {
         lambda <- par.[f:f2]
 
-        D.temp <- matrix(par.[f2.1:f22],p,k)
+        D.temp <- apply(matrix(par.[f2.1:f22],p,k),2, function(j) j/(prod(j)^(1/p)))
 
         D. <- D.temp %*% diag(lambda,k)
 

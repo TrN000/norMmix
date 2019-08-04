@@ -38,13 +38,13 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),control=
         }
     }
 
-    indexb <- bic %in% sort(bic, decreasing=T)[1:3]
+    indexb <- bic %in% sort(bic, decreasing=FALSE)[1:3]
     topbic <- which(matrix(indexb, dim(bic)[1], dim(bic)[2]), arr.ind=T)
     topbic <- cbind(topbic, bic[topbic])
     topbic[,1] <- k[topbic[,1]]
     topbic[,2] <- m[topbic[,2]]
 
-    indexa <- aic %in% sort(aic, decreasing=T)[1:3]
+    indexa <- aic %in% sort(aic, decreasing=FALSE)[1:3]
     topaic <- which(matrix(indexa, dim(aic)[1], dim(aic)[2]), arr.ind=T)
     topaic <- cbind(topaic, aic[topaic])
     topaic[,1] <- k[topaic[,1]]
@@ -54,3 +54,21 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),control=
 
 }
 
+BIC.norMmixfit <- function(obj) {
+    stopifnot(inherits(obj, "norMmixfit"))
+    
+    parlen <- obj$parlen
+    n <- obj$n
+
+    bic <- parlen*log(n) - 2*obj$optr$value
+}
+
+AIC.norMmixfit <- function(obj) {
+    stopifnot(inherits(obj, "norMmixfit"))
+    
+    parlen <- obj$parlen
+
+    bic <- parlen*2 - 2*obj$optr$value
+}
+	
+    

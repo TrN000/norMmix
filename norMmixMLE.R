@@ -23,11 +23,12 @@
 #' 
 #' @export
 norMmixMLE <- function(
-               x, p, k,
+               x, k,
                trafo = c("clr1", "logit"),
                model = c("EII","VII","EEI","VEI","EVI",
                  "VVI","EEE","VEE","EVV","VVV"),
-               maxiter=100, trace=2, tol=sqrt(.Machine$double.eps)
+               maxiter=100, trace=2, tol=sqrt(.Machine$double.eps),
+	       ...
                ) {
     
     # 1. san check call
@@ -42,12 +43,13 @@ norMmixMLE <- function(
 
     stopifnot(is.numeric(x), is.numeric(k), (n <- nrow(x))>1)
 
+    p <- ncol(x)
     k <- as.integer(k)
     
 
     #init tau using clara
 
-    clus <- cluster::clara(x=x, k)
+    clus <- cluster::clara(x=x, k, rngR=T, pamLike=T)
     index <- clus$clustering
     tau <- matrix(0,n,k)
     tau[cbind(1:n,index)] <- 1
@@ -56,12 +58,12 @@ norMmixMLE <- function(
     # 2.
 
     # one m-step
-    nMm.temp <- mstep.nMm(x, tau, mu, Sigma, weight, k, p)
+    nMm.temp <- mstep.nMm(x, tau,k)
     # create par. vector out of m-step
-    par. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
+    initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
 
     #degrees of freedom
-    parlen <- length(par.)
+    parlen <- length(initpar.)
     
 
     # 3.
@@ -73,9 +75,10 @@ norMmixMLE <- function(
         }
 
     control <- list(maxit=maxiter, reltol = tol,
-                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace))
+                    trace=(trace > 0), REPORT= pmax(1, 10 %/% trace),
+    		    ...)
 
-    optr <- optim(par., neglogl, method = "BFGS", control=control)
+    optr <- optim(initpar., neglogl, method = "BFGS", control=control)
 
     optr$value <- -optr$value
 
@@ -84,5 +87,10 @@ norMmixMLE <- function(
 
     nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
 
-    ret <- list(norMmix=nMm, optr=optr, parlen=parlen)
+    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, mstep=nMm.temp, ini=initpar.)
+
+
+    class(ret) <- "norMmixfit"
+
+    return(ret)
 }
