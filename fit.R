@@ -4,7 +4,7 @@
 
 
 
-fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),control=NULL) {
+fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
     stopifnot(is.numeric(x))
     stopifnot(is.vector(models), length(models)<=10, 
           isTRUE(all(models<=10)), isTRUE(all(models>0)))
@@ -12,10 +12,6 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),control=
     p <- ncol(x)
 
     tr <- match.arg(trafo)
-
-    if (is.null(control)) {
-        mxit <- 100
-    }
 
     m <- c("EII","VII","EEI","VEI","EVI",
         "VVI","EEE","VEE","EVV","VVV")
@@ -32,7 +28,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),control=
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- norMmixMLE(x,p,k[j],trafo=tr,model=i, maxiter=mxit)
+            nMm <- norMmixMLE(x,k[j],trafo=tr,model=i,...)
             bic[j,i] <- nMm$parlen*log(n) - 2*nMm$optr$value
             aic[j,i] <- nMm$parlen*2 - 2*nMm$optr$value
         }

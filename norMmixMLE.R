@@ -27,6 +27,7 @@ norMmixMLE <- function(
                trafo = c("clr1", "logit"),
                model = c("EII","VII","EEI","VEI","EVI",
                  "VVI","EEE","VEE","EVV","VVV"),
+               ini=c("cla","mcl"),
                maxiter=100, trace=2, tol=sqrt(.Machine$double.eps),
 	       ...
                ) {
@@ -47,12 +48,29 @@ norMmixMLE <- function(
     k <- as.integer(k)
     
 
-    #init tau using clara
+    ## init tau
 
-    clus <- cluster::clara(x=x, k, rngR=T, pamLike=T)
-    index <- clus$clustering
-    tau <- matrix(0,n,k)
-    tau[cbind(1:n,index)] <- 1
+    tau <- switch(ini,
+
+    #init tau using clara
+        "cla" = {
+            clus <- cluster::clara(x=x, k, rngR=T, pamLike=T)
+            index <- clus$clustering
+            tau <- matrix(0,n,k)
+            tau[cbind(1:n,index)] <- 1
+            tau
+            },
+
+    # clustering using MBAhc from the mclust package
+        "mcl" = {
+            mclclus <- mclust::hcVVV(x)
+            mclindex <- mclust::hclass(mclclus, k)
+            mcltau <- matrix(0,n,k)
+            mcltau[cbind(1:n,mclindex)] <- 1
+            mcltau
+            }
+        )
+
 
 
     # 2.
