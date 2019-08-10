@@ -47,7 +47,7 @@ nMm2par <- function(obj,
             ){
 
     #transferring values of obj to handier variables
-    w <- obj$w
+    w <- obj$weight
     mu <- obj$mu
     sig <- obj$Sigma
     p <- obj$dim
@@ -93,44 +93,60 @@ nMm2par <- function(obj,
 
         "VII" = log(sig[1,1,]),
 
-        "EEI" = {D.temp <- diag(sig[,,1])
+        "EEI" = {
+            D.temp <- diag(sig[,,1])
             alpha <- log(prod(D.temp)^(1/p))
             D. <- log(D.temp) - alpha
-            c(alpha, D.)},
+            c(alpha, D.[-1])
+            },
 
-        "VEI" = {alpha <- (apply(sig,3,function(j) prod(diag(j))^(1/p)))
+        "VEI" = {
+            alpha <- (apply(sig,3,function(j) prod(diag(j))^(1/p)))
             D. <- (diag(sig[,,1]))/alpha[1]
-            c(log(alpha), log(D.))},
+            c(log(alpha), log(D.[-1]))
+            },
               
-        "EVI" = {alpha <- log(prod(diag(sig[,,1]))^(1/p))
+        "EVI" = {
+            alpha <- log(prod(diag(sig[,,1]))^(1/p))
             D. <- log(apply(sig,3,diag))
             D. <- apply(D.,2, function(j) j-sum(j)/p)
-            c(alpha,D.)},
+            c(alpha,D.[-1,])
+            },
 
-        "VVI" = {alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
+        "VVI" = {
+            alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
             D.temp <- apply(sig,3,diag)
             D. <- D.temp %*% diag(1/alpha,k) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
-            c(log(alpha),log(D.))},
+            c(log(alpha),log(D.[-1,]))
+            },
 
-        "EEE" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
+        "EEE" = {
+            alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
             A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$Diag/alpha), ld.(A.$L))},
+            c(log(alpha), log(A.$Diag/alpha)[-1], ld.(A.$L))
+            },
 
-        "VEE" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
+        "VEE" = {
+            alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
             A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$Diag/alpha[1]), ld.(A.$L))},
+            c(log(alpha), log(A.$Diag/alpha[1])[-1], ld.(A.$L))
+            },
 
-        "EVV" = {alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
+        "EVV" = {
+            alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
             D. <- apply(sig,3, function(j) ldl(j)$Diag)
             D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
             L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-            c(log(alpha), log(D.), L.)},
+            c(log(alpha), log(D.)[-1,], L.)
+            },
 
-        "VVV" = {alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
-            D.temp <- apply(sig,3, function(j) ldl(j)$Diag)
-            D. <- D.temp %*% diag(1/alpha,k)
+        "VVV" = {
+            alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
+            D. <- apply(sig,3, function(j) ldl(j)$Diag)
+            D. <- D. %*% diag(1/alpha,k)
             L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-            c(log(alpha), log(D.), L.)},
+            c(log(alpha), log(D.)[-1,], L.)
+            },
 
         stop("invalid argument in 'model'")
         )
@@ -188,10 +204,10 @@ par2nMm <- function(par., p, k,
     f1.1 <- f1 +1L #start of D. if alpha unif.
     f2.1 <- f1 + k # start of D. if alpha varialbe
 
-    f11 <- f1 + p # end of D. if D. uniform and alpha uniform
-    f12 <- f1 + p*k # end D. if D. var and alpha unif.
-    f21 <- f2 + p # end of D. if D. uniform and alpha variable
-    f22 <- f2 + p*k # end of D. if D.var and alpha var
+    f11 <- f1 + p -1 # end of D. if D. uniform and alpha uniform
+    f12 <- f1 + p*k -k # end D. if D. var and alpha unif.
+    f21 <- f2 + p -1 # end of D. if D. uniform and alpha variable
+    f22 <- f2 + p*k -k # end of D. if D.var and alpha var
 
     f11.1 <- f11 +1L # start of L if alpha unif D unif
     f21.1 <- f21 +1L # start of L if alpha var D unif
@@ -247,10 +263,11 @@ par2nMm <- function(par., p, k,
 
     if (k ==1) {w.temp <- vector()}
     else {w.temp <- par.[1:(k-1)]}
-    w <- switch(trafo,
-    "logit" = logitinv(w.temp),
 
-    "clr1" = clr1inv(w.temp), 
+    w <- switch(trafo,
+        "logit" = logitinv(w.temp),
+
+        "clr1" = clr1inv(w.temp), 
     )
 
     mu <- matrix(par.[k:(k+p*k-1)], p, k)
@@ -262,53 +279,46 @@ par2nMm <- function(par., p, k,
     # diagonal cases
     "EII" = {
         lambda <- par.[f]
-
         sig <- array( rep(diag(lambda, p),k), c(p,p,k) )
         },
 
     "VII" = {
         lambda <- par.[f:f2]
-
         sig <- array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k)) 
         },
 
     "EEI" = {
         lambda <- par.[f]
-
-        D.temp <- par.[f1.1:f11]
-        D. <- D.temp/(prod(D.temp)^(1/p))
-
+        D. <- par.[f1.1:f11]
+        D. <- c(1/prod(D.), D.)
+        D. <- D./(prod(D.)^(1/p))
         sig <- array( rep(diag(lambda*D.),k), c(p,p,k) )
         },
 
     "VEI" = {
         lambda <- par.[f:f2]
-
-        D.temp <- par.[f2.1:f21]
-        D. <- D.temp/(prod(D.temp)^(1/p))
-
+        D. <- par.[f2.1:f21]
+        D. <- c(1/prod(D.), D.)
+        D. <- D./(prod(D.)^(1/p))
         D. <- tcrossprod(D.,lambda)
-
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
 
     "EVI" = {
         lambda <- par.[f]
-
-        D. <- apply(matrix(par.[f1.1:f12],p,k),2, function(j) j/(prod(j)^(1/p)))
+        D. <- matrix(par.[f1.1:f12],p-1,k)
+        D. <- apply(D., 2, function(j) c(1/prod(j), j))
+        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
         D. <- D.*lambda
-
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
 
     "VVI" = {
         lambda <- par.[f:f2]
-
-        D.temp <- matrix(par.[f2.1:f22],p,k)
-        D. <- apply(D.temp,2, function(j) j/(prod(j)^(1/p)))
-
+        D. <- matrix(par.[f2.1:f22],p-1,k)
+        D. <- apply(D., 2, function(j) c(1/prod(j), j))
+        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
         D. <- D. %*% diag(lambda,k)
-
         sig <- array( apply(D.,2, diag), c(p,p,k)) 
         },
 
@@ -316,13 +326,12 @@ par2nMm <- function(par., p, k,
 
     "EEE" = {
         lambda <- par.[f]
-        D.temp <- par.[f1.1:f11]/(prod(par.[f1.1:f11])^(1/p))
-
-        D. <- D.temp*lambda
-
+        D. <- par.[f1.1:f11]
+        D. <- c(1/prod(D.), D.)
+        D. <- D./(prod(D.)^(1/p))
+        D. <- D.*lambda
         L. <- par.[f11.1:f111]
         A. <- dl.(D.,L.,p)
-
         sig <- array(0, c(p,p,k))
         for (i in 1:k){
             sig[,,i] <- A.
@@ -332,14 +341,12 @@ par2nMm <- function(par., p, k,
 
     "VEE" = {
         lambda <- par.[f:f2]
-        D.temp <- par.[f2.1:f21]/(prod(par.[f2.1:f21])^(1/p))
-
-        D. <- tcrossprod(D.temp,lambda)
-
+        D. <- par.[f2.1:f21]
+        D. <- c(1/prod(D.), D.)
+        D. <- D./(prod(D.)^(1/p))
+        D. <- tcrossprod(D.,lambda)
         f3 <- (p*(p-1)/2)
-
         L. <- par.[f21.1:f211]
-
         sig <- array(0, c(p,p,k))
         for (i in 1:k){
             sig[,,i] <- dl.(D.[,i],L.,p)
@@ -349,13 +356,11 @@ par2nMm <- function(par., p, k,
 
     "EVV" = {
         lambda <- par.[f]
-
-        D. <- apply(matrix(par.[f1.1:f12],p,k),2,function(j) j/(prod(j)^(1/p))) * lambda
-
+        D. <- matrix(par.[f1.1:f12],p-1,k)
+        D. <- apply(D., 2, function(j) c(1/prod(j), j))
+        D. <- apply(D.,2,function(j) j/(prod(j)^(1/p))) * lambda
         f3 <- (p*(p-1)/2)
-
         L.temp <- matrix(par.[f12.1:f121],f3,k)
-
         sig <- array(0, c(p,p,k))
         for (i in 1:k) {
             sig[,,i] <- dl.(D.[,i],L.temp[,i],p)
@@ -365,15 +370,12 @@ par2nMm <- function(par., p, k,
 
     "VVV" = {
         lambda <- par.[f:f2]
-
-        D.temp <- apply(matrix(par.[f2.1:f22],p,k),2, function(j) j/(prod(j)^(1/p)))
-
-        D. <- D.temp %*% diag(lambda,k)
-
+        D. <- matrix(par.[f2.1:f22],p-1,k)
+        D. <- apply(D., 2, function(j) c(1/prod(j), j))
+        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
+        D. <- D. %*% diag(lambda,k)
         f3 <- (p*(p-1)/2)
-
         L.temp <- matrix(par.[f22.1:f221],f3,k)
-
         sig <- array(0, c(p,p,k))
         for (i in 1:k) {
             sig[,,i] <- dl.(D.[,i],L.temp[,i],p)

@@ -92,10 +92,10 @@ llnorMmix <- function(par., x, p, k,
     f1.1 <- f1 +1L #start of D. if alpha unif.
     f2.1 <- f1 + k # start of D. if alpha varialbe
 
-    f11 <- f1 + p # end of D. if D. uniform and alpha uniform
-    f12 <- f1 + p*k # end D. if D. var and alpha unif.
-    f21 <- f2 + p # end of D. if D. uniform and alpha variable
-    f22 <- f2 + p*k # end of D. if D.var and alpha var
+    f11 <- f1 + p -1# end of D. if D. uniform and alpha uniform
+    f12 <- f1 + p*k -k# end D. if D. var and alpha unif.
+    f21 <- f2 + p -1# end of D. if D. uniform and alpha variable
+    f22 <- f2 + p*k -k# end of D. if D.var and alpha var
 
     f11.1 <- f11 +1L # start of L if alpha unif D unif
     f21.1 <- f21 +1L # start of L if alpha var D unif
@@ -147,8 +147,10 @@ llnorMmix <- function(par., x, p, k,
 
     "EEI" = {
         alpha <- par.[f]
-        D. <- par.[f1.1:f11]-sum(par.[f1.1:f11])/p
-	invD <- (1/exp(alpha+D.))
+        D. <- par.[f1.1:f11]
+        D. <- c(-sum(D.),D.)
+        D. <- D.-sum(D.)/p
+        invD <- (1/exp(alpha+D.))
         for (i in 1:k) {
             rss <- colSums(invD*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
@@ -158,7 +160,9 @@ llnorMmix <- function(par., x, p, k,
 
     "VEI" = {
         alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]-sum(par.[f2.1:f21])/p
+        D. <- par.[f2.1:f21]
+        D. <- c(-sum(D.), D.)
+        D. <- D.-sum(D.)/p
         for (i in 1:k) {
             rss <- colSums((1/exp(alpha[i]+D.))*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
@@ -168,7 +172,8 @@ llnorMmix <- function(par., x, p, k,
 
     "EVI" = {
         alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p,k)
+        D. <- matrix(par.[f1.1:f12],p-1,k)
+        D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
             rss <- colSums((1/exp(alpha+D.[,i]))*(x-mu[,i])^2)
@@ -179,7 +184,8 @@ llnorMmix <- function(par., x, p, k,
 
     "VVI" = {
         alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p,k)
+        D. <- matrix(par.[f2.1:f22],p-1,k)
+        D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
             rss <- colSums((1/exp(alpha[i]+D.[,i]))*(x-mu[,i])^2)
@@ -196,7 +202,9 @@ llnorMmix <- function(par., x, p, k,
 
     "EEE" = {
         alpha <- par.[f]
-        D. <- par.[f1.1:f11]-sum(par.[f1.1:f11]/p)
+        D. <- par.[f1.1:f11]
+        D. <- c(-sum(D.), D.)
+        D. <- D.-sum(D./p)
         invD <- (1/exp(alpha+D.))
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
@@ -209,7 +217,9 @@ llnorMmix <- function(par., x, p, k,
 
     "VEE" = {
         alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]-sum(par.[f2.1:f21]/p)
+        D. <- par.[f2.1:f21]
+        D. <- c(-sum(D.), D.)
+        D. <- D.-sum(D./p)
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
         for (i in 1:k) {
@@ -221,8 +231,9 @@ llnorMmix <- function(par., x, p, k,
 
     "EVV" = {
         alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p,k)
-	D. <- apply(D.,2, function(j) j-sum(j)/p)
+        D. <- matrix(par.[f1.1:f12],p-1,k)
+        D. <- apply(D.,2, function(j) c(-sum(j), j))
+	    D. <- apply(D.,2, function(j) j-sum(j)/p)
         L.temp <- matrix(par.[f12.1:f121],p*(p-1)/2,k)
         for (i in 1:k) {
             L. <- diag(1,p)
@@ -235,13 +246,15 @@ llnorMmix <- function(par., x, p, k,
 
     "VVV" = {
         alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p,k)
-	D. <- apply(D.,2, function(j) j-sum(j)/p)
+        D. <- matrix(par.[f2.1:f22],p-1,k)
+        D. <- apply(D.,2, function(j) c(-sum(j), j))
+        D. <- apply(D.,2, function(j) j-sum(j)/p)
+        invalpha <- (1/exp(rep(alpha, each=p)+D.))
         L.temp <- matrix(par.[f22.1:f221],p*(p-1)/2,k)
+        L. <- diag(1,p)
         for (i in 1:k) {
-            L. <- diag(1,p)
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-            rss <- colSums((1/exp(alpha[i]+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
+            rss <- colSums(invalpha[,i]*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
         sum(log(invl))

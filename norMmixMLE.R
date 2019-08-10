@@ -29,6 +29,7 @@ norMmixMLE <- function(
                  "VVI","EEE","VEE","EVV","VVV"),
                ini=c("cla","mcl"),
                maxiter=100, trace=2, tol=sqrt(.Machine$double.eps),
+               samples=10,
 	       ...
                ) {
     
@@ -54,7 +55,7 @@ norMmixMLE <- function(
 
     #init tau using clara
         "cla" = {
-            clus <- cluster::clara(x=x, k, rngR=T, pamLike=T)
+            clus <- cluster::clara(x=x, k, rngR=T, pamLike=T, samples=samples)
             index <- clus$clustering
             tau <- matrix(0,n,k)
             tau[cbind(1:n,index)] <- 1
@@ -99,6 +100,7 @@ norMmixMLE <- function(
     optr <- optim(initpar., neglogl, method = "BFGS", control=control)
 
     optr$value <- -optr$value
+    ### should be changed
 
 
     # 4.
