@@ -213,8 +213,8 @@ dnorMmix <- function(x, nMm) {
 
 plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
                type="l", lty=2, newWindow=TRUE, npoints=250, 
-               col="red",  fill=TRUE, fillcolor="red")
-{
+               col="red",  fill=TRUE, fillcolor="red",
+	           ...) {
     w <- nMm$weight
     mu <- nMm$mu
     sig <- nMm$Sigma
@@ -250,12 +250,11 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     ylim <- c(ylim[1]-diffy, ylim[2]+diffy)
 
 
-    ## if newWindow draw canvas from scratch
-    
-    if (newWindow) {
-        plot.new()
-        plot.window(xlim=xlim, ylim=ylim)
-    }
+    ## whether to plot new
+
+    ifplot  <- vector("logical", k)
+
+    if (newWindow) ifplot[1] <- TRUE
 
     ## determine fill color
 
@@ -264,15 +263,9 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     ## add ellipses 
 
     for (i in 1:k) {
-        x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=TRUE, xlim=xlim, ylim=ylim,  type=type, lty=lty, col=col, npoints=npoints)
+        x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=ifplot[i], draw=TRUE, xlim=xlim, ylim=ylim,  type=type, lty=lty, col=col, npoints=npoints, ...)
         if (fill) polygon(x[,1], x[,2], col=rgb(red=fco[1],green=fco[2],blue=fco[3],alpha=fco[4]), border= NA )
     }
-
-    ## axes and grid
-        
-    axis(1)
-    axis(2)
-    grid()
 
     ## label clusters
     
@@ -280,6 +273,51 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
 
 
     invisible(ellipsecoords)
+}
+
+plotnd.norMmix <- function(nMm,npoints=300, ...) {
+    stopifnot( inherits(nMm, "norMmix") )
+
+    w <- nMm$weight
+    mu <- nMm$mu
+    sig <- nMm$Sigma
+    k <- nMm$k
+    p <- nMm$dim
+
+
+    ## get coords??
+
+    coord <- list()
+    coarr <- matrix(0,k*npoints,p)
+    corange <- list()
+
+    for (i in 1:k) {
+        r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
+        r <- apply(r,1, function(j) j/norm(j,"2"))
+        r <- sig[,,i]%*%r
+        r <- r+mu[,i]
+        r <- t(r)
+
+        coord[[i]] <- r # cant use chull yet, only works on planar coords
+        coarr[(1+(i-1)*npoints):(i*npoints),] <- r
+        corange[[i]] <- apply(r,2,range)
+    }
+
+    ploy <- function(x,y) {
+        s <- cbind(x,y)
+        points(x,y)
+        for (i in 1:k) {
+            polygon(s[chull(s[301:600,]),], col="red")
+        }
+    }
+
+    pairs(coarr, panel=ploy)
+
+#    polygon(r[chull(r[,c(1,2)]),c(1,2)],col="red")
+
+
+    invisible(coord)
+
 }
 
 
@@ -297,7 +335,7 @@ plot.norMmix <- function(nMm, ... ) {
 
     if (nMm$dim==2) plot2d.norMmix(nMm, ... )
 
-    else if (nMm$dim>2) warning("methods for more than 2 dim not yet done")
+    else if (nMm$dim>2) plotnd.norMmix(nMm, ...)
 
 
 }
