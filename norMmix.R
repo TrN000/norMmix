@@ -275,7 +275,8 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     invisible(ellipsecoords)
 }
 
-plotnd.norMmix <- function(nMm,npoints=300, ...) {
+plotnd.norMmix <- function(nMm,npoints=300, fillcolor="red",
+                           alpha=0.05, ...) {
     stopifnot( inherits(nMm, "norMmix") )
 
     w <- nMm$weight
@@ -283,6 +284,9 @@ plotnd.norMmix <- function(nMm,npoints=300, ...) {
     sig <- nMm$Sigma
     k <- nMm$k
     p <- nMm$dim
+
+
+    npoints <- npoints*p
 
 
     ## get coords??
@@ -294,6 +298,7 @@ plotnd.norMmix <- function(nMm,npoints=300, ...) {
     for (i in 1:k) {
         r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
         r <- apply(r,1, function(j) j/norm(j,"2"))
+        r <- r*sqrt(qchisq(1-alpha,2))
         r <- sig[,,i]%*%r
         r <- r+mu[,i]
         r <- t(r)
@@ -302,12 +307,26 @@ plotnd.norMmix <- function(nMm,npoints=300, ...) {
         coarr[(1+(i-1)*npoints):(i*npoints),] <- r
         corange[[i]] <- apply(r,2,range)
     }
+        
 
+    ## color
+    fco <- c(col2rgb(fillcolor)/255,(w[i]*0.8+0.1))
+    fco <- rgb(red=fco[1],green=fco[2],blue=fco[3],alpha=fco[4])
+    
     ploy <- function(x,y) {
-        s <- cbind(x,y)
-        points(x,y)
+        npoints <- eval.parent(npoints, n=2)
+        fco <- eval.parent(fco, n=2)
+        k <- eval.parent(k, n=2)
+        w <- eval.parent(w, n=2)
+
+        
+        xs <- matrix(x,npoints,k)
+        ys <- matrix(y,npoints,k)
+
+        #points(x,y)
         for (i in 1:k) {
-            polygon(s[chull(s[301:600,]),], col="red")
+            ss <- cbind(xs[,i],ys[,i])
+            polygon(ss[chull(ss),], col=fco)
         }
     }
 
