@@ -153,7 +153,9 @@ mean.norMmix <- function(obj){
 
 rnorMmix <- function(
              n = 511,
-             obj
+             obj,
+             index=FALSE,
+             sampling=FALSE
       )
 {
 
@@ -177,9 +179,21 @@ rnorMmix <- function(
     #need case n=1 distiction here
 
     nj <- rmultinom(n=1, size=n, prob=weight)
+
+    cl <- rep(1:length(weight), times=nj)
 #    a <- matrix(unlist(lapply( seq(along=nj), function(j)mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) )), ncol=p, byrow=TRUE)
     ## this approach doesnt work matrices arent concatenated properly
     a <- do.call( rbind,lapply( seq(along=nj), function(j) MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
+
+    if (index) {
+        a <- cbind(cl, a)
+    }
+
+    if (sampling) {
+        a <- a[sample(1:n),]
+    }
+
+    a
 }
 
 
