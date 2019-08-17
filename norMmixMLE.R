@@ -30,7 +30,7 @@ norMmixMLE <- function(
                ini=c("cla","mcl"),
                maxiter=100, trace=2, tol=sqrt(.Machine$double.eps),
                samples=10,
-	       ...
+    	       ...
                ) {
     
     # 1. san check call
