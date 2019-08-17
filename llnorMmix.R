@@ -14,26 +14,25 @@
 
 #' Log-likelihood of parameter vector given data
 #'
-#' \code{llnorMmix} returns scalar log-likelihood 
+#' \code{llnorMmix} returns scalar log-likelihood
 #'
 #'
 #' description
 #'
 #' @param par. parameter vector
 #' @param x sample matrix
-#' @param p dimension
 #' @param k number of clusters
 #' @param trafo either centered log ratio or logit
 #' @param model assumed distribution model of normal mixture
 #'
 #' @export
 
-llnorMmix <- function(par., x, p, k,
+llnorMmix <- function(par., x, k,
               trafo=c("clr1", "logit"),
               model=c("EII","VII","EEI","VEI","EVI",
                   "VVI","EEE","VEE","EVV","VVV")
-              ) {
-
+              )
+{
     # 1. sanity check on arguments
     # 2. transform par. to norMmix
     # 3. calculate log-lik
@@ -41,22 +40,19 @@ llnorMmix <- function(par., x, p, k,
 
 
     # 1. san check
-
+    stopifnot(is.matrix(x),
+              length(k <- as.integer(k)) == 1, k >= 1)
     p <- ncol(x)
-
-    x <- t(x)
+    x <- t(x) ## then only needed in   (x-mu[,i])^2  i=1..k
 
     # 2. transform
 
     trafo <- match.arg(trafo)
     model <- match.arg(model)
 
-
     l2pi <- log(2*pi)
 
     # 3. calc log-lik
-
-
 
     # get w
 
@@ -74,17 +70,14 @@ llnorMmix <- function(par., x, p, k,
             stop("error in w switch in llnorMmix")
             )
 
-    if (!(sum(w)==1)) return(-Inf)
-
-
-    # get mu
-
-    mu <- matrix(par.[k:(k+p*k-1)],p,k)
-
+    if (!(sum(w)==1)) return(-Inf) ## FIXME allow tolerance
 
     # start of relevant parameters:
 
     f <- k + p*k # weights -1 + means +1 => start of alpha
+
+    # get mu
+    mu <- matrix(par.[k:(f-1L)], p,k)
 
     f1 <- f # end of alpha if uniform
     f2 <- f+k-1L # end of alpha if var
@@ -108,15 +101,14 @@ llnorMmix <- function(par., x, p, k,
     f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
 
 
-    # initialize return value
+    # initialize f(x_i) i=1..n  vector of density values
     invl <- 0
 
     # calculate log-lik, see first case for explanation
-    retval <- switch(model,
-        
+    switch(model,
     "EII" = {
         alpha <- par.[f]
-        invalpha <- (1/exp(alpha))
+        invalpha <- exp(-alpha)# = 1/exp(alpha)
         for (i in 1:k) {
             rss <- colSums(invalpha*(x-mu[,i])^2)
             # this is vector of length n=sample size
@@ -125,14 +117,9 @@ llnorMmix <- function(par., x, p, k,
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
             # adds likelihood of one component to invl
             # the formula in exp() is the log of likelihood
-            # still of length n,
-            # here we implicitly sum over components
+            # still of length n
         }
-        sum(log(invl))
-        },
-        # here transform back to log
-        # then sum over sample
-
+    },
     # hereafter differences are difference in dimension in alpha and D.
     # alpha / alpha[i] and D. / D.[,i]
 
@@ -140,10 +127,9 @@ llnorMmix <- function(par., x, p, k,
         alpha <- par.[f:f2]
         for (i in 1:k) {
             rss <- colSums((1/exp(alpha[i]))*(x-mu[,i])^2)
-            invl <- invl+w[i]*exp(-0.5*p*(alpha[i]+l2pi)-0.5*rss)
+            invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "EEI" = {
         alpha <- par.[f]
@@ -155,8 +141,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums(invD*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "VEI" = {
         alpha <- par.[f:f2]
@@ -167,8 +152,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums((1/exp(alpha[i]+D.))*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "EVI" = {
         alpha <- par.[f]
@@ -179,8 +163,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums((1/exp(alpha+D.[,i]))*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "VVI" = {
         alpha <- par.[f:f2]
@@ -191,8 +174,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums((1/exp(alpha[i]+D.[,i]))*(x-mu[,i])^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     # here start the non-diagonal cases. main difference is the use
     # of backsolve() to calculate x^t Sigma^-1 x, works as follows:
@@ -212,8 +194,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums(invD*backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "VEE" = {
         alpha <- par.[f:f2]
@@ -226,8 +207,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "EVV" = {
         alpha <- par.[f]
@@ -241,8 +221,7 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums((1/exp(alpha+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
 
     "VVV" = {
         alpha <- par.[f:f2]
@@ -257,20 +236,12 @@ llnorMmix <- function(par., x, p, k,
             rss <- colSums(invalpha[,i]*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
-        sum(log(invl))
-        },
+    },
+    ## otherwise
+    stop("invalid model:", model))
 
-
-
-    stop("error in temp switch in llnorMmix")
-    )
-
-
-    retval
-
-
-
-
+    ## return  sum_{i=1}^n log( f(x_i) ) :
+    sum(log(invl))
 }
 
 
@@ -280,43 +251,33 @@ llnorMmix <- function(par., x, p, k,
 #'
 #' @param par. parameter vector as calculated by nMm2par
 #' @param x matrix of samples
-#' @param p dimension of sample
 #' @param k number of cluster
 #' @param trafo transformation of weights
 #' @param model assumed model of the distribution
 #'
 #' @export
-llmvtnorm <- function(par., x, p, k,
+llmvtnorm <- function(par., x, k,
               trafo=c("clr1","logit"),
               model=c("EII","VII","EEI","VEI","EEE",
                   "VEE","EVI","VVI","EVV","VVV")
-              ) {
+              )
+{
+    stopifnot(is.matrix(x),
+              length(k <- as.integer(k)) == 1, k >= 1)
+    trafo <- match.arg(trafo)
+    model <- match.arg(model)
+    p <- ncol(x)
 
-
-    p <- as.integer(p)
-    k <- as.integer(k)
-
-    tr <- match.arg(trafo)
-    mo <- match.arg(model)
-
-    if (ncol(x)!=p && nrow(x)==p) x <- t(x)
-
-
-
-    nmm <- par2nMm(par., p, k, trafo=tr, model=mo)
-
+    nmm <- par2nMm(par., p, k, trafo=trafo, model=model)
+    ## FIXME (speed!):  dmvnorm(*, sigma= S) will do a chol(S) for each component
+    ## -----  *instead* we already have LDL' and  chol(S) = sqrt(D) L' !!
+    ## another par2*() function should give L and D, or from that chol(Sagma), rather than Sigma !
     w <- nmm$w
     mu <- nmm$mu
     sig <- nmm$Sigma
-
-
     y <- 0
-
     for (i in 1:k) {
         y <- y + w[i]*mvtnorm::dmvnorm(x,mean=mu[,i],sigma=sig[,,i])
     }
-
-
     sum(log(y))
-
 }

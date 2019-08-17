@@ -5,13 +5,13 @@
 
 
 fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
-    stopifnot(is.numeric(x))
-    stopifnot(is.vector(models), length(models)<=10, 
-          isTRUE(all(models<=10)), isTRUE(all(models>0)))
+    stopifnot(is.numeric(x),
+              is.vector(models), length(models) <= 10,
+              0 < models, models <= 10)
     n <- nrow(x)
     p <- ncol(x)
 
-    tr <- match.arg(trafo)
+    trafo <- match.arg(trafo)
 
     m <- c("EII","VII","EEI","VEI","EVI",
         "VVI","EEE","VEE","EVV","VVV")
@@ -28,9 +28,9 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- norMmixMLE(x,k[j],trafo=tr,model=i,...)
+            nMm <- norMmixMLE(x, k[j], trafo=trafo, model=i, ...)
             bic[j,i] <- nMm$parlen*log(n) - 2*nMm$optr$value
-            aic[j,i] <- nMm$parlen*2 - 2*nMm$optr$value
+            aic[j,i] <- nMm$parlen* 2     - 2*nMm$optr$value
         }
     }
 
@@ -52,7 +52,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
 
 BIC.norMmixfit <- function(obj) {
     stopifnot(inherits(obj, "norMmixfit"))
-    
+
     parlen <- obj$parlen
     n <- obj$n
 
@@ -61,10 +61,8 @@ BIC.norMmixfit <- function(obj) {
 
 AIC.norMmixfit <- function(obj) {
     stopifnot(inherits(obj, "norMmixfit"))
-    
+
     parlen <- obj$parlen
 
     bic <- parlen*2 - 2*obj$optr$value
 }
-	
-    
