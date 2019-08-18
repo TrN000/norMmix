@@ -22,27 +22,64 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- tryCatch(norMmixMLE(x,k[j],trafo=tr,model=i,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
-            norMmixval[[paste0(j,i)]] <- nMm
+            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=tr,model=i,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
+            norMmixval[[paste0(i,j)]] <- nMm
         }
     }
 
-    ret <- list(nMm=norMmixval, k=k, models=m)
+    ret <- list(nMm=norMmixval, k=k, models=m, n=n)
     class(ret) <- c("fittednorMmix", "norMmix")
     ret
 
 }
 
-BIC.fittednorMmix <- function(obj) {
+logLik.fittednorMmix <- function(obj) {
     stopifnot(inherits(obj, "fittednorMmix"))
 
     k <- obj$k
     models <- obj$models
 
-    
 
+    val <- matrix(0, length(k), length(models))
+    rownames(val) <- k
+    colnames(val) <- models
+
+    for (i in k) {
+        for (j in models) {
+            val[i,j] <- obj$nMm[[paste0(j,i)]]$optr$value
+        }
+    }
+
+    val
+}
+
+
+BIC.fittednorMmix <- function(obj) {
+    stopifnot(inherits(obj, "fittednorMmix"))
+
+    n <- obj$n
+    k <- obj$k
+    models <- obj$models
+
+    parlen <- matrix(0, length(k), length(models))
+    rownames(parlen) <- k
+    colnames(parlen) <- models
+
+    for (i in k) {
+        for (j in models) {
+            parlen[i,j] <- obj$nMm[[paste0(j,i)]]$parlen
+        }
+    }
+
+    ll <- logLik.fittednorMmix(obj)
+
+    val <- parlen*log(n) - 2*ll
+
+    val
 
 }
+
+
 
 AIC.fittednorMmix <- function(obj) {
     stopifnot(inherits(obj, "fittednorMmix"))
