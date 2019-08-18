@@ -25,7 +25,7 @@ dl. <- function(d,x,p){
 #'
 #' This transformation forms a vector from the parameters of a normal
 #' mixture. These consist of weights, means and covariance matrices.
-#' Weights are transformed according to 'trafo' param; means are 
+#' Weights are transformed according to 'trafo' param; means are
 #' unchanged.
 #' Cov mats are given as D and L from the LDLt decomposition
 #'
@@ -40,7 +40,7 @@ dl. <- function(d,x,p){
 #'
 #' @export
 
-nMm2par <- function(obj, 
+nMm2par <- function(obj,
             trafo=c("clr1", "logit"),
             model=c("EII","VII","EEI","VEI","EVI",
                 "VVI","EEE","VEE","EVV","VVV")
@@ -60,7 +60,7 @@ nMm2par <- function(obj,
 
     # weights
 
-    stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k), 
+    stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k),
           is.numeric(w), is.finite(w) )
 
 
@@ -74,7 +74,7 @@ nMm2par <- function(obj,
 
     stopifnot( (dim(sig)==c(p,p,k)), (is.numeric(sig)),
           length(dim(sig))==3, is.array(sig) )
-    stopifnot( isTRUE( all( apply(sig,3, function(j) (ldl(j)$Diag >= 0 )))))
+    stopifnot( isTRUE( all( apply(sig,3, function(j) (ldl(j)$D >= 0 )))))
 
 
     #output vector of parameter values
@@ -105,7 +105,7 @@ nMm2par <- function(obj,
             D. <- (diag(sig[,,1]))/alpha[1]
             c(log(alpha), log(D.[-1]))
             },
-              
+
         "EVI" = {
             alpha <- log(prod(diag(sig[,,1]))^(1/p))
             D. <- log(apply(sig,3,diag))
@@ -114,35 +114,35 @@ nMm2par <- function(obj,
             },
 
         "VVI" = {
-            alpha <- apply(sig,3, function(j) det(j)^(1/p)) 
+            alpha <- apply(sig,3, function(j) det(j)^(1/p))
             D.temp <- apply(sig,3,diag)
             D. <- D.temp %*% diag(1/alpha,k) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
             c(log(alpha),log(D.[-1,]))
             },
 
         "EEE" = {
-            alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
+            alpha <- prod( ldl(sig[,,1])$D )^(1/p)
             A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$Diag/alpha)[-1], ld.(A.$L))
+            c(log(alpha), log(A.$D/alpha)[-1], ld.(A.$L))
             },
 
         "VEE" = {
-            alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
+            alpha <- apply(sig,3, function(j) prod(ldl(j)$D )^(1/p))
             A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$Diag/alpha[1])[-1], ld.(A.$L))
+            c(log(alpha), log(A.$D/alpha[1])[-1], ld.(A.$L))
             },
 
         "EVV" = {
-            alpha <- prod( ldl(sig[,,1])$Diag )^(1/p)
-            D. <- apply(sig,3, function(j) ldl(j)$Diag)
+            alpha <- prod( ldl(sig[,,1])$D )^(1/p)
+            D. <- apply(sig,3, function(j) ldl(j)$D)
             D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
             L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
             c(log(alpha), log(D.)[-1,], L.)
             },
 
         "VVV" = {
-            alpha <- apply(sig,3, function(j) prod(ldl(j)$Diag )^(1/p))
-            D. <- apply(sig,3, function(j) ldl(j)$Diag)
+            alpha <- apply(sig,3, function(j) prod(ldl(j)$D )^(1/p))
+            D. <- apply(sig,3, function(j) ldl(j)$D)
             D. <- D. %*% diag(1/alpha,k)
             L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
             c(log(alpha), log(D.)[-1,], L.)
@@ -159,9 +159,13 @@ nMm2par <- function(obj,
 #' \code{n2p} returns same as nMm2par with clr1
 #'
 #' @export
+#n2p <-
+## these were in ./zmarrwandnMm.R :
+#n2m <- # <- drop this name and rather use
+nc2p <- function(obj) nMm2par(obj , trafo="clr1",  obj$model)
 
-n2p <- function(obj) nMm2par(obj, trafo="clr1", model=obj$model)
-
+#ln2m <- # <- drop this, and rather use
+nl2p <- function(obj) nMm2par(obj , trafo="logit", obj$model)
 
 
 
@@ -176,23 +180,22 @@ n2p <- function(obj) nMm2par(obj, trafo="clr1", model=obj$model)
 #' @param par. numeric vector of parameters
 #' @param p dimension of space
 #' @param trafo either "clr1" or "logit"
-#' @param model See description 
-#' 
+#' @param model See description
+#'
 #' @return returns this list: list(weight=w, mu=mu, Sigma=Sigma, k=k, dim=p)
 #' @export
 
 par2nMm <- function(par., p, k,
-            trafo=c("clr1", "logit"),
-            model=c("EII","VII","EEI","VEI","EEE",
-                "VEE","EVI","VVI","EVV","VVV")
-            ) {
-
+            trafo = c("clr1", "logit"),
+            model = c("EII","VII","EEI","VEI","EEE",
+                    "VEE","EVI","VVI","EVV","VVV")
+            )
+{
     trafo <- match.arg(trafo)
     model <- match.arg(model)
 
     p <- as.integer(p)
     k <- as.integer(k)
-
 
     # start of relevant parameters:
 
@@ -221,110 +224,71 @@ par2nMm <- function(par., p, k,
 
     #only important ones are f1.2, f1.3, f2.2, f2.3
 
-
-    par. <- switch(model,
-
-    "EII" = {
-        par.[f] <- exp(par.[f])
-        par.
-        },
-
-    "VII" = {
-        par.[f:f2]<- exp(par.[f:f2])
-        par.
-        },
-
-    "EEI" = ,
-    "EEE" = {
-        par.[f:f11] <- exp(par.[f:f11])
-        par.
-        },
-
-    "VEI" = ,
-    "VEE" = {
-        par.[f:f21] <- exp(par.[f:f21])
-        par.
-        },
-
-    "EVI" = ,
-    "EVV" = {
-        par.[f:f12] <- exp(par.[f:f12])
-        par.
-        },
-
-    "VVI" = ,
-    "VVV" = {
-        par.[f:f22] <- exp(par.[f:f22])
-        par.
-        },
-
-    stop("Error in exp switch statement in par2nMm")
-    )
-
-    if (k ==1) {w.temp <- vector()}
-    else {w.temp <- par.[1:(k-1)]}
-
+    w.temp <- if(k==1) vector() else par.[1:(k-1)]
     w <- switch(trafo,
-        "logit" = logitinv(w.temp),
-
-        "clr1" = clr1inv(w.temp), 
-    )
+                "logit" = logitinv(w.temp),
+                "clr1"  = clr1inv (w.temp),
+                stop("invalid 'trafo'": trafo))
 
     mu <- matrix(par.[k:(k+p*k-1)], p, k)
 
-
+### FIXME: Alternatively, instead of Sigma, compute  chol(Sigma) = D^{1/2} L'  as Sigma = LDL'
 
     Sigma <- switch(model,
-
     # diagonal cases
     "EII" = {
-        lambda <- par.[f]
-        sig <- array( rep(diag(lambda, p),k), c(p,p,k) )
+        lambda <- exp(par.[f])
+        array( rep(diag(lambda, p),k), c(p,p,k) )
         },
 
     "VII" = {
-        lambda <- par.[f:f2]
-        sig <- array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k)) 
+        lambda <- exp(par.[f:f2])
+        array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k))
         },
 
     "EEI" = {
+        par.[f:f11] <- exp(par.[f:f11])
         lambda <- par.[f]
         D. <- par.[f1.1:f11]
         D. <- c(1/prod(D.), D.)
         D. <- D./(prod(D.)^(1/p))
-        sig <- array( rep(diag(lambda*D.),k), c(p,p,k) )
+        array( rep(diag(lambda*D.),k), c(p,p,k) )
         },
 
     "VEI" = {
+        par.[f:f21] <- exp(par.[f:f21])
         lambda <- par.[f:f2]
         D. <- par.[f2.1:f21]
         D. <- c(1/prod(D.), D.)
         D. <- D./(prod(D.)^(1/p))
         D. <- tcrossprod(D.,lambda)
-        sig <- array( apply(D.,2, diag), c(p,p,k)) 
+        array( apply(D.,2, diag), c(p,p,k))
         },
 
     "EVI" = {
+        par.[f:f12] <- exp(par.[f:f12])
         lambda <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(1/prod(j), j))
         D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
         D. <- D.*lambda
-        sig <- array( apply(D.,2, diag), c(p,p,k)) 
+        array( apply(D.,2, diag), c(p,p,k))
         },
 
     "VVI" = {
+        par.[f:f22] <- exp(par.[f:f22])
         lambda <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(1/prod(j), j))
         D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
         D. <- D. %*% diag(lambda,k)
-        sig <- array( apply(D.,2, diag), c(p,p,k)) 
+        array( apply(D.,2, diag), c(p,p,k))
         },
 
     # variable cases
 
     "EEE" = {
+        par.[f:f11] <- exp(par.[f:f11])
         lambda <- par.[f]
         D. <- par.[f1.1:f11]
         D. <- c(1/prod(D.), D.)
@@ -340,6 +304,7 @@ par2nMm <- function(par., p, k,
         },
 
     "VEE" = {
+        par.[f:f21] <- exp(par.[f:f21])
         lambda <- par.[f:f2]
         D. <- par.[f2.1:f21]
         D. <- c(1/prod(D.), D.)
@@ -355,6 +320,7 @@ par2nMm <- function(par., p, k,
         },
 
     "EVV" = {
+        par.[f:f12] <- exp(par.[f:f12])
         lambda <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(1/prod(j), j))
@@ -369,6 +335,7 @@ par2nMm <- function(par., p, k,
         },
 
     "VVV" = {
+        par.[f:f22] <- exp(par.[f:f22])
         lambda <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(1/prod(j), j))
@@ -384,16 +351,13 @@ par2nMm <- function(par., p, k,
     stop("error in Sigma switch statement")
     )
 
-
     name <- sprintf("model = %s , clusters = %s", model, k)
-
 
     structure(
         name = name,
         class = "norMmix",
         list( mu=mu, Sigma=Sigma, weight=w, k=k, dim=p , model=model)
         )
-
 }
 
 

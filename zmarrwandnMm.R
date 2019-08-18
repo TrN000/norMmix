@@ -10,7 +10,7 @@
 
 MW21 <- norMmix(
     name = "#1 gaussian",
-    mu = cbind( c(0,0)), 
+    mu = cbind( c(0,0)),
     Sigma = c(1),
     model = "EII"
     )
@@ -159,9 +159,3 @@ MW51 <- norMmix(
     Sigma = c(1),
     model = "EII"
     )
-
-
-
-
-n2m <- function(obj) nMm2par(obj , trafo="clr1", obj$model)
-ln2m <- function(obj) nMm2par(obj , trafo="logit", obj$model)

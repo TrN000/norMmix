@@ -1,22 +1,35 @@
 #### the extra m stands for multivariate
 
-
-
-
 ## norMmix constructor
 
-tole <- 1000*.Machine$double.eps
 
 
 
 
-hilf <- function(x, k){ # help function evals to true if x is sym pos def array
-    for (i in 1:k){
-        if ( !(isSymmetric(as.matrix(x[,,i]), tol=tole)&& matrixcalc::is.positive.semi.definite(x[,,i],tol=tole)) )
-            stop("Sigma is not sym pos def")
+## Auxiliary function evals to TRUE if x is sym pos def array, otherwise character string with msg
+okSigma <- function(Sig, tol1 = 1000*.Machine$double.eps, tol2 = 1e-10) {
+    if(!is.numeric(Sig) || !is.array(Sig) || length(d <- dim(Sig)) != 3)
+        "is not a numeric array of rank 3"
+    else if(prod(d) == 0)
+        "at least one of the dimensions is zero"
+    else { ## all d[.] >= 1
+        k <- d[[3]]
+        p <- d[[1]]
+        if(d[[2]] != p)
+            "Sigma matrix dimension is not square"
+        else {
+            for (i in 1:k) {
+                Si <- Sig[,,i]
+                if(!isSymmetric(Si, tol=tol1))
+                    return(paste0("Sigma[ , ,",i,"] is not symmetric"))
+                ## else
+                ev <- eigen(Si, only.values=TRUE)$values
+                if(any(ev < -tol2))
+                    return(paste0("Sigma[ , ,",i,"] is not positive semi-definite"))
+            }
+            TRUE
+        }
     }
-
-    return(TRUE)
 }
 
 
@@ -45,7 +58,7 @@ norMmix <- function(
             weight = rep(1/k, k),
             name = NULL,
             model= c("EII","VII","EEI","VEI","EVI",
-                 "VVI","EEE","VEE","EVV","VVV")
+                     "VVI","EEE","VEE","EVV","VVV")
             )
 {
     ## Purpose: constructor for 'norMmix' (multivariate normix)
@@ -58,7 +71,7 @@ norMmix <- function(
     ##        option 1: scalar, generates EII dist
     ##        option 2: vector of length k, generates VII
     ##            distribution
-    ##        option 3: array of dimension p x p x k. 
+    ##        option 3: array of dimension p x p x k.
     ##            covariance matrices of distributions
     ##    weight: vector of length k, sums to 1
     ##    name: name attribute
@@ -68,52 +81,40 @@ norMmix <- function(
     ## --------------------------------------------------------
     ## Author: nicolas trutmann, Date:2019-06-19
 
-    # p dimension 
-    # k number of components
+    stopifnot(is.numeric(mu))
+    if(!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
+    p <- nrow(mu) # p = dimension
+    k <- ncol(mu) # k = number of components
 
-    # ispect mu 
-    if (!is.numeric(mu)) stop("'mu' must be numeric")
+    dS <- c(p,p,k) # == dim(Sigma)
+    if(is.null(Sigma)) Sigma <- 1  # (option 0)
+    else stopifnot(is.numeric(Sigma))
+    isArr <- is.array(Sigma) # if not array, is also not matrix
+    if (!isArr && length(Sigma) == 1)
+        Sigma <- array(diag(Sigma,p), dS)
+    else if(!isArr && length(Sigma) == k)
+        Sigma <- array(vapply(Sigma, function(s) diag(s,p), diag(p)), dS)
+    else if(!(isArr && all(dim(Sigma) == c(p,p,k))))
+        stop("'Sigma' not among recognized formats")
+    if (!isTRUE(m <- okSigma(Sigma))) stop(m)
 
-    if ( is.vector(mu) ){
-        k <- 1
-        p <- length(mu)
-        as.matrix(mu)
-    } else if ( is.matrix(mu) ) {
-        k <- ncol(mu)
-        p <- nrow(mu)
-    } else stop("mu is neither vector nor matrix")
-
-
-
-    #ispect Sigma
-    if (!is.numeric(Sigma)) stop("'Sigma' must be numeric")
-    if (is.vector(Sigma) && length(Sigma)==1)
-        Sigma <- array( diag(Sigma,p), c(p,p,k) )
-    else if (is.vector(Sigma) && length(Sigma)==k)
-        Sigma <- array(unlist(lapply(Sigma, function(j) diag(j,p))), c(p,p,k))
-    else if (is.array(Sigma) && dim(Sigma) == c(p,p,k))
-        Sigma <- Sigma
-    else stop("'Sigma' not among recognized formats")
-    if (!hilf(Sigma,k)) stop("error with sym pos def Sigma")
-
-    #inspect weight
-    if (!is.numeric(weight)) stop("'weight' must be numeric")
-    if (! (is.vector(weight) && length(weight)==k) )
-        stop("weight is not of correct dimension")
-    if (!(all(weight >=0) && (sum(weight) - 1 < 1000*.Machine$double.eps)))
+    # inspect weight
+    stopifnot(is.numeric(weight))
+    if(length(weight) != k)
+        stop("weight is not of length k")
+    if (!(all(weight >= 0) && (abs(sum(weight) - 1) < 1000*.Machine$double.eps)))
         stop("weight doesn't sum to 1 or isn't positive")
 
-    if (missing(model)) {model <- "VVV"}
-    else {model <- match.arg(model)}
-
-    name <- sprintf("model = %s , clusters = %s", model, k)
-
-    structure( name = name,
-          class = "norMmix",
-          .Data = list(mu = mu , Sigma = Sigma, weight = weight,
-                  k=k, dim=p, model=model)
-    )
-
+    model <- if(missing(model)) "VVV" else match.arg(model)
+    if(is.null(name))
+        name <- sprintf("model \"%s\", G = %s", model, k)
+    structure(name = name,
+              class = "norMmix",
+              list(model = model,
+                   mu = mu, Sigma = Sigma, weight = weight
+                 , k = k  # == length(weight) == ncol(mu)
+                 , dim = p # == nrow(mu)
+                   ) )
 }
 
 
@@ -151,74 +152,55 @@ mean.norMmix <- function(obj){
 
 ### rnorMmix
 
-rnorMmix <- function(
-             n = 511,
-             obj,
-             index=FALSE,
-             sampling=FALSE
-      )
+rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
 {
 
     ## Purpose: generates random values distributed by NMD
     ## -------------------------------------------------------------------
     ## Arguments:
-    ##     obj: of type norMmix
-    ##    n: number of values desired
-           ## -------------------------------------------------------------------
-    ## Value: matrix, columns are vectors
+    ##    n: number of p-dimensional observations desired
+    ##  obj: of type norMmix
+    ## -------------------------------------------------------------------
+    ## Value: matrix  n x p (columns are vectors)
     ## -------------------------------------------------------------------
     ## Author: nicolas trutmann, Date:2019-06-21
 
-    if(!inherits(obj, "norMmix")) stop("'obj' must be of type norMmix")
+    if(!inherits(obj, "norMmix")) stop("argument must be of class \"norMmix\"")
 
     mu <- obj$mu
     Sigma <- obj$Sigma
     weight <- obj$weight
     p <- obj$dim
-
-    #need case n=1 distiction here
-
-    nj <- rmultinom(n=1, size=n, prob=weight)
-
-    cl <- rep(1:length(weight), times=nj)
-#    a <- matrix(unlist(lapply( seq(along=nj), function(j)mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) )), ncol=p, byrow=TRUE)
-    ## this approach doesnt work matrices arent concatenated properly
-    a <- do.call( rbind,lapply( seq(along=nj), function(j) MASS::mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j]) ))
-
+    nj <- rmultinom(n=1, size=n, prob = weight)
+### FIXME: again this does  chol(Sigma_j)  j = 1...k .. when actually we could've rather stored  chol(Sigma) instead of Sigma
+    a <- do.call(rbind,
+                 lapply(seq_along(nj), function(j) mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j])))
     if (index) {
+        cl <- rep(seq_along(weight), times=nj)
         a <- cbind(cl, a)
     }
-
-    if (sampling) {
-        a <- a[sample(1:n),]
-    }
-
-    a
+    if(permute)
+        a <- a[sample.int(n),]
+    else
+        a
 }
 
 
 dnorMmix <- function(x, nMm) {
-
-    is.norMmix(nMm)
-
-    p <- nMm$dim
-    k <- nMm$k
-
-    if (is.vector(x)) stopifnot(length(x)==p)
-    if (is.matrix(x)) stopifnot(ncol(x)==p)
-
+    stopifnot(is.norMmix(nMm), is.numeric(x),
+              length(p <- nMm$dim) == 1, p >= 1,
+              length(k <- nMm$ k ) == 1, k >= 1)
+    if(!is.matrix(x)) x <- as.matrix(x)
+    stopifnot(ncol(x) == p)
+    ## FIXME: Using dmvnorm() is slow as it needs to solve( Sigma_j ) for each  j = 1..k
     ret <- 0
-
     for (i in 1:k) {
         ret <- ret + nMm$weight[i]*mvtnorm::dmvnorm(x, mean=nMm$mu[,i], sigma=nMm$Sigma[,,i])
     }
-
     ret
 }
 
 
-
-    
 
 
 
@@ -226,7 +208,7 @@ dnorMmix <- function(x, nMm) {
 
 
 plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
-               type="l", lty=2, newWindow=TRUE, npoints=250, 
+               type="l", lty=2, newWindow=TRUE, npoints=250,
                col="red",  fill=TRUE, fillcolor="red",
 	           ...) {
     w <- nMm$weight
@@ -274,7 +256,7 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
 
     fco <- c(col2rgb(fillcolor)/255,(w[i]*0.8+0.1))
 
-    ## add ellipses 
+    ## add ellipses
 
     for (i in 1:k) {
         x <- mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=ifplot[i], draw=TRUE, xlim=xlim, ylim=ylim,  type=type, lty=lty, col=col, npoints=npoints, ...)
@@ -282,7 +264,7 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     }
 
     ## label clusters
-    
+
     text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
 
 
@@ -321,19 +303,19 @@ plotnd.norMmix <- function(nMm,npoints=300, fillcolor="red",
         coarr[(1+(i-1)*npoints):(i*npoints),] <- r
         corange[[i]] <- apply(r,2,range)
     }
-        
+
 
     ## color
     fco <- c(col2rgb(fillcolor)/255,(w[i]*0.8+0.1))
     fco <- rgb(red=fco[1],green=fco[2],blue=fco[3],alpha=fco[4])
-    
+
     ploy <- function(x,y) {
         npoints <- eval.parent(npoints, n=2)
         fco <- eval.parent(fco, n=2)
         k <- eval.parent(k, n=2)
         w <- eval.parent(w, n=2)
 
-        
+
         xs <- matrix(x,npoints,k)
         ys <- matrix(y,npoints,k)
 
@@ -358,19 +340,13 @@ plotnd.norMmix <- function(nMm,npoints=300, fillcolor="red",
 #'
 #' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 #'
-#' This is the S3 method for plotting norMmix objects. atm only 2 dimensional objects are supported.
-#'
-#' @examples
-#' plot(MW212) ; points(rnorMmix(n=500, MW212))
 #' @export
-
-plot.norMmix <- function(nMm, ... ) {
-
-    if (nMm$dim==2) plot2d.norMmix(nMm, ... )
-
-    else if (nMm$dim>2) plotnd.norMmix(nMm, ...)
-
-
+plot.norMmix <- function(x, ... ) {
+    stopifnot(is.list(x), length(p <- x$dim) == 1)
+    if (p == 2)
+        plot2d.norMmix(x, ... )
+    else ## if (p>2)
+        plotnd.norMmix(x, ...)
 }
 
 
@@ -378,7 +354,7 @@ plot.norMmix <- function(nMm, ... ) {
 metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
 
     stopifnot( is.norMmix(n1), is.norMmix(n2) )
-    stopifnot( isTRUE(all.equal(n1$k, n2$k)) )
+    stopifnot( all.equal(n1$k, n2$k) )
 
     matchby <- match.arg(matchby)
 

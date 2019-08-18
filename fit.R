@@ -5,16 +5,16 @@
 
 
 fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
-    stopifnot(is.numeric(x))
-    stopifnot(is.vector(models), length(models)<=10, 
-          isTRUE(all(models<=10)), isTRUE(all(models>0)))
+    stopifnot(is.numeric(x),
+              is.vector(models), length(models) <= 10,
+              0 < models, models <= 10)
     n <- nrow(x)
     p <- ncol(x)
 
-    tr <- match.arg(trafo)
+    trafo <- match.arg(trafo)
 
     m <- c("EII","VII","EEI","VEI","EVI",
-        "VVI","EEE","VEE","EVV","VVV")
+           "VVI","EEE","VEE","EVV","VVV")
     m <- m[models]
 
     norMmixval <- list()
@@ -22,7 +22,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=tr,model=i,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
+            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=trafo,model=i,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
             norMmixval[[paste0(i,j)]] <- nMm
         }
     }
@@ -78,12 +78,3 @@ BIC.fittednorMmix <- function(obj) {
     val
 
 }
-
-
-
-AIC.fittednorMmix <- function(obj) {
-    stopifnot(inherits(obj, "fittednorMmix"))
-    
-}
-	
-    
