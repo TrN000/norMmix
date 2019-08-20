@@ -75,6 +75,12 @@ BIC.fittednorMmix <- function(obj) {
 
     val <- parlen*log(n) - 2*ll
 
-    val
+    mi <- which.min(val)
+    mirow <- mi%%length(k)
+    micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
+
+    mindex <- c(k[mirow],models[micol])
+
+    list(val, best=mindex)
 
 }
