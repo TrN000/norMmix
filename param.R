@@ -362,3 +362,47 @@ par2nMm <- function(par., p, k,
 
 
 
+
+parcond <- function(x,
+                    k,
+                    model=c("EII","VII","EEI","VEI","EVI",
+                            "VVI","EEE","VEE","EVV","VVV")
+                    ) {
+
+    stopifnot(is.numeric(x), is.numeric(k))
+
+    model <- match.arg(model)
+
+    n <- nrow(x)
+    p <- ncol(x)
+
+    w <- k-1
+    mu <- p*k
+
+    sig <- switch(model,
+        
+        "EII" = 1,
+
+        "VII" = k,
+
+        "EEI" = 1+ (p-1),
+
+        "VEI" = k+ (p-1),
+
+        "EVI" = 1+ k*(p-1),
+
+        "VVI" = k+ k*(p-1),
+
+        "EEE" = 1+ (p-1)+ p(p-1)/2,
+
+        "VEE" = k+ (p-1)+ p(p-1)/2,
+
+        "EVV" = 1+ k*(p-1)+ k*p*(p-1)/2,
+
+        "VVV" = k+ k*(p-1)+ k*p*(p-1)/2
+        )
+
+    param <- w+mu+sig
+
+    n/param
+}
