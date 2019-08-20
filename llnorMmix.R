@@ -33,13 +33,6 @@ llnorMmix <- function(par., x, k,
                       "VVI","EEE","VEE","EVV","VVV")
               )
 {
-    # 1. sanity check on arguments
-    # 2. transform par. to norMmix
-    # 3. calculate log-lik
-    # 4. return log-lik
-
-
-    # 1. san check
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
     p <- ncol(x)

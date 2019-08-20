@@ -393,9 +393,9 @@ parcond <- function(x,
 
         "VVI" = k+ k*(p-1),
 
-        "EEE" = 1+ (p-1)+ p(p-1)/2,
+        "EEE" = 1+ (p-1)+ p*(p-1)/2,
 
-        "VEE" = k+ (p-1)+ p(p-1)/2,
+        "VEE" = k+ (p-1)+ p*(p-1)/2,
 
         "EVV" = 1+ k*(p-1)+ k*p*(p-1)/2,
 

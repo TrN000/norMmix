@@ -88,7 +88,7 @@ norMmixMLE <- function(
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- function(par.) {
-        -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model)
+        -llnorMmix(par.,x=x,k=k,trafo=trafo,model=model)
          ##-------  why use this one, and not llnorMmix() - the latter should be faster for larger p !!
         }
 
@@ -96,17 +96,16 @@ norMmixMLE <- function(
                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace),
     		    ...)
 
-    optr <- optim(initpar., neglogl, method = "BFGS", control=control)
+    optr <- optim(initpar., neglogl, method=method, control=control)
 
-    optr$value <- -optr$value
-    ### should be changed
 
 
     # 4.
 
     nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
+    cond <- parcond(x, k=k, model=model)
 
-    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, mstep=nMm.temp, ini=initpar.)
+    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, mstep=nMm.temp, ini=initpar., cond=cond)
 
 
     class(ret) <- "norMmixfit"
