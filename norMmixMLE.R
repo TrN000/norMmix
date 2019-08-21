@@ -30,6 +30,7 @@ norMmixMLE <- function(
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
                ini = c("clara", "mclVVV"),
+               ll = c("nmm", "mvt"),
                method = "BFGS", maxit = 100, trace = 2, reltol = sqrt(.Machine$double.eps),
                samples = 128,
                sampsize = ssClaraL,
@@ -87,10 +88,12 @@ norMmixMLE <- function(
 
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
-    neglogl <- function(par.) {
-        -llnorMmix(par.,x=x,k=k,trafo=trafo,model=model)
-         ##-------  why use this one, and not llnorMmix() - the latter should be faster for larger p !!
-        }
+    neglogl <- switch(ll,
+        "nmm" = function(par.) { -llnorMmix(par.,x=x,k=k,trafo=trafo,model=model) },
+
+        "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model) },
+
+        stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,
                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace),

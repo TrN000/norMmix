@@ -4,7 +4,7 @@
 
 
 
-fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
+fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("nmm", "mvt"),...) {
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
               0 < models, models <= 10)
@@ -22,7 +22,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),...) {
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=trafo,model=i,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
+            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=trafo,model=i,ll=ll,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
             norMmixval[[paste0(i,j)]] <- nMm
         }
     }
@@ -46,7 +46,8 @@ logLik.fittednorMmix <- function(obj) {
 
     for (i in k) {
         for (j in models) {
-            val[i,j] <- obj$nMm[[paste0(j,i)]]$optr$value
+            nm <- obj$nMm[[paste0(j,i)]]
+            val[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, -nm$optr$value)
         }
     }
 
@@ -67,7 +68,8 @@ BIC.fittednorMmix <- function(obj) {
 
     for (i in k) {
         for (j in models) {
-            parlen[i,j] <- obj$nMm[[paste0(j,i)]]$parlen
+            nm <- obj$nMm[[paste0(j,i)]]
+            parlen[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, nm$parlen)
         }
     }
 

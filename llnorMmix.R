@@ -63,7 +63,7 @@ llnorMmix <- function(par., x, k,
             stop("error in w switch in llnorMmix")
             )
 
-    if (!(sum(w)==1)) return(-Inf) ## FIXME allow tolerance
+#    if (!(sum(w)==1)) return(-Inf) ## FIXME allow tolerance
 
     # start of relevant parameters:
 
