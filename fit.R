@@ -34,11 +34,12 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("
 }
 
 logLik.fittednorMmix <- function(obj) {
+    ## returns log-likelihood of fittednorMmix object
+
     stopifnot(inherits(obj, "fittednorMmix"))
 
     k <- obj$k
     models <- obj$models
-
 
     val <- matrix(0, length(k), length(models))
     rownames(val) <- k
@@ -47,7 +48,28 @@ logLik.fittednorMmix <- function(obj) {
     for (i in k) {
         for (j in models) {
             nm <- obj$nMm[[paste0(j,i)]]
+            # need to catch errors, if nm is string return NA
             val[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, -nm$optr$value)
+        }
+    }
+
+    val
+}
+
+parlen <- function(obj) {
+    stopifnot(inherits(obj, "fittednorMmix"))
+    
+    k <- obj$k
+    models <- obj$models
+
+    val <- matrix(0, length(k), length(models))
+    rownames(val) <- k
+    colnames(val) <- models
+
+    for (i in k) {
+        for (j in models) {
+            nm <- obj$nMm[[paste0(j,i)]]
+            val[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, nm$parlen)
         }
     }
 
@@ -62,16 +84,7 @@ BIC.fittednorMmix <- function(obj) {
     k <- obj$k
     models <- obj$models
 
-    parlen <- matrix(0, length(k), length(models))
-    rownames(parlen) <- k
-    colnames(parlen) <- models
-
-    for (i in k) {
-        for (j in models) {
-            nm <- obj$nMm[[paste0(j,i)]]
-            parlen[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, nm$parlen)
-        }
-    }
+    parlen <- parlen(obj)
 
     ll <- logLik.fittednorMmix(obj)
 

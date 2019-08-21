@@ -35,8 +35,8 @@ llnorMmix <- function(par., x, k,
 {
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
-    p <- ncol(x)
-    x <- t(x) ## then only needed in   (x-mu[,i])^2  i=1..k
+    p <- nrow(x)
+#    x <- t(x) ## then only needed in   (x-mu[,i])^2  i=1..k
 
     # 2. transform
 

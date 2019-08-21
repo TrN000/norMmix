@@ -47,6 +47,7 @@ norMmixMLE <- function(
     # 1.
     trafo <- match.arg(trafo)
     model <- match.arg(model)
+    ll <- match.arg(ll)
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
     stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1, (n <- nrow(x)) > 1)
@@ -89,7 +90,7 @@ norMmixMLE <- function(
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
-        "nmm" = function(par.) { -llnorMmix(par.,x=x,k=k,trafo=trafo,model=model) },
+        "nmm" = function(par.) { -llnorMmix(par.,x=t(x),k=k,trafo=trafo,model=model) },
 
         "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model) },
 
