@@ -271,7 +271,7 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     invisible(ellipsecoords)
 }
 
-plotnd.norMmix <- function(nMm,npoints=300, fillcolor="red",
+plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
                            alpha=0.05, ...) {
     stopifnot( inherits(nMm, "norMmix") )
 
