@@ -79,8 +79,10 @@ norMmixMLE <- function(
     # one M-step  (TODO: mstep() could *depend* on 'model'; currently does "VVV")
     nMm.temp <- mstep.nMm(x, tau)
     # create par. vector out of m-step
-    initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model)
 
+    nMm.temp <- forcePositive(nMm.temp)
+
+    initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model, meanFUN=mean)
     #degrees of freedom
     parlen <- length(initpar.)
 
@@ -91,17 +93,13 @@ norMmixMLE <- function(
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
         "nmm" = function(par.) { -llnorMmix(par.,x=t(x),k=k,trafo=trafo,model=model) },
-
         "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model) },
-
         stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,
                     trace=(trace > 0), REPORT= pmax(1, 10 %/% trace),
     		    ...)
-
     optr <- optim(initpar., neglogl, method=method, control=control)
-
 
 
     # 4.
@@ -111,8 +109,6 @@ norMmixMLE <- function(
 
     ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, mstep=nMm.temp, ini=initpar., cond=cond)
 
-
     class(ret) <- "norMmixfit"
-
     return(ret)
 }

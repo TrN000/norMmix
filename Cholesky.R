@@ -21,6 +21,15 @@ ldl <- function(m) {
 }
 
 
+# inverse to ldl
+
+ldlinv <- function(D,L) {
+    p <- nrow(D)
+    A <- L %*% diag(D) %*% t(L)
+}
+
+
+
 #(L <- rbind(c(1,0,0), c(3,1,0), c(-4,5,1)))
 #D <- c(4,1,9)
 #FF <- L %*% diag(D) %*% t(L)

@@ -23,23 +23,18 @@
 mstep.nMm <- function(x, tau) {
 
     stopifnot(is.matrix(x), is.matrix(tau))
-    n <- nrow(x)
+    n <- nrow(x) # x   is  n x p matrix
     p <- ncol(x)
-    k <- ncol(tau)
-    ## x   is  n x p matrix
-    ## tau is  n x k
+    k <- ncol(tau) # tau is  n x k
     stopifnot(nrow(tau) == n)
 
     ## calculating T_i
-
-    T1 <- colSums(tau) # vec of length k
-
+    T1 <- colSums(tau) # vec of length k, integer sum, stable
     T2 <- t(tau) %*% x # matrix of size k x p
-
     T3 <- array(0, dim=c(p,p,k))
     for (i in 1:k){
         for (j in 1:n){
-        T3[,,i] <- T3[,,i] + tcrossprod((tau[j,i]* x[j,]),x[j,])
+        T3[,,i] <- T3[,,i] + tcrossprod((tau[j,i]* x[j,]),x[j,]) # could improve, since we know tau={0,1}^n*k
         }
     }
 
@@ -51,7 +46,6 @@ mstep.nMm <- function(x, tau) {
     #sigma
 
     Sigma <- array(0, c(p,p,k))
-
     for (i in 1:k){
         Sigma[,,i] <- ( T3[,,i] - T1[i]^(-1)*tcrossprod(T2[i,],T2[i,])) / T1[i]
     }
@@ -60,7 +54,9 @@ mstep.nMm <- function(x, tau) {
     weight <- T1/nrow(x)
 
     ##return params
-    list(weight=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
+#    list(weight=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
+
+    norMmix(mu=mu, Sigma=Sigma, weight=weight, model="VVV")
 
 }
 

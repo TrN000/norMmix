@@ -43,7 +43,8 @@ dl. <- function(d,x,p){
 nMm2par <- function(obj,
             trafo=c("clr1", "logit"),
             model=c("EII","VII","EEI","VEI","EVI",
-                "VVI","EEE","VEE","EVV","VVV")
+                "VVI","EEE","VEE","EVV","VVV"),
+            meanFUN= mean
             ){
 
     #transferring values of obj to handier variables
@@ -55,6 +56,8 @@ nMm2par <- function(obj,
 
     trafo <- match.arg(trafo)
     model <- match.arg(model)
+
+    av <- match.fun(meanFUN)
 
     ##checks
 
@@ -89,14 +92,21 @@ nMm2par <- function(obj,
             ),
       mu, #means
       Sigma <- switch(model, #model dependent covariance values
-        "EII" = log(sig[1,1,1]),
+        "EII" = {
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            av(log(D.))
+            },
 
-        "VII" = log(sig[1,1,]),
+        "VII" = {
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            apply(D.,2, function(j) av(log(j)))
+            },
 
         "EEI" = {
-            D.temp <- diag(sig[,,1])
-            alpha <- log(prod(D.temp)^(1/p))
-            D. <- log(D.temp) - alpha
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            D. <- apply(D.,1, function(j) av(log(j)))
+            alpha <- mean(D.)
+            D. <- D.-alpha
             c(alpha, D.[-1])
             },
 
@@ -116,7 +126,7 @@ nMm2par <- function(obj,
         "VVI" = {
             alpha <- apply(sig,3, function(j) det(j)^(1/p))
             D.temp <- apply(sig,3,diag)
-            D. <- D.temp %*% diag(1/alpha,k) # this is fastest?? https://stackoverflow.com/questions/20596433/how-to-divide-each-row-of-a-matrix-by-elements-of-a-vector-in-r
+            D. <- D.temp %*% diag(1/alpha,k)
             c(log(alpha),log(D.[-1,]))
             },
 
@@ -247,12 +257,11 @@ par2nMm <- function(par., p, k,
         },
 
     "EEI" = {
-        par.[f:f11] <- exp(par.[f:f11])
         lambda <- par.[f]
         D. <- par.[f1.1:f11]
-        D. <- c(1/prod(D.), D.)
-        D. <- D./(prod(D.)^(1/p))
-        array( rep(diag(lambda*D.),k), c(p,p,k) )
+        D. <- c(-sum(D.), D.)
+        D. <- D.-mean(D.)
+        array( rep(diag(exp(lambda+D.)),k), c(p,p,k) )
         },
 
     "VEI" = {

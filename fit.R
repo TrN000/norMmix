@@ -22,7 +22,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=trafo,model=i,ll=ll,...), error = function(e) paste("error",eval.parent(i,n=2),eval.parent(j,n=2)))
+            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],trafo=trafo,model=i,ll=ll,...), error = identity)
             norMmixval[[paste0(i,j)]] <- nMm
         }
     }
