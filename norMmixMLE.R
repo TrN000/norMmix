@@ -31,6 +31,7 @@ norMmixMLE <- function(
                          "VVI","EEE","VEE","EVV","VVV"),
                ini = c("clara", "mclVVV"),
                ll = c("nmm", "mvt"),
+               epsilon = 1e-10,
                method = "BFGS", maxit = 100, trace = 2, reltol = sqrt(.Machine$double.eps),
                samples = 128,
                sampsize = ssClaraL,
@@ -80,12 +81,11 @@ norMmixMLE <- function(
     nMm.temp <- mstep.nMm(x, tau)
     # create par. vector out of m-step
 
-    nMm.temp <- forcePositive(nMm.temp)
+    nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
 
     initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model, meanFUN=mean)
     #degrees of freedom
     parlen <- length(initpar.)
-
 
     # 3.
 

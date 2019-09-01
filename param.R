@@ -111,51 +111,64 @@ nMm2par <- function(obj,
             },
 
         "VEI" = {
-            alpha <- (apply(sig,3,function(j) prod(diag(j))^(1/p)))
-            D. <- (diag(sig[,,1]))/alpha[1]
-            c(log(alpha), log(D.[-1]))
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            alpha <- apply(D.,2, function(j) av(log(j)))
+            D. <- apply(D.,1, function(j) av(log(j)))
+            D. <- D.-mean(D.)
+            c(alpha, D.[-1])
             },
 
         "EVI" = {
-            alpha <- log(prod(diag(sig[,,1]))^(1/p))
-            D. <- log(apply(sig,3,diag))
-            D. <- apply(D.,2, function(j) j-sum(j)/p)
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            alpha <- av(log(D.))
+            D. <- log(D.)
+            D. <- apply(D.,2, function(j) j-av(j))
             c(alpha,D.[-1,])
             },
 
         "VVI" = {
-            alpha <- apply(sig,3, function(j) det(j)^(1/p))
-            D.temp <- apply(sig,3,diag)
-            D. <- D.temp %*% diag(1/alpha,k)
-            c(log(alpha),log(D.[-1,]))
+            D. <- apply(sig,3, function(j) ldl(j)$D)
+            alpha <- apply(D.,2, function(j) av(log(j)))
+            D. <- apply(D.,2, function(j) log(j)-av(log(j)))
+            c(alpha, D.[-1,])
             },
 
         "EEE" = {
-            alpha <- prod( ldl(sig[,,1])$D )^(1/p)
-            A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$D/alpha)[-1], ld.(A.$L))
+            D. <- apply(sig,3, function(j) log(ldl(j)$D))
+            D. <- apply(D.,1, av)
+            alpha <- av(D.)
+            D. <- D.-av(D.)
+            L. <- apply(sig,3, function(j) ld.(ldl(j)$L))
+            L. <- matrix(L., p*(p-1)/2, k)
+            L. <- apply(L.,1, function(j) av(j))
+            c(alpha, D.[-1], L.)
             },
 
         "VEE" = {
-            alpha <- apply(sig,3, function(j) prod(ldl(j)$D )^(1/p))
-            A. <- ldl(sig[,,1])
-            c(log(alpha), log(A.$D/alpha[1])[-1], ld.(A.$L))
+            D. <- apply(sig,3, function(j) log(ldl(j)$D) )
+            alpha <- apply(D.,2, av)
+            D. <- apply(D.,1, av)
+            D. <- D.-av(D.)
+            L. <- apply(sig,3, function(j) ld.(ldl(j)$L))
+            L. <- matrix(L., p*(p-1)/2, k)
+            L. <- apply(L.,1, av)
+            c(alpha, D.[-1], L.)
             },
 
         "EVV" = {
-            alpha <- prod( ldl(sig[,,1])$D )^(1/p)
-            D. <- apply(sig,3, function(j) ldl(j)$D)
-            D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
-            L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-            c(log(alpha), log(D.)[-1,], L.)
+            D. <- apply(sig,3, function(j) log(ldl(j)$D))
+            alpha <- av(D.)
+            D. <- apply(D.,2, function(j) j-av(j))
+            L. <- apply(sig,3, function(j) ld.(ldl(j)$L))
+            c(alpha, D.[-1,], L.)
             },
 
         "VVV" = {
-            alpha <- apply(sig,3, function(j) prod(ldl(j)$D )^(1/p))
-            D. <- apply(sig,3, function(j) ldl(j)$D)
-            D. <- D. %*% diag(1/alpha,k)
-            L. <- apply(sig,3, function(j) ld.( ldl(j)$L ))
-            c(log(alpha), log(D.)[-1,], L.)
+            D. <- apply(sig,3, function(j) log(ldl(j)$D))
+            alpha <- apply(D.,2, av)
+            D. <- apply(D.,2, function(j) j-av(j))
+            L. <- apply(sig,3, function(j) ld.(ldl(j)$L))
+            c(alpha, D.[-1,], L.)
             },
 
         stop("invalid argument in 'model'")
@@ -265,60 +278,48 @@ par2nMm <- function(par., p, k,
         },
 
     "VEI" = {
-        par.[f:f21] <- exp(par.[f:f21])
         lambda <- par.[f:f2]
         D. <- par.[f2.1:f21]
-        D. <- c(1/prod(D.), D.)
-        D. <- D./(prod(D.)^(1/p))
-        D. <- tcrossprod(D.,lambda)
+        D. <- c(-sum(D.), D.)
+        D. <- matrix(D.+rep(lambda, each=p), p, k)
+        D. <- exp(D.)
         array( apply(D.,2, diag), c(p,p,k))
         },
 
     "EVI" = {
-        par.[f:f12] <- exp(par.[f:f12])
         lambda <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
-        D. <- apply(D., 2, function(j) c(1/prod(j), j))
-        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
-        D. <- D.*lambda
+        D. <- apply(D., 2, function(j) c(-sum(j), j))
+        D. <- exp(D.+lambda)
         array( apply(D.,2, diag), c(p,p,k))
         },
 
     "VVI" = {
-        par.[f:f22] <- exp(par.[f:f22])
         lambda <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
-        D. <- apply(D., 2, function(j) c(1/prod(j), j))
-        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
-        D. <- D. %*% diag(lambda,k)
-        array( apply(D.,2, diag), c(p,p,k))
+        D. <- apply(D., 2, function(j) c(-sum(j), j))
+        D. <- exp(D.+rep(lambda, each=p))
+        array(apply(D.,2, diag), c(p,p,k))
         },
 
     # variable cases
 
     "EEE" = {
-        par.[f:f11] <- exp(par.[f:f11])
         lambda <- par.[f]
         D. <- par.[f1.1:f11]
-        D. <- c(1/prod(D.), D.)
-        D. <- D./(prod(D.)^(1/p))
-        D. <- D.*lambda
+        D. <- c(-sum(D.), D.)
+        D. <- exp(D.+lambda)
         L. <- par.[f11.1:f111]
         A. <- dl.(D.,L.,p)
-        sig <- array(0, c(p,p,k))
-        for (i in 1:k){
-            sig[,,i] <- A.
-        }
+        sig <- array(rep(A., times=k), c(p,p,k))
         sig
         },
 
     "VEE" = {
-        par.[f:f21] <- exp(par.[f:f21])
         lambda <- par.[f:f2]
         D. <- par.[f2.1:f21]
-        D. <- c(1/prod(D.), D.)
-        D. <- D./(prod(D.)^(1/p))
-        D. <- tcrossprod(D.,lambda)
+        D. <- c(-sum(D.), D.)
+        D. <- exp(matrix(D.+rep(lambda, each=p), p, k))
         f3 <- (p*(p-1)/2)
         L. <- par.[f21.1:f211]
         sig <- array(0, c(p,p,k))
@@ -329,11 +330,11 @@ par2nMm <- function(par., p, k,
         },
 
     "EVV" = {
-        par.[f:f12] <- exp(par.[f:f12])
+        #par.[f:f12] <- exp(par.[f:f12])
         lambda <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
-        D. <- apply(D., 2, function(j) c(1/prod(j), j))
-        D. <- apply(D.,2,function(j) j/(prod(j)^(1/p))) * lambda
+        D. <- apply(D., 2, function(j) c(-sum(j), j))
+        D. <- exp(D.+lambda)
         f3 <- (p*(p-1)/2)
         L.temp <- matrix(par.[f12.1:f121],f3,k)
         sig <- array(0, c(p,p,k))
@@ -344,12 +345,11 @@ par2nMm <- function(par., p, k,
         },
 
     "VVV" = {
-        par.[f:f22] <- exp(par.[f:f22])
+        #par.[f:f22] <- exp(par.[f:f22])
         lambda <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
-        D. <- apply(D., 2, function(j) c(1/prod(j), j))
-        D. <- apply(D.,2, function(j) j/(prod(j)^(1/p)))
-        D. <- D. %*% diag(lambda,k)
+        D. <- apply(D., 2, function(j) c(-sum(j), j))
+        D. <- exp(D.+rep(lambda,each=p))
         f3 <- (p*(p-1)/2)
         L.temp <- matrix(par.[f22.1:f221],f3,k)
         sig <- array(0, c(p,p,k))
@@ -372,22 +372,16 @@ par2nMm <- function(par., p, k,
 
 
 
-parcond <- function(x,
-                    k,
-                    model=c("EII","VII","EEI","VEI","EVI",
-                            "VVI","EEE","VEE","EVV","VVV")
-                    ) {
+parlen <- function(k,p,
+                   model=c("EII","VII","EEI","VEI","EVI",
+                           "VVI","EEE","VEE","EVV","VVV")
+                   ) {
 
-    stopifnot(is.numeric(x), is.numeric(k))
-
+    stopifnot(is.numeric(k), is.numeric(p))
     model <- match.arg(model)
-
-    n <- nrow(x)
-    p <- ncol(x)
 
     w <- k-1
     mu <- p*k
-
     sig <- switch(model,
         
         "EII" = 1,
@@ -412,6 +406,21 @@ parcond <- function(x,
         )
 
     param <- w+mu+sig
-
-    n/param
+    param
 }
+
+
+parcond <- function(x,
+                    k,
+                    model=c("EII","VII","EEI","VEI","EVI",
+                            "VVI","EEE","VEE","EVV","VVV")
+                    ) {
+
+    n <- nrow(x)
+    p <- ncol(x)
+    model <- match.arg(model)
+    pars <- parlen(k,p, model=model)
+
+    n/pars
+}
+                    

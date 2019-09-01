@@ -47,7 +47,7 @@ mstep.nMm <- function(x, tau) {
 
     Sigma <- array(0, c(p,p,k))
     for (i in 1:k){
-        Sigma[,,i] <- ( T3[,,i] - T1[i]^(-1)*tcrossprod(T2[i,],T2[i,])) / T1[i]
+        Sigma[,,i] <- ( T3[,,i] - tcrossprod(T2[i,],T2[i,])/T1[i]) / T1[i]
     }
 
     # weight

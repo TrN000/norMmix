@@ -1,4 +1,4 @@
-
+### plotting methods for norMmix objects
 
 
 plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
