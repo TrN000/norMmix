@@ -127,9 +127,9 @@ nMm2par <- function(obj,
             },
 
         "VVI" = {
-            D. <- apply(sig,3, function(j) ldl(j)$D)
-            alpha <- apply(D.,2, function(j) av(log(j)))
-            D. <- apply(D.,2, function(j) log(j)-av(log(j)))
+            D. <- apply(sig,3, function(j) log(ldl(j)$D))
+            alpha <- apply(D.,2, av)
+            D. <- apply(D.,2, function(j) j-av(j))
             c(alpha, D.[-1,])
             },
 

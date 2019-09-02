@@ -119,7 +119,7 @@ llnorMmix <- function(par., x, k,
     "VII" = {
         alpha <- par.[f:f2]
         for (i in 1:k) {
-            rss <- colSums((1/exp(alpha[i]))*(x-mu[,i])^2)
+            rss <- colSums((x-mu[,i])^2/exp(alpha[i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -129,9 +129,9 @@ llnorMmix <- function(par., x, k,
         D. <- par.[f1.1:f11]
         D. <- c(-sum(D.),D.)
         D. <- D.-sum(D.)/p
-        invD <- (1/exp(alpha+D.))
+        invD <- exp(alpha+D.)
         for (i in 1:k) {
-            rss <- colSums(invD*(x-mu[,i])^2)
+            rss <- colSums((x-mu[,i])^2/invD)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -142,7 +142,7 @@ llnorMmix <- function(par., x, k,
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D.)/p
         for (i in 1:k) {
-            rss <- colSums((1/exp(alpha[i]+D.))*(x-mu[,i])^2)
+            rss <- colSums((x-mu[,i])^2/exp(alpha[i]+D.))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -153,7 +153,7 @@ llnorMmix <- function(par., x, k,
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
-            rss <- colSums((1/exp(alpha+D.[,i]))*(x-mu[,i])^2)
+            rss <- colSums((x-mu[,i])^2/exp(alpha+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -164,7 +164,7 @@ llnorMmix <- function(par., x, k,
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
-            rss <- colSums((1/exp(alpha[i]+D.[,i]))*(x-mu[,i])^2)
+            rss <- colSums((x-mu[,i])^2/exp(alpha[i]+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -180,11 +180,11 @@ llnorMmix <- function(par., x, k,
         D. <- par.[f1.1:f11]
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D./p)
-        invD <- (1/exp(alpha+D.))
+        invD <- exp(alpha+D.)
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
         for (i in 1:k) {
-            rss <- colSums(invD*backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2)
+            rss <- colSums(backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2/invD)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -197,7 +197,7 @@ llnorMmix <- function(par., x, k,
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
         for (i in 1:k) {
-            rss <- colSums((1/exp(alpha[i]+D.))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
+            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/exp(alpha[i]+D.))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -211,7 +211,7 @@ llnorMmix <- function(par., x, k,
         for (i in 1:k) {
             L. <- diag(1,p)
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-            rss <- colSums((1/exp(alpha+D.[,i]))*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
+            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/exp(alpha+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -221,12 +221,12 @@ llnorMmix <- function(par., x, k,
         D. <- matrix(par.[f2.1:f22],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
-        invalpha <- (1/exp(rep(alpha, each=p)+D.))
+        invalpha <- exp(rep(alpha, each=p)+D.)
         L.temp <- matrix(par.[f22.1:f221],p*(p-1)/2,k)
         L. <- diag(1,p)
         for (i in 1:k) {
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-            rss <- colSums(invalpha[,i]*backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2)
+            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/invalpha[,i])
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
