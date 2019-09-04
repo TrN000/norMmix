@@ -45,8 +45,8 @@ nMm2par <- function(obj,
             model=c("EII","VII","EEI","VEI","EVI",
                 "VVI","EEE","VEE","EVV","VVV"),
             meanFUN= mean
-            ){
-
+            )
+{
     #transferring values of obj to handier variables
     w <- obj$weight
     mu <- obj$mu
@@ -375,8 +375,8 @@ par2nMm <- function(par., p, k,
 parlen <- function(k,p,
                    model=c("EII","VII","EEI","VEI","EVI",
                            "VVI","EEE","VEE","EVV","VVV")
-                   ) {
-
+                   )
+{
     stopifnot(is.numeric(k), is.numeric(p))
     model <- match.arg(model)
 

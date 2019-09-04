@@ -20,22 +20,22 @@
 #' description
 #'
 #' @param par. parameter vector
-#' @param x sample matrix
+#' @param tx sample matrix
 #' @param k number of clusters
 #' @param trafo either centered log ratio or logit
 #' @param model assumed distribution model of normal mixture
 #'
 #' @export
 
-llnorMmix <- function(par., x, k,
+llnorMmix <- function(par., tx, k,
               trafo=c("clr1", "logit"),
               model=c("EII","VII","EEI","VEI","EVI",
                       "VVI","EEE","VEE","EVV","VVV")
               )
 {
-    stopifnot(is.matrix(x),
+    stopifnot(is.matrix(tx),
               length(k <- as.integer(k)) == 1, k >= 1)
-    p <- nrow(x)
+    p <- nrow(tx)
 #    x <- t(x) ## then only needed in   (x-mu[,i])^2  i=1..k
 
     # 2. transform
@@ -94,7 +94,7 @@ llnorMmix <- function(par., x, k,
     f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
 
 
-    # initialize f(x_i) i=1..n  vector of density values
+    # initialize f(tx_i) i=1..n  vector of density values
     invl <- 0
 
     # calculate log-lik, see first case for explanation
@@ -103,9 +103,9 @@ llnorMmix <- function(par., x, k,
         alpha <- par.[f]
         invalpha <- exp(-alpha)# = 1/exp(alpha)
         for (i in 1:k) {
-            rss <- colSums(invalpha*(x-mu[,i])^2)
+            rss <- colSums(invalpha*(tx-mu[,i])^2)
             # this is vector of length n=sample size
-            # calculates (x-mu)t * Sigma^-1 * (x-mu) for diagonal
+            # calculates (tx-mu)t * Sigma^-1 * (tx-mu) for diagonal
             # cases.
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
             # adds likelihood of one component to invl
@@ -119,7 +119,7 @@ llnorMmix <- function(par., x, k,
     "VII" = {
         alpha <- par.[f:f2]
         for (i in 1:k) {
-            rss <- colSums((x-mu[,i])^2/exp(alpha[i]))
+            rss <- colSums((tx-mu[,i])^2/exp(alpha[i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -131,7 +131,7 @@ llnorMmix <- function(par., x, k,
         D. <- D.-sum(D.)/p
         invD <- exp(alpha+D.)
         for (i in 1:k) {
-            rss <- colSums((x-mu[,i])^2/invD)
+            rss <- colSums((tx-mu[,i])^2/invD)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -142,7 +142,7 @@ llnorMmix <- function(par., x, k,
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D.)/p
         for (i in 1:k) {
-            rss <- colSums((x-mu[,i])^2/exp(alpha[i]+D.))
+            rss <- colSums((tx-mu[,i])^2/exp(alpha[i]+D.))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -153,7 +153,7 @@ llnorMmix <- function(par., x, k,
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
-            rss <- colSums((x-mu[,i])^2/exp(alpha+D.[,i]))
+            rss <- colSums((tx-mu[,i])^2/exp(alpha+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -164,16 +164,16 @@ llnorMmix <- function(par., x, k,
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
-            rss <- colSums((x-mu[,i])^2/exp(alpha[i]+D.[,i]))
+            rss <- colSums((tx-mu[,i])^2/exp(alpha[i]+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
 
     # here start the non-diagonal cases. main difference is the use
-    # of backsolve() to calculate x^t Sigma^-1 x, works as follows:
+    # of backsolve() to calculate tx^t Sigma^-1 tx, works as follows:
     # assume Sigma = L D L^t, then Sigma^-1 = (L^t)^-1 D^-1 L^-1
-    # y = L^-1 x  => x^t Sigma^-1 x = y^t D^-1 y
-    # y = backsolve(L., x)
+    # y = L^-1 tx  => tx^t Sigma^-1 tx = y^t D^-1 y
+    # y = backsolve(L., tx)
 
     "EEE" = {
         alpha <- par.[f]
@@ -184,7 +184,7 @@ llnorMmix <- function(par., x, k,
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
         for (i in 1:k) {
-            rss <- colSums(backsolve(L.,(x-mu[,i]), upper.tri=FALSE)^2/invD)
+            rss <- colSums(backsolve(L.,(tx-mu[,i]), upper.tri=FALSE)^2/invD)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -197,7 +197,7 @@ llnorMmix <- function(par., x, k,
         L. <- diag(1,p)
         L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
         for (i in 1:k) {
-            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/exp(alpha[i]+D.))
+            rss <- colSums(backsolve(L., (tx-mu[,i]), upper.tri=FALSE)^2/exp(alpha[i]+D.))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
@@ -211,7 +211,7 @@ llnorMmix <- function(par., x, k,
         for (i in 1:k) {
             L. <- diag(1,p)
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/exp(alpha+D.[,i]))
+            rss <- colSums(backsolve(L., (tx-mu[,i]), upper.tri=FALSE)^2/exp(alpha+D.[,i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
         }
     },
@@ -226,14 +226,14 @@ llnorMmix <- function(par., x, k,
         L. <- diag(1,p)
         for (i in 1:k) {
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
-            rss <- colSums(backsolve(L., (x-mu[,i]), upper.tri=FALSE)^2/invalpha[,i])
+            rss <- colSums(backsolve(L., (tx-mu[,i]), upper.tri=FALSE)^2/invalpha[,i])
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
         }
     },
     ## otherwise
     stop("invalid model:", model))
 
-    ## return  sum_{i=1}^n log( f(x_i) ) :
+    ## return  sum_{i=1}^n log( f(tx_i) ) :
     sum(log(invl))
 }
 

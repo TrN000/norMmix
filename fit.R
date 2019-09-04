@@ -4,7 +4,11 @@
 
 
 
-fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("nmm", "mvt"),...) {
+fit.norMmix <- function(x, k=1:10, models=1:10, 
+                        trafo=c("clr1","logit"),ll = c("nmm", "mvt"),
+                    ...
+                        )
+{
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
               0 < models, models <= 10)
@@ -12,6 +16,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("
     p <- ncol(x)
 
     trafo <- match.arg(trafo)
+    ll <- match.arg(ll)
 
     m <- c("EII","VII","EEI","VEI","EVI",
            "VVI","EEE","VEE","EVV","VVV")
@@ -33,7 +38,8 @@ fit.norMmix <- function(x, k=1:10, models=1:10, trafo=c("clr1","logit"),ll = c("
 
 }
 
-logLik.fittednorMmix <- function(obj) {
+logLik.fittednorMmix <- function(obj)
+{
     ## returns log-likelihood of fittednorMmix object
 
     stopifnot(inherits(obj, "fittednorMmix"))
@@ -56,7 +62,8 @@ logLik.fittednorMmix <- function(obj) {
     val
 }
 
-parlen.fittednorMmix <- function(obj) {
+parlen.fittednorMmix <- function(obj)
+{
     stopifnot(inherits(obj, "fittednorMmix"))
     
     k <- obj$k
@@ -77,25 +84,21 @@ parlen.fittednorMmix <- function(obj) {
 }
 
 
-BIC.fittednorMmix <- function(obj) {
+BIC.fittednorMmix <- function(obj) 
+{
     stopifnot(inherits(obj, "fittednorMmix"))
 
     n <- obj$n
     k <- obj$k
     models <- obj$models
-
     parlen <- parlen.fittednorMmix(obj)
-
     ll <- logLik.fittednorMmix(obj)
-
     val <- parlen*log(n) - 2*ll
-
     mi <- which.min(val)
     mirow <- mi%%length(k)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
-
+    if (mirow==0) mirow <- length(k)
     mindex <- c(k[mirow],models[micol])
-
+    
     list(val, best=mindex)
-
 }

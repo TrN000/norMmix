@@ -48,6 +48,7 @@ norMmixMLE <- function(
     # 1.
     trafo <- match.arg(trafo)
     model <- match.arg(model)
+    ini <- match.arg(ini)
     ll <- match.arg(ll)
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
@@ -56,7 +57,7 @@ norMmixMLE <- function(
 
     ## init tau : index <- <clustering>
     switch(ini,
-           ## init tau using clara
+         ## init tau using clara
         "clara" = {
             if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
             stopifnot(length(sampsize) == 1L, sampsize >= 1)
@@ -78,21 +79,41 @@ norMmixMLE <- function(
     # 2.
 
     # one M-step  (TODO: mstep() could *depend* on 'model'; currently does "VVV")
-    nMm.temp <- mstep.nMm(x, tau)
+    ## done
+
+    mcl.mstep <- switch(model,
+        "EII" = mclust::mstepEII(x, tau),
+        "VII" = mclust::mstepVII(x, tau),
+        "EEI" = mclust::mstepEEI(x, tau),
+        "VEI" = mclust::mstepVEI(x, tau),
+        "EVI" = mclust::mstepEVI(x, tau),
+        "VVI" = mclust::mstepVVI(x, tau),
+        "EEE" = mclust::mstepEEE(x, tau),
+        "VEE" = mclust::mstepVEE(x, tau),
+        "EVV" = mclust::mstepEVV(x, tau),
+        "VVV" = mclust::mstepVVV(x, tau),
+        
+        stop("error in mstep, in norMmixMLE")
+    )
+
+    nMm.temp <- norMmix(mcl.mstep$parameters$mean, 
+                        Sigma = mcl.mstep$parameters$variance$sigma,
+                        weight = mcl.mstep$parameters$pro,
+                        model = mcl.mstep$modelName)
+
     # create par. vector out of m-step
-
-    nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
-
+        #nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
     initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model, meanFUN=mean)
-    #degrees of freedom
+    # save degrees of freedom
     parlen <- length(initpar.)
 
     # 3.
 
+    tx <- t(x)
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
-        "nmm" = function(par.) { -llnorMmix(par.,x=t(x),k=k,trafo=trafo,model=model) },
+        "nmm" = function(par.) { -llnorMmix(par.,tx=tx,k=k,trafo=trafo,model=model) }, ## max(-10^300, -llnorMmix) for both , also change x arg of ll to tx
         "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model) },
         stop("error selecting neglogl") )
 

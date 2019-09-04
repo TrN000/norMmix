@@ -2,9 +2,10 @@
 
 
 plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
-               type="l", lty=2, newWindow=TRUE, npoints=250,
-               col="red",  fill=TRUE, fillcolor="red",
-	           ...) {
+                           type="l", lty=2, newWindow=TRUE, npoints=250,
+                           col="red",  fill=TRUE, fillcolor="red",
+	                   ... )
+{
     w <- nMm$weight
     mu <- nMm$mu
     sig <- nMm$Sigma
@@ -65,8 +66,12 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
     invisible(ellipsecoords)
 }
 
+
+
+
 plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
-                           alpha=0.05, ...) {
+                           alpha=0.05, ...)
+{
     stopifnot( inherits(nMm, "norMmix") )
 
     w <- nMm$weight
@@ -135,12 +140,13 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 #' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 #'
 #' @export
-plot.norMmix <- function(x, ... ) {
+plot.norMmix <- function(obj, data, ... ) {
+    ## TODO: make plot take data argument
     stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
-        plot2d.norMmix(x, ... )
+        plot2d.norMmix(obj, ... )
     else ## if (p>2)
-        plotnd.norMmix(x, ...)
+        plotnd.norMmix(obj, ...)
 }
 
 

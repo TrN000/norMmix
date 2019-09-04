@@ -130,7 +130,8 @@ is.norMmix <- function(obj){
 # corrects numerical error in case D in ldl decomp is near-zero
 # takes tolerance, norMmix obj; returns norMmix obj
 
-forcePositive <- function(nMm, eps0=1e-10) {
+forcePositive <- function(nMm, eps0=1e-10)
+{
     stopifnot(is.norMmix(nMm))
 
     sig <- nMm$Sigma
@@ -194,7 +195,8 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
 
 # density function for norMmix object
 
-dnorMmix <- function(x, nMm) {
+dnorMmix <- function(x, nMm)
+{
     stopifnot(is.norMmix(nMm), is.numeric(x),
               length(p <- nMm$dim) == 1, p >= 1,
               length(k <- nMm$ k ) == 1, k >= 1)
@@ -214,8 +216,8 @@ dnorMmix <- function(x, nMm) {
 
 
 
-metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
-
+metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
+{
     stopifnot( is.norMmix(n1), is.norMmix(n2) )
     stopifnot( all.equal(n1$k, n2$k) )
 
@@ -260,7 +262,8 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
 
     penalty <- sum( pmu+psig+pweight )
 
-    list(order.=order., deltamu=deltamu, deltasig=deltasig, deltaweight=deltaweight, penalty=penalty)
+    list(order.=order., deltamu=deltamu, deltasig=deltasig, 
+         deltaweight=deltaweight, penalty=penalty)
 
 }
 
