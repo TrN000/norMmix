@@ -55,11 +55,26 @@ logLik.fittednorMmix <- function(obj)
         for (j in models) {
             nm <- obj$nMm[[paste0(j,i)]]
             # need to catch errors, if nm is string return NA
-            val[i,j] <- ifelse(is.character(nm)&&length(nm)==1, NA, -nm$optr$value)
+            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, NA, -nm$optr$value)
         }
     }
 
     val
+}
+
+
+displayError.fittednorMmix <- function(obj)
+{
+    stopifnot(inherits(obj, "fittednorMmix"))
+    k <- obj$k
+    models <- obj$models
+
+    for (i in k) {
+        for (j in models) {
+            nm <- obj$nMm[[paste0(j,i)]]
+            if (is.character(nm[[1]])&&length(nm)==2) cat(j,i, "\t", paste(nm), "\n\n")
+        }
+    }
 }
 
 parlen.fittednorMmix <- function(obj)
@@ -94,6 +109,25 @@ BIC.fittednorMmix <- function(obj)
     parlen <- parlen.fittednorMmix(obj)
     ll <- logLik.fittednorMmix(obj)
     val <- parlen*log(n) - 2*ll
+    mi <- which.min(val)
+    mirow <- mi%%length(k)
+    micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
+    if (mirow==0) mirow <- length(k)
+    mindex <- c(k[mirow],models[micol])
+    
+    list(val, best=mindex)
+}
+
+AIC.fittednorMmix <- function(obj) 
+{
+    stopifnot(inherits(obj, "fittednorMmix"))
+
+    n <- obj$n
+    k <- obj$k
+    models <- obj$models
+    parlen <- parlen.fittednorMmix(obj)
+    ll <- logLik.fittednorMmix(obj)
+    val <- parlen*2 - 2*ll
     mi <- which.min(val)
     mirow <- mi%%length(k)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))

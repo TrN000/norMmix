@@ -1,7 +1,7 @@
 ### plotting methods for norMmix objects
 
 
-plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
+plot2d.norMmix <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
                            type="l", lty=2, newWindow=TRUE, npoints=250,
                            col="red",  fill=TRUE, fillcolor="red",
 	                   ... )
@@ -62,6 +62,10 @@ plot2d.norMmix <- function(nMm, xlim=NULL, ylim=NULL, bounds=0.05,
 
     text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
 
+    if (!is.null(data)) {
+        points(data[,c(1,2)])
+    }
+
 
     invisible(ellipsecoords)
 }
@@ -84,7 +88,7 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
     npoints <- npoints*p
 
 
-    ## get coords??
+    ## get coords
 
     coord <- list()
     coarr <- matrix(0,k*npoints,p)
@@ -142,9 +146,9 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 #' @export
 plot.norMmix <- function(obj, data, ... ) {
     ## TODO: make plot take data argument
-    stopifnot(is.list(x), length(p <- x$dim) == 1)
+    stopifnot(is.list(obj), length(p <- obj$dim) == 1)
     if (p == 2)
-        plot2d.norMmix(obj, ... )
+        plot2d.norMmix(obj, data, ... )
     else ## if (p>2)
         plotnd.norMmix(obj, ...)
 }
