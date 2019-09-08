@@ -144,8 +144,8 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 #' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 #'
 #' @export
-plot.norMmix <- function(obj, data, ... ) {
-    ## TODO: make plot take data argument
+plot.norMmix <- function(obj, data=NULL, ... ) {
+    ## TODO: make so data can also be missing
     stopifnot(is.list(obj), length(p <- obj$dim) == 1)
     if (p == 2)
         plot2d.norMmix(obj, data, ... )
