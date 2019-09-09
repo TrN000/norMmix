@@ -78,7 +78,7 @@ norMmixMLE <- function(
 
     # 2.
 
-    # one M-step  (TODO: mstep() could *depend* on 'model'; currently does "VVV")
+    # one M-step  (TODO:done mstep() could *depend* on 'model'; currently does "VVV")
     ## done
 
     mcl.mstep <- switch(model,

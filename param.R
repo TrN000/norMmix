@@ -260,55 +260,55 @@ par2nMm <- function(par., p, k,
     Sigma <- switch(model,
     # diagonal cases
     "EII" = {
-        lambda <- exp(par.[f])
-        array( rep(diag(lambda, p),k), c(p,p,k) )
+        alpha <- exp(par.[f])
+        array( rep(diag(alpha, p),k), c(p,p,k) )
         },
 
     "VII" = {
-        lambda <- exp(par.[f:f2])
-        array(unlist(lapply( lambda, function(j) diag(j,p) )), c(p,p,k))
+        alpha <- exp(par.[f:f2])
+        array(unlist(lapply( alpha, function(j) diag(j,p) )), c(p,p,k))
         },
 
     "EEI" = {
-        lambda <- par.[f]
+        alpha <- par.[f]
         D. <- par.[f1.1:f11]
         D. <- c(-sum(D.), D.)
         D. <- D.-mean(D.)
-        array( rep(diag(exp(lambda+D.)),k), c(p,p,k) )
+        array( rep(diag(exp(alpha+D.)),k), c(p,p,k) )
         },
 
     "VEI" = {
-        lambda <- par.[f:f2]
+        alpha <- par.[f:f2]
         D. <- par.[f2.1:f21]
         D. <- c(-sum(D.), D.)
-        D. <- matrix(D.+rep(lambda, each=p), p, k)
+        D. <- matrix(D.+rep(alpha, each=p), p, k)
         D. <- exp(D.)
         array( apply(D.,2, diag), c(p,p,k))
         },
 
     "EVI" = {
-        lambda <- par.[f]
+        alpha <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
-        D. <- exp(D.+lambda)
+        D. <- exp(D.+alpha)
         array( apply(D.,2, diag), c(p,p,k))
         },
 
     "VVI" = {
-        lambda <- par.[f:f2]
+        alpha <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
-        D. <- exp(D.+rep(lambda, each=p))
+        D. <- exp(D.+rep(alpha, each=p))
         array(apply(D.,2, diag), c(p,p,k))
         },
 
     # variable cases
 
     "EEE" = {
-        lambda <- par.[f]
+        alpha <- par.[f]
         D. <- par.[f1.1:f11]
         D. <- c(-sum(D.), D.)
-        D. <- exp(D.+lambda)
+        D. <- exp(D.+alpha)
         L. <- par.[f11.1:f111]
         A. <- dl.(D.,L.,p)
         sig <- array(rep(A., times=k), c(p,p,k))
@@ -316,10 +316,10 @@ par2nMm <- function(par., p, k,
         },
 
     "VEE" = {
-        lambda <- par.[f:f2]
+        alpha <- par.[f:f2]
         D. <- par.[f2.1:f21]
         D. <- c(-sum(D.), D.)
-        D. <- exp(matrix(D.+rep(lambda, each=p), p, k))
+        D. <- exp(matrix(D.+rep(alpha, each=p), p, k))
         f3 <- (p*(p-1)/2)
         L. <- par.[f21.1:f211]
         sig <- array(0, c(p,p,k))
@@ -331,10 +331,10 @@ par2nMm <- function(par., p, k,
 
     "EVV" = {
         #par.[f:f12] <- exp(par.[f:f12])
-        lambda <- par.[f]
+        alpha <- par.[f]
         D. <- matrix(par.[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
-        D. <- exp(D.+lambda)
+        D. <- exp(D.+alpha)
         f3 <- (p*(p-1)/2)
         L.temp <- matrix(par.[f12.1:f121],f3,k)
         sig <- array(0, c(p,p,k))
@@ -346,10 +346,10 @@ par2nMm <- function(par., p, k,
 
     "VVV" = {
         #par.[f:f22] <- exp(par.[f:f22])
-        lambda <- par.[f:f2]
+        alpha <- par.[f:f2]
         D. <- matrix(par.[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
-        D. <- exp(D.+rep(lambda,each=p))
+        D. <- exp(D.+rep(alpha,each=p))
         f3 <- (p*(p-1)/2)
         L.temp <- matrix(par.[f22.1:f221],f3,k)
         sig <- array(0, c(p,p,k))
