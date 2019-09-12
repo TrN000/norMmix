@@ -238,6 +238,20 @@ llnorMmix <- function(par., tx, k,
 }
 
 
+
+sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
+    trafo <- match.arg(trafo)
+    tx <- t(x)
+    k <- obj$k
+    model <- obj$model
+
+    llnorMmix(nMm2par(obj, trafo=trafo, model=model), tx=tx, k=k, trafo=trafo, model=model)
+}
+
+
+
+
+
 #' log-likelihood function relying on mvtnorm function
 #'
 #' \code{llmvtnorm} returns scalar value of log-likelihood

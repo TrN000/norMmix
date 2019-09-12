@@ -128,7 +128,7 @@ norMmixMLE <- function(
     nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
     cond <- parcond(x, k=k, model=model)
 
-    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, mstep=nMm.temp, ini=initpar., cond=cond)
+    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, cond=cond)
 
     class(ret) <- "norMmixfit"
     return(ret)

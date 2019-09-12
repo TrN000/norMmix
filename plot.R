@@ -154,3 +154,36 @@ plot.norMmix <- function(obj, data=NULL, ... ) {
 }
 
 
+
+
+
+############################################################
+
+plot.fittednorMmix <- function(obj, name="unnamed", plotbest=FALSE, ...) {
+    stopifnot(inherits(obj, "fittednorMmix"))
+
+    k <- obj$k
+    models <- obj$models
+    n <- obj$n
+    p <- obj$p
+
+    bicmat <- BIC(obj)[[1]]
+    best <- BIC(obj)[[2]]
+
+    cl <- rainbow(length(models))
+
+    if (!plotbest) {
+        matplot(bicmat, type="l", xlab="clusters", ylab="BIC", col=cl, ...)
+        title(main=name)
+        legend("topright" , models, fill=cl)
+        mtext(paste("best fit = ", best[1], best[2]))
+    } else {
+        bk <- as.integer(best[1])
+        bmodel <- best[2]
+        plot(obj$nMm[bk,bmodel][[1]]$norMmix, ...)
+        title(main=name)
+        mtext(paste("best fit = ", best[1], best[2]))
+    }
+}
+
+

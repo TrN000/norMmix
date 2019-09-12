@@ -32,7 +32,13 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
         }
     }
 
-    ret <- list(nMm=norMmixval, k=k, models=m, n=n, p=p)
+    dim(norMmixval) <- c(length(m), length(k))
+    norMmixval <- t(norMmixval)
+    rownames(norMmixval) <- k
+    colnames(norMmixval) <- m
+
+
+    ret <- list(nMm=norMmixval, k=k, models=m, n=n, p=p, x=x)
     class(ret) <- c("fittednorMmix", "norMmix")
     ret
 
@@ -53,7 +59,7 @@ logLik.fittednorMmix <- function(obj)
 
     for (i in k) {
         for (j in models) {
-            nm <- obj$nMm[[paste0(j,i)]]
+            nm <- obj$nMm[i,j][[1]]
             # need to catch errors, if nm is string return NA
             val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, NA, -nm$optr$value)
         }
@@ -71,8 +77,8 @@ displayError.fittednorMmix <- function(obj)
 
     for (i in k) {
         for (j in models) {
-            nm <- obj$nMm[[paste0(j,i)]]
-            if (is.character(nm[[1]])&&length(nm)==2) cat(j,i, "\t", paste(nm), "\n\n")
+            nm <- obj$nMm[i,j][[1]]
+            if (is.character(nm[[1]])&&length(nm)==2) cat(i,j, "\t", paste(nm), "\n\n")
         }
     }
 }
@@ -110,12 +116,13 @@ BIC.fittednorMmix <- function(obj)
     ll <- logLik.fittednorMmix(obj)
     val <- parlen*log(n) - 2*ll
     mi <- which.min(val)
+    bestnMm <- obj$nMm[mi][[1]]
     mirow <- mi%%length(k)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
     if (mirow==0) mirow <- length(k)
     mindex <- c(k[mirow],models[micol])
     
-    list(val, best=mindex)
+    list(val, best=mindex, bestnMm=bestnMm)
 }
 
 AIC.fittednorMmix <- function(obj) 
@@ -136,3 +143,27 @@ AIC.fittednorMmix <- function(obj)
     
     list(val, best=mindex)
 }
+
+cond.fittednorMmix <- function(obj)
+{
+    ## returns log-likelihood of fittednorMmix object
+
+    stopifnot(inherits(obj, "fittednorMmix"))
+
+    k <- obj$k
+    models <- obj$models
+    val <- matrix(0, length(k), length(models))
+    rownames(val) <- k
+    colnames(val) <- models
+
+    for (i in k) {
+        for (j in models) {
+            nm <- obj$nMm[i,j][[1]]
+            # need to catch errors, if nm is string return NA
+            val[i,j] <- nm$cond
+        }
+    }
+
+    val
+}
+
