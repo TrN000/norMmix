@@ -115,7 +115,7 @@ MW214 <- norMmix(
     weight = c(0.5, 0.1, 0.1, 0.1, 0.1, 0.1),
     mu = matrix(c(0,0, rep(-2:2/sqrt(8), each=2)), 2, 6),
     Sigma = array(c(1,0,0,1, rep(diag(1/100,2), 5)), c(2,2,6)),
-    model = "EII"
+    model = "VII"
     )
 
 

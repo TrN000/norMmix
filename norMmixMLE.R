@@ -26,7 +26,6 @@ ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax
 #' @export
 norMmixMLE <- function(
                x, k,
-               trafo = c("clr1", "logit"),
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
                ini = c("clara", "mclVVV"),
@@ -46,7 +45,6 @@ norMmixMLE <- function(
 
 
     # 1.
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
     ini <- match.arg(ini)
     ll <- match.arg(ll)
@@ -103,7 +101,7 @@ norMmixMLE <- function(
 
     # create par. vector out of m-step
         #nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
-    initpar. <- nMm2par(obj=nMm.temp, trafo=trafo, model=model, meanFUN=mean)
+    initpar. <- nMm2par(obj=nMm.temp, model=model, meanFUN=mean)
     # save degrees of freedom
     parlen <- length(initpar.)
 
@@ -113,8 +111,8 @@ norMmixMLE <- function(
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
-        "nmm" = function(par.) { -llnorMmix(par.,tx=tx,k=k,trafo=trafo,model=model) }, ## max(-10^300, -llnorMmix) for both , also change x arg of ll to tx
-        "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,trafo=trafo,model=model) },
+        "nmm" = function(par.) { -llnorMmix(par.,tx=tx,k=k,model=model) }, ## max(-10^300, -llnorMmix) for both , also change x arg of ll to tx
+        "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,model=model) },
         stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,
@@ -125,7 +123,7 @@ norMmixMLE <- function(
 
     # 4.
 
-    nMm <- par2nMm(optr$par, p, k, trafo=trafo, model=model)
+    nMm <- par2nMm(optr$par, p, k, model=model)
     cond <- parcond(x, k=k, model=model)
 
     ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, cond=cond)

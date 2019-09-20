@@ -28,7 +28,6 @@
 #' @export
 
 llnorMmix <- function(par., tx, k,
-              trafo=c("clr1", "logit"),
               model=c("EII","VII","EEI","VEI","EVI",
                       "VVI","EEE","VEE","EVV","VVV")
               )
@@ -40,7 +39,6 @@ llnorMmix <- function(par., tx, k,
 
     # 2. transform
 
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
 
     l2pi <- log(2*pi)
@@ -49,21 +47,9 @@ llnorMmix <- function(par., tx, k,
 
     # get w
 
-    w <- switch(trafo,
-            "clr1" = {
-                 if (k==1) 1
-                     else clr1inv(par.[1:(k-1)])
-                     },
+    if (k==1) w <- 1
+    else w <- clr1inv(par.[1:(k-1)])
 
-            "logit" = {
-                  if (k==1) 1
-                      else logitinv(par.[1:(k-1)])
-                      },
-
-            stop("error in w switch in llnorMmix")
-            )
-
-#    if (!(sum(w)==1)) return(-Inf) ## FIXME allow tolerance
 
     # start of relevant parameters:
 
@@ -239,13 +225,12 @@ llnorMmix <- function(par., tx, k,
 
 
 
-sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
-    trafo <- match.arg(trafo)
+sllnorMmix <- function(x, obj) {
     tx <- t(x)
     k <- obj$k
     model <- obj$model
 
-    llnorMmix(nMm2par(obj, trafo=trafo, model=model), tx=tx, k=k, trafo=trafo, model=model)
+    llnorMmix(nMm2par(obj, model=model), tx=tx, k=k, model=model)
 }
 
 
@@ -264,18 +249,16 @@ sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
 #'
 #' @export
 llmvtnorm <- function(par., x, k,
-              trafo=c("clr1","logit"),
               model=c("EII","VII","EEI","VEI","EEE",
                   "VEE","EVI","VVI","EVV","VVV")
               )
 {
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
     p <- ncol(x)
 
-    nmm <- par2nMm(par., p, k, trafo=trafo, model=model)
+    nmm <- par2nMm(par., p, k, model=model)
     ## FIXME (speed!):  dmvnorm(*, sigma= S) will do a chol(S) for each component
     ## -----  *instead* we already have LDL' and  chol(S) = sqrt(D) L' !!
     ## another par2*() function should give L and D, or from that chol(Sagma), rather than Sigma !

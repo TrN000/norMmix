@@ -41,7 +41,6 @@ dl. <- function(d,x,p){
 #' @export
 
 nMm2par <- function(obj,
-            trafo=c("clr1", "logit"),
             model=c("EII","VII","EEI","VEI","EVI",
                 "VVI","EEE","VEE","EVV","VVV"),
             meanFUN= mean
@@ -54,7 +53,6 @@ nMm2par <- function(obj,
     p <- obj$dim
     k <- obj$k
 
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
 
     av <- match.fun(meanFUN)
@@ -83,13 +81,7 @@ nMm2par <- function(obj,
     #output vector of parameter values
 
     c(
-      w <- switch(trafo, #weights either logit or centered log ratio
-        "logit" = logit(w),
-
-            "clr1" = clr1(w),
-
-        stop("Error in weight trafo, ",trafo)
-            ),
+      w <- clr1(w),
       mu, #means
       Sigma <- switch(model, #model dependent covariance values
         "EII" = {
@@ -185,10 +177,8 @@ nMm2par <- function(obj,
 #n2p <-
 ## these were in ./zmarrwandnMm.R :
 #n2m <- # <- drop this name and rather use
-nc2p <- function(obj) nMm2par(obj , trafo="clr1",  obj$model)
+nc2p <- function(obj) nMm2par(obj ,  obj$model)
 
-#ln2m <- # <- drop this, and rather use
-nl2p <- function(obj) nMm2par(obj , trafo="logit", obj$model)
 
 
 
@@ -209,12 +199,10 @@ nl2p <- function(obj) nMm2par(obj , trafo="logit", obj$model)
 #' @export
 
 par2nMm <- function(par., p, k,
-            trafo = c("clr1", "logit"),
             model = c("EII","VII","EEI","VEI","EEE",
                     "VEE","EVI","VVI","EVV","VVV")
             )
 {
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
 
     p <- as.integer(p)
@@ -248,10 +236,7 @@ par2nMm <- function(par., p, k,
     #only important ones are f1.2, f1.3, f2.2, f2.3
 
     w.temp <- if(k==1) vector() else par.[1:(k-1)]
-    w <- switch(trafo,
-                "logit" = logitinv(w.temp),
-                "clr1"  = clr1inv (w.temp),
-                stop("invalid 'trafo'": trafo))
+    w <-  clr1inv (w.temp)
 
     mu <- matrix(par.[k:(k+p*k-1)], p, k)
 
