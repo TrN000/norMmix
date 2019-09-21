@@ -31,7 +31,8 @@ norMmixMLE <- function(
                ini = c("clara", "mclVVV"),
                ll = c("nmm", "mvt"),
                epsilon = 1e-10,
-               method = "BFGS", maxit = 100, trace = 2, reltol = sqrt(.Machine$double.eps),
+               method = "BFGS", maxit = 100, trace = 2, 
+               optREPORT=10, reltol = sqrt(.Machine$double.eps),
                samples = 128,
                sampsize = ssClaraL,
                traceClara = 0,
@@ -116,7 +117,7 @@ norMmixMLE <- function(
         stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,
-                    trace=(trace > 0), REPORT= pmax(1, 10 %/% trace),
+                    trace=(trace > 0), REPORT= optREPORT,
     		    ...)
     optr <- optim(initpar., neglogl, method=method, control=control)
 

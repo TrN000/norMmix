@@ -173,9 +173,9 @@ plot.fittednorMmix <- function(obj, name="unnamed", plotbest=FALSE, ...) {
     cl <- rainbow(length(models))
 
     if (!plotbest) {
-        matplot(bicmat, type="l", xlab="clusters", ylab="BIC", col=cl, ...)
+        matplot(bicmat, type="l", xlab="clusters", ylab="BIC", col=cl, lty=1:10, ...)
         title(main=name)
-        legend("topright" , models, fill=cl)
+        legend("topright" , models, fill=cl, lty=1:10)
         mtext(paste("best fit = ", best[1], best[2]))
     } else {
         bk <- as.integer(best[1])
