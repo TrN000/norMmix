@@ -269,4 +269,19 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
 
 
 
+## TODO: translation functions to and from mclust mixture objects.
+nMm2mcl <- function() {
+    warning("not implemented yet")
+}
+
+mcl2nMm <- function() {
+    warning("not implemented yet")
+}
+
+
+mods <- function() {
+    models <- c("EII","VII","EEI","VEI","EVI",
+         	    "VVI","EEE","VEE","EVV","VVV")
+    return(models)
+}
 
