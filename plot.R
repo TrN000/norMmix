@@ -119,29 +119,29 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 #' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 #'
 #' @export
-plot.norMmix <- function(obj, data=NULL, ... ) {
+plot.norMmix <- function(x, data=NULL, ... ) {
     ## TODO: make so data can also be missing
-    stopifnot(is.list(obj), length(p <- obj$dim) == 1)
+    stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
-        plot2d.norMmix(obj, data, ... )
+        plot2d.norMmix(x, data, ... )
     else ## if (p>2)
-        plotnd.norMmix(obj, ...)
+        plotnd.norMmix(x, ...)
 }
 
 
 
 ############################################################
 
-plot.fittednorMmix <- function(obj, name="unnamed", plotbest=FALSE, ...) {
-    stopifnot(inherits(obj, "fittednorMmix"))
+plot.fittednorMmix <- function(x, name="unnamed", plotbest=FALSE, ...) {
+    stopifnot(inherits(x, "fittednorMmix"))
 
-    k <- obj$k
-    models <- obj$models
-    n <- obj$n
-    p <- obj$p
+    k <- x$k
+    models <- x$models
+    n <- x$n
+    p <- x$p
 
-    bicmat <- BIC(obj)[[1]]
-    best <- BIC(obj)[[2]]
+    bicmat <- BIC(x)[[1]]
+    best <- BIC(x)[[2]]
 
     cl <- rainbow(length(models))
 
@@ -153,7 +153,7 @@ plot.fittednorMmix <- function(obj, name="unnamed", plotbest=FALSE, ...) {
     } else {
         bk <- as.integer(best[1])
         bmodel <- best[2]
-        plot(obj$nMm[bk,bmodel][[1]]$norMmix, ...)
+        plot(x$nMm[bk,bmodel][[1]]$norMmix, ...)
         title(main=name)
         mtext(paste("best fit = ", best[1], best[2]))
     }
