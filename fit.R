@@ -43,14 +43,14 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
 
 }
 
-logLik.fittednorMmix <- function(obj)
+logLik.fittednorMmix <- function(object, ...)
 {
     ## returns log-likelihood of fittednorMmix object
 
-    stopifnot(inherits(obj, "fittednorMmix"))
+    stopifnot(inherits(object, "fittednorMmix"))
 
-    k <- obj$k
-    models <- obj$models
+    k <- object$k
+    models <- object$models
 
     val <- matrix(0, length(k), length(models))
     rownames(val) <- k
@@ -58,7 +58,7 @@ logLik.fittednorMmix <- function(obj)
 
     for (i in k) {
         for (j in models) {
-            nm <- obj$nMm[i,j][[1]]
+            nm <- object$nMm[i,j][[1]]
             # need to catch errors, if nm is string return NA
             val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, NA, -nm$optr$value)
         }
@@ -104,18 +104,18 @@ parlen.fittednorMmix <- function(obj)
 }
 
 
-BIC.fittednorMmix <- function(obj) 
+BIC.fittednorMmix <- function(object, ...) 
 {
-    stopifnot(inherits(obj, "fittednorMmix"))
+    stopifnot(inherits(object, "fittednorMmix"))
 
-    n <- obj$n
-    k <- obj$k
-    models <- obj$models
-    parlen <- parlen.fittednorMmix(obj)
-    ll <- logLik.fittednorMmix(obj)
+    n <- object$n
+    k <- object$k
+    models <- object$models
+    parlen <- parlen.fittednorMmix(object)
+    ll <- logLik.fittednorMmix(object)
     val <- parlen*log(n) - 2*ll
     mi <- which.min(val)
-    bestnMm <- obj$nMm[mi][[1]]
+    bestnMm <- object$nMm[mi][[1]]
     mirow <- mi%%length(k)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
     if (mirow==0) mirow <- length(k)
@@ -124,22 +124,21 @@ BIC.fittednorMmix <- function(obj)
     list(val, best=mindex, bestnMm=bestnMm)
 }
 
-AIC.fittednorMmix <- function(obj) 
+AIC.fittednorMmix <- function(object, ..., k = 2) 
 {
-    stopifnot(inherits(obj, "fittednorMmix"))
+    stopifnot(inherits(object, "fittednorMmix"))
 
-    n <- obj$n
-    k <- obj$k
-    models <- obj$models
-    parlen <- parlen.fittednorMmix(obj)
-    ll <- logLik.fittednorMmix(obj)
-    val <- parlen*2 - 2*ll
+    n <- object$n
+    models <- object$models
+    parlen <- parlen.fittednorMmix(object)
+    ll <- logLik.fittednorMmix(object)
+    val <- parlen*k - 2*ll
     mi <- which.min(val)
+    k <- object$k # overwriting the AIC k (typically = 2)
     mirow <- mi%%length(k)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
     if (mirow==0) mirow <- length(k)
-    mindex <- c(k[mirow],models[micol])
-    
+    mindex <- c(k[mirow], models[micol])
     list(val, best=mindex)
 }
 
