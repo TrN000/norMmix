@@ -3,8 +3,7 @@
 #' @include norMmixMLE.R
 
 
-## MM: FIXME: 'k' should not have a default
-fit.norMmix <- function(x, k=1:10, models=1:10, 
+fit.norMmix <- function(x, k, models=1:10, 
                         trafo=c("clr1", "logit"),
                         ll = c("nmm", "mvt"),
                     ...
@@ -12,44 +11,47 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
 {
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
-              0 < models, models <= 10)
+              0 < models, models <= 10,
+              is.integer(k), 0 < k)
     n <- nrow(x)
     p <- ncol(x)
-
     ll <- match.arg(ll)
     trafo <- match.arg(trafo)
-
     m <- c("EII","VII","EEI","VEI","EVI",
            "VVI","EEE","VEE","EVV","VVV")
     m <- m[models]
 
     norMmixval <- vector("list", length(m) * length(k))
+    norMmixtime <- vector("list", length(m) * length(k))
+    dim(norMmixval) <- c(length(k), length(m))
+    dim(norMmixtime) <- c(length(k), length(m))
+
     for (j in seq_along(k)) {
-        for (i in m) {
-            nMm <- tryCatch(norMmixMLE(x, k[j], model=i, ll=ll, trafo=trafo, ...), 
-                            error = identity)
-            norMmixval[[paste0(i,j)]] <- nMm
+        for (i in seq_along(m)) {
+            st <- system.time(
+                nMm <- tryCatch(norMmixMLE(x, k[j], model=m[i],
+                                           ll=ll, trafo=trafo, ...), 
+                                error = identity)
+                )
+            norMmixval[[j,i]] <- nMm
+            norMmixtime[[j,i]] <- st
         }
     }
 
-    dim(norMmixval) <- c(length(m), length(k))
-    norMmixval <- t(norMmixval)
     rownames(norMmixval) <- k
     colnames(norMmixval) <- m
+    rownames(norMmixtime) <- k
+    colnames(norMmixtime) <- m
 
-
-    ret <- list(nMm=norMmixval, k=k, models=m, n=n, p=p, x=x)
+    ret <- list(nMm=norMmixval, nMmtime=norMmixtime, k=k, models=m, n=n, p=p, x=x)
     class(ret) <- c("fittednorMmix", "norMmix")
     ret
-
 }
 
 logLik.fittednorMmix <- function(object, ...)
 {
     ## returns log-likelihood of fittednorMmix object
-
     stopifnot(inherits(object, "fittednorMmix"))
-
     k <- object$k
     models <- object$models
 

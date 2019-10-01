@@ -12,14 +12,12 @@ plot2d.norMmix <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
     k <- nMm$k
 
     ## calculate smart values for xlim, ylim
-
     ellipsecoords <- vector()
 
     if ( is.null(xlim) || is.null(ylim) ) {
         for (i in 1:k) {
             ellipsecoords  <- rbind(ellipsecoords, mixtools::ellipse(mu=mu[,i], sigma=sig[,,i], newplot=FALSE, draw=FALSE, npoints=npoints))
         }
-
         if (is.null(xlim)) xlim <- extendrange(ellipsecoords[,1], f=bounds)
         if (is.null(ylim)) ylim <- extendrange(ellipsecoords[,2], f=bounds)
     }
@@ -54,19 +52,14 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
                            alpha=0.05, ...)
 {
     stopifnot( inherits(nMm, "norMmix") )
-
     w <- nMm$weight
     mu <- nMm$mu
     sig <- nMm$Sigma
     k <- nMm$k
     p <- nMm$dim
-
-
     npoints <- npoints*p
 
-
-    ## get coords
-
+    ## calculate ellipses by randomly generating a hull
     coord <- list()
     coarr <- matrix(0,k*npoints,p)
     corange <- list()
@@ -78,12 +71,10 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
         r <- sig[,,i]%*%r
         r <- r+mu[,i]
         r <- t(r)
-
         coord[[i]] <- r # cant use chull yet, only works on planar coords
         coarr[(1+(i-1)*npoints):(i*npoints),] <- r
         corange[[i]] <- apply(r,2,range)
     }
-
 
     ## color
     fco <- sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
@@ -93,8 +84,6 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
         fco <- eval.parent(fco, n=2)
         k <- eval.parent(k, n=2)
         w <- eval.parent(w, n=2)
-
-
         xs <- matrix(x,npoints,k)
         ys <- matrix(y,npoints,k)
 
@@ -106,9 +95,6 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
     }
 
     pairs(coarr, panel=ploy)
-
-#    polygon(r[chull(r[,c(1,2)]),c(1,2)],col="red")
-
 
     invisible(coord)
 }
@@ -132,8 +118,9 @@ plot.norMmix <- function(x, data=NULL, ... ) {
 
 ############################################################
 
-## MM: FIXME:  s / name / main /  {but also change in Rscripts when *calling* this !}
-plot.fittednorMmix <- function(x, name="unnamed", plotbest=FALSE, ...) {
+## MM: fixme:  s / name / main /  {but also change in Rscripts when *calling* this !}
+## NT: done
+plot.fittednorMmix <- function(x, main="unnamed", plotbest=FALSE, ...) {
     stopifnot(inherits(x, "fittednorMmix"))
 
     models <- x$models
@@ -148,14 +135,14 @@ plot.fittednorMmix <- function(x, name="unnamed", plotbest=FALSE, ...) {
 
     if (!plotbest) {
         matplot(bicmat, type="l", xlab="clusters", ylab="BIC", col=cl, lty=1:10, ...)
-        title(main=name)
+        title(main=main)
         legend("topright" , models, fill=cl, lty=1:10)
         mtext(paste("best fit = ", best[1], best[2]))
     } else {
         bk <- as.integer(best[1])
         bmodel <- best[2]
         plot(x$nMm[bk,bmodel][[1]]$norMmix, ...)
-        title(main=name)
+        title(main=main)
         mtext(paste("best fit = ", best[1], best[2]))
     }
 }
