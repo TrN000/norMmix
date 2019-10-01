@@ -40,12 +40,12 @@ dl. <- function(d,x,p){
 #'
 #' @export
 
-nMm2par <- function(obj,
-            trafo=c("clr1", "logit"),
-            model=c("EII","VII","EEI","VEI","EVI",
-                "VVI","EEE","VEE","EVV","VVV"),
-            meanFUN= mean
-            )
+nMm2par <- function(obj
+                  , trafo = c("clr1", "logit")
+                  , model = c("EII","VII","EEI","VEI","EVI",
+                              "VVI","EEE","VEE","EVV","VVV")
+                  , meanFUN = mean
+                    )
 {
     #transferring values of obj to handier variables
     w <- obj$weight
@@ -63,22 +63,17 @@ nMm2par <- function(obj,
 
     # weights
 
-    stopifnot( isTRUE(all.equal(sum(w),1)), (length(w)==k),
+    stopifnot( all.equal(sum(w),1), length(w) == k,
           is.numeric(w), is.finite(w) )
 
 
     # mu
-
-    stopifnot( (dim(mu)==c(p,k)), (is.numeric(mu)),
-          is.matrix(mu), is.finite(mu) )
-
+    stopifnot(is.matrix(mu), dim(mu) == c(p,k), is.numeric(mu), is.finite(mu) )
 
     # Sigma
-
-    stopifnot( (dim(sig)==c(p,p,k)), (is.numeric(sig)),
-          length(dim(sig))==3, is.array(sig) )
-    stopifnot( isTRUE( all( apply(sig,3, function(j) (ldl(j)$D >= 0 )))))
-
+    stopifnot(is.array(sig), dim(sig) == c(p,p,k), is.numeric(sig),
+              length(dim(sig)) == 3,
+              apply(sig, 3, function(j) ldl(j)$D >= 0))
 
     #output vector of parameter values
 
@@ -86,8 +81,7 @@ nMm2par <- function(obj,
       w <- switch(trafo,
                   "clr1" = clr1(w),
                   "logit" = logit(w),
-                  stop("error in nMm2par trafo switch")
-                  ),
+                  stop("error in nMm2par() trafo: ", trafo)),
       mu, #means
       Sigma <- switch(model, #model dependent covariance values
         "EII" = {
@@ -169,7 +163,7 @@ nMm2par <- function(obj,
             c(alpha, D.[-1,], L.)
             },
 
-        stop("invalid argument in 'model'")
+        stop("invalid 'model': ", model)
         )
     )
 }
@@ -183,7 +177,7 @@ nMm2par <- function(obj,
 #n2p <-
 ## these were in ./zmarrwandnMm.R :
 #n2m <- # <- drop this name and rather use
-nc2p <- function(obj) nMm2par(obj ,  obj$model, trafo="clr1")
+nc2p <- function(obj) nMm2par(obj, trafo = "clr1",  model = obj$model)
 
 
 
@@ -198,17 +192,17 @@ nc2p <- function(obj) nMm2par(obj ,  obj$model, trafo="clr1")
 #'
 #' @param par. numeric vector of parameters
 #' @param p dimension of space
-#' @param trafo either "clr1" or "logit"
 #' @param model See description
+#' @param trafo either "clr1" or "logit"
 #'
 #' @return returns this list: list(weight=w, mu=mu, Sigma=Sigma, k=k, dim=p)
 #' @export
 
-par2nMm <- function(par., p, k,
-            model = c("EII","VII","EEI","VEI","EEE",
-                    "VEE","EVI","VVI","EVV","VVV"),
-            trafo = c("clr1", "logit")
-            )
+par2nMm <- function(par, p, k
+                  , model = c("EII","VII","EEI","VEI","EVI",
+                              "VVI","EEE","VEE","EVV","VVV")
+                  , trafo = c("clr1", "logit")
+                    )
 {
     model <- match.arg(model)
     trafo <- match.arg(trafo)
@@ -243,40 +237,39 @@ par2nMm <- function(par., p, k,
 
     #only important ones are f1.2, f1.3, f2.2, f2.3
 
-    w.temp <- if(k==1) vector() else par.[1:(k-1)]
+    w.temp <- if(k==1) vector() else par[1:(k-1)]
     w <- switch(trafo,
-                "clr1" = clr1inv(w.temp),
+                "clr1" = clr1inv (w.temp),
                 "logit"= logitinv(w.temp),
-                stop("error in par2nMm, weight switch")
-                )
+                stop("invalid 'trafo' in par2nMm(): ", trafo))
 
-    mu <- matrix(par.[k:(k+p*k-1)], p, k)
+    mu <- matrix(par[k:(k+p*k-1)], p, k)
 
 ### FIXME: Alternatively, instead of Sigma, compute  chol(Sigma) = D^{1/2} L'  as Sigma = LDL'
 
     Sigma <- switch(model,
     # diagonal cases
     "EII" = {
-        alpha <- exp(par.[f])
+        alpha <- exp(par[f])
         array( rep(diag(alpha, p),k), c(p,p,k) )
         },
 
     "VII" = {
-        alpha <- exp(par.[f:f2])
+        alpha <- exp(par[f:f2])
         array(unlist(lapply( alpha, function(j) diag(j,p) )), c(p,p,k))
         },
 
     "EEI" = {
-        alpha <- par.[f]
-        D. <- par.[f1.1:f11]
+        alpha <- par[f]
+        D. <- par[f1.1:f11]
         D. <- c(-sum(D.), D.)
         D. <- D.-mean(D.)
         array( rep(diag(exp(alpha+D.)),k), c(p,p,k) )
         },
 
     "VEI" = {
-        alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]
+        alpha <- par[f:f2]
+        D. <- par[f2.1:f21]
         D. <- c(-sum(D.), D.)
         D. <- matrix(D.+rep(alpha, each=p), p, k)
         D. <- exp(D.)
@@ -284,16 +277,16 @@ par2nMm <- function(par., p, k,
         },
 
     "EVI" = {
-        alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p-1,k)
+        alpha <- par[f]
+        D. <- matrix(par[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
         D. <- exp(D.+alpha)
         array( apply(D.,2, diag), c(p,p,k))
         },
 
     "VVI" = {
-        alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p-1,k)
+        alpha <- par[f:f2]
+        D. <- matrix(par[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
         D. <- exp(D.+rep(alpha, each=p))
         array(apply(D.,2, diag), c(p,p,k))
@@ -302,23 +295,23 @@ par2nMm <- function(par., p, k,
     # variable cases
 
     "EEE" = {
-        alpha <- par.[f]
-        D. <- par.[f1.1:f11]
+        alpha <- par[f]
+        D. <- par[f1.1:f11]
         D. <- c(-sum(D.), D.)
         D. <- exp(D.+alpha)
-        L. <- par.[f11.1:f111]
+        L. <- par[f11.1:f111]
         A. <- dl.(D.,L.,p)
         sig <- array(rep(A., times=k), c(p,p,k))
         sig
         },
 
     "VEE" = {
-        alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]
+        alpha <- par[f:f2]
+        D. <- par[f2.1:f21]
         D. <- c(-sum(D.), D.)
         D. <- exp(matrix(D.+rep(alpha, each=p), p, k))
         f3 <- (p*(p-1)/2)
-        L. <- par.[f21.1:f211]
+        L. <- par[f21.1:f211]
         sig <- array(0, c(p,p,k))
         for (i in 1:k){
             sig[,,i] <- dl.(D.[,i],L.,p)
@@ -327,13 +320,13 @@ par2nMm <- function(par., p, k,
         },
 
     "EVV" = {
-        #par.[f:f12] <- exp(par.[f:f12])
-        alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p-1,k)
+        #par[f:f12] <- exp(par[f:f12])
+        alpha <- par[f]
+        D. <- matrix(par[f1.1:f12],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
         D. <- exp(D.+alpha)
         f3 <- (p*(p-1)/2)
-        L.temp <- matrix(par.[f12.1:f121],f3,k)
+        L.temp <- matrix(par[f12.1:f121],f3,k)
         sig <- array(0, c(p,p,k))
         for (i in 1:k) {
             sig[,,i] <- dl.(D.[,i],L.temp[,i],p)
@@ -342,13 +335,13 @@ par2nMm <- function(par., p, k,
         },
 
     "VVV" = {
-        #par.[f:f22] <- exp(par.[f:f22])
-        alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p-1,k)
+        #par[f:f22] <- exp(par[f:f22])
+        alpha <- par[f:f2]
+        D. <- matrix(par[f2.1:f22],p-1,k)
         D. <- apply(D., 2, function(j) c(-sum(j), j))
         D. <- exp(D.+rep(alpha,each=p))
         f3 <- (p*(p-1)/2)
-        L.temp <- matrix(par.[f22.1:f221],f3,k)
+        L.temp <- matrix(par[f22.1:f221],f3,k)
         sig <- array(0, c(p,p,k))
         for (i in 1:k) {
             sig[,,i] <- dl.(D.[,i],L.temp[,i],p)

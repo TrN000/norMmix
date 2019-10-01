@@ -3,7 +3,7 @@
 #' @include norMmixMLE.R
 
 
-
+## MM: FIXME: 'k' should not have a default
 fit.norMmix <- function(x, k=1:10, models=1:10, 
                         trafo=c("clr1", "logit"),
                         ll = c("nmm", "mvt"),
@@ -23,12 +23,10 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
            "VVI","EEE","VEE","EVV","VVV")
     m <- m[models]
 
-    norMmixval <- list()
-
-
-    for (j in 1:length(k)) {
+    norMmixval <- vector("list", length(m) * length(k))
+    for (j in seq_along(k)) {
         for (i in m) {
-            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],model=i,ll=ll,trafo=trafo,...), 
+            nMm <- tryCatch(norMmixMLE(x, k[j], model=i, ll=ll, trafo=trafo, ...), 
                             error = identity)
             norMmixval[[paste0(i,j)]] <- nMm
         }
@@ -88,7 +86,7 @@ displayError.fittednorMmix <- function(obj)
 parlen.fittednorMmix <- function(obj)
 {
     stopifnot(inherits(obj, "fittednorMmix"))
-    
+
     k <- obj$k
     p <- obj$p
     models <- obj$models
@@ -107,7 +105,7 @@ parlen.fittednorMmix <- function(obj)
 }
 
 
-BIC.fittednorMmix <- function(object, ...) 
+BIC.fittednorMmix <- function(object, ...)
 {
     stopifnot(inherits(object, "fittednorMmix"))
 
@@ -123,15 +121,15 @@ BIC.fittednorMmix <- function(object, ...)
     micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
     if (mirow==0) mirow <- length(k)
     mindex <- c(k[mirow],models[micol])
-    
+
     list(val, best=mindex, bestnMm=bestnMm)
 }
 
-AIC.fittednorMmix <- function(object, ..., k = 2) 
+AIC.fittednorMmix <- function(object, ..., k = 2)
 {
     stopifnot(inherits(object, "fittednorMmix"))
 
-    n <- object$n
+    ## n <- object$n
     models <- object$models
     parlen <- parlen.fittednorMmix(object)
     ll <- logLik.fittednorMmix(object)

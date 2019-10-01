@@ -19,7 +19,7 @@
 #'
 #' description
 #'
-#' @param par. parameter vector
+#' @param par parameter vector
 #' @param tx sample matrix
 #' @param k number of clusters
 #' @param trafo either centered log ratio or logit
@@ -27,7 +27,7 @@
 #'
 #' @export
 
-llnorMmix <- function(par., tx, k,
+llnorMmix <- function(par, tx, k,
                       trafo=c("clr1", "logit"),
                       model=c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
@@ -49,12 +49,11 @@ llnorMmix <- function(par., tx, k,
 
     # get w
 
-    if (k==1) w <- 1
-    else w <- switch(trafo,
-                     "clr1" = clr1inv(par.[1:(k-1)]),
-                     "logit"= logitinv(par.[1:(k-1)]),
-                     stop("error in weight switch statement")
-                     )
+    w <- if (k==1) 1
+         else switch(trafo,
+                     "clr1" = clr1inv (par[1:(k-1)]),
+                     "logit"= logitinv(par[1:(k-1)]),
+                     stop("invalid 'trafo': ", trafo))
 
 
     # start of relevant parameters:
@@ -62,7 +61,7 @@ llnorMmix <- function(par., tx, k,
     f <- k + p*k # weights -1 + means +1 => start of alpha
 
     # get mu
-    mu <- matrix(par.[k:(f-1L)], p,k)
+    mu <- matrix(par[k:(f-1L)], p,k)
 
     f1 <- f # end of alpha if uniform
     f2 <- f+k-1L # end of alpha if var
@@ -92,7 +91,7 @@ llnorMmix <- function(par., tx, k,
     # calculate log-lik, see first case for explanation
     switch(model,
     "EII" = {
-        alpha <- par.[f]
+        alpha <- par[f]
         invalpha <- exp(-alpha)# = 1/exp(alpha)
         for (i in 1:k) {
             rss <- colSums(invalpha*(tx-mu[,i])^2)
@@ -109,7 +108,7 @@ llnorMmix <- function(par., tx, k,
     # alpha / alpha[i] and D. / D.[,i]
 
     "VII" = {
-        alpha <- par.[f:f2]
+        alpha <- par[f:f2]
         for (i in 1:k) {
             rss <- colSums((tx-mu[,i])^2/exp(alpha[i]))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
@@ -117,8 +116,8 @@ llnorMmix <- function(par., tx, k,
     },
 
     "EEI" = {
-        alpha <- par.[f]
-        D. <- par.[f1.1:f11]
+        alpha <- par[f]
+        D. <- par[f1.1:f11]
         D. <- c(-sum(D.),D.)
         D. <- D.-sum(D.)/p
         invD <- exp(alpha+D.)
@@ -129,8 +128,8 @@ llnorMmix <- function(par., tx, k,
     },
 
     "VEI" = {
-        alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]
+        alpha <- par[f:f2]
+        D. <- par[f2.1:f21]
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D.)/p
         for (i in 1:k) {
@@ -140,8 +139,8 @@ llnorMmix <- function(par., tx, k,
     },
 
     "EVI" = {
-        alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p-1,k)
+        alpha <- par[f]
+        D. <- matrix(par[f1.1:f12],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
@@ -151,8 +150,8 @@ llnorMmix <- function(par., tx, k,
     },
 
     "VVI" = {
-        alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p-1,k)
+        alpha <- par[f:f2]
+        D. <- matrix(par[f2.1:f22],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         for (i in 1:k) {
@@ -168,13 +167,13 @@ llnorMmix <- function(par., tx, k,
     # y = backsolve(L., tx)
 
     "EEE" = {
-        alpha <- par.[f]
-        D. <- par.[f1.1:f11]
+        alpha <- par[f]
+        D. <- par[f1.1:f11]
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D./p)
         invD <- exp(alpha+D.)
         L. <- diag(1,p)
-        L.[lower.tri(L., diag=FALSE)] <- par.[f11.1:f111]
+        L.[lower.tri(L., diag=FALSE)] <- par[f11.1:f111]
         for (i in 1:k) {
             rss <- colSums(backsolve(L.,(tx-mu[,i]), upper.tri=FALSE)^2/invD)
             invl <- invl+w[i]*exp(-0.5*(p*(alpha+l2pi)+rss))
@@ -182,12 +181,12 @@ llnorMmix <- function(par., tx, k,
     },
 
     "VEE" = {
-        alpha <- par.[f:f2]
-        D. <- par.[f2.1:f21]
+        alpha <- par[f:f2]
+        D. <- par[f2.1:f21]
         D. <- c(-sum(D.), D.)
         D. <- D.-sum(D./p)
         L. <- diag(1,p)
-        L.[lower.tri(L., diag=FALSE)] <- par.[f21.1:f211]
+        L.[lower.tri(L., diag=FALSE)] <- par[f21.1:f211]
         for (i in 1:k) {
             rss <- colSums(backsolve(L., (tx-mu[,i]), upper.tri=FALSE)^2/exp(alpha[i]+D.))
             invl <- invl+w[i]*exp(-0.5*(p*(alpha[i]+l2pi)+rss))
@@ -195,11 +194,11 @@ llnorMmix <- function(par., tx, k,
     },
 
     "EVV" = {
-        alpha <- par.[f]
-        D. <- matrix(par.[f1.1:f12],p-1,k)
+        alpha <- par[f]
+        D. <- matrix(par[f1.1:f12],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
 	    D. <- apply(D.,2, function(j) j-sum(j)/p)
-        L.temp <- matrix(par.[f12.1:f121],p*(p-1)/2,k)
+        L.temp <- matrix(par[f12.1:f121],p*(p-1)/2,k)
         for (i in 1:k) {
             L. <- diag(1,p)
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
@@ -209,12 +208,12 @@ llnorMmix <- function(par., tx, k,
     },
 
     "VVV" = {
-        alpha <- par.[f:f2]
-        D. <- matrix(par.[f2.1:f22],p-1,k)
+        alpha <- par[f:f2]
+        D. <- matrix(par[f2.1:f22],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
         D. <- apply(D.,2, function(j) j-sum(j)/p)
         invalpha <- exp(rep(alpha, each=p)+D.)
-        L.temp <- matrix(par.[f22.1:f221],p*(p-1)/2,k)
+        L.temp <- matrix(par[f22.1:f221],p*(p-1)/2,k)
         L. <- diag(1,p)
         for (i in 1:k) {
             L.[lower.tri(L., diag=FALSE)] <- L.temp[,i]
@@ -231,16 +230,12 @@ llnorMmix <- function(par., tx, k,
 }
 
 
-
 sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
-    tx <- t(x)
-    k <- obj$k
-    model <- obj$model
+    stopifnot(is.character(model <- obj$model))
     trafo <- match.arg(trafo)
-
-    llnorMmix(nMm2par(obj, model=model), tx=tx, k=k, model=model, trafo=trafo)
+    llnorMmix(nMm2par(obj, model=model),
+              tx = t(x), k = obj$k, model=model, trafo=trafo)
 }
-
 
 
 
@@ -249,17 +244,17 @@ sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
 #'
 #' \code{llmvtnorm} returns scalar value of log-likelihood
 #'
-#' @param par. parameter vector as calculated by nMm2par
+#' @param par parameter vector as calculated by nMm2par
 #' @param x matrix of samples
 #' @param k number of cluster
 #' @param trafo transformation of weights
 #' @param model assumed model of the distribution
 #'
 #' @export
-llmvtnorm <- function(par., x, k,
+llmvtnorm <- function(par, x, k,
                       trafo=c("clr1", "logit"),
-              model=c("EII","VII","EEI","VEI","EEE",
-                  "VEE","EVI","VVI","EVV","VVV")
+                      model=c("EII","VII","EEI","VEI","EVI",
+                              "VVI","EEE","VEE","EVV","VVV")
               )
 {
     stopifnot(is.matrix(x),
@@ -268,7 +263,7 @@ llmvtnorm <- function(par., x, k,
     trafo <- match.arg(trafo)
     p <- ncol(x)
 
-    nmm <- par2nMm(par., p, k, model=model, trafo=trafo)
+    nmm <- par2nMm(par, p, k, model=model, trafo=trafo)
     ## FIXME (speed!):  dmvnorm(*, sigma= S) will do a chol(S) for each component
     ## -----  *instead* we already have LDL' and  chol(S) = sqrt(D) L' !!
     ## another par2*() function should give L and D, or from that chol(Sagma), rather than Sigma !

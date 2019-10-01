@@ -26,13 +26,13 @@ ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax
 #' @export
 norMmixMLE <- function(
                x, k,
-               trafo=c("clr1", "logit"),
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
                ini = c("clara", "mclVVV"),
+               trafo=c("clr1", "logit"),
                ll = c("nmm", "mvt"),
-               epsilon = 1e-10,
-               method = "BFGS", maxit = 100, trace = 2, 
+               ## epsilon = 1e-10,
+               method = "BFGS", maxit = 100, trace = 2,
                optREPORT=10, reltol = sqrt(.Machine$double.eps),
                samples = 128,
                sampsize = ssClaraL,
@@ -93,11 +93,11 @@ norMmixMLE <- function(
         "VEE" = mclust::mstepVEE(x, tau),
         "EVV" = mclust::mstepEVV(x, tau),
         "VVV" = mclust::mstepVVV(x, tau),
-        
+
         stop("error in mstep, in norMmixMLE")
     )
 
-    nMm.temp <- norMmix(mcl.mstep$parameters$mean, 
+    nMm.temp <- norMmix(mcl.mstep$parameters$mean,
                         Sigma = mcl.mstep$parameters$variance$sigma,
                         weight = mcl.mstep$parameters$pro,
                         model = mcl.mstep$modelName)
@@ -110,12 +110,12 @@ norMmixMLE <- function(
 
     # 3.
 
-    tx <- t(x)
+    if(ll == "nmm") tx <- t(x)
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
-        "nmm" = function(par.) { -llnorMmix(par.,tx=tx,k=k,model=model, trafo=trafo) }, ## max(-10^300, -llnorMmix) for both , also change x arg of ll to tx
-        "mvt" = function(par.) { -llmvtnorm(par.,x=x,k=k,model=model, trafo=trafo) },
+        "nmm" = function(P) { -llnorMmix(P, tx=tx, k=k, model=model, trafo=trafo) }, ## max(-10^300, -llnorMmix) for both
+        "mvt" = function(P) { -llmvtnorm(P, x=x, k=k, model=model, trafo=trafo) },
         stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,
@@ -123,14 +123,11 @@ norMmixMLE <- function(
     		    ...)
     optr <- optim(initpar., neglogl, method=method, control=control)
 
-
     # 4.
 
-    nMm <- par2nMm(optr$par, p, k, model=model)
-    cond <- parcond(x, k=k, model=model)
-
-    ret <- list(norMmix=nMm, optr=optr, parlen=parlen, n=n, cond=cond)
-
+    ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
+                optr=optr, parlen=parlen, n=n,
+                cond = parcond(x, k=k, model=model))
     class(ret) <- "norMmixfit"
-    return(ret)
+    ret
 }

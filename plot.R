@@ -132,16 +132,17 @@ plot.norMmix <- function(x, data=NULL, ... ) {
 
 ############################################################
 
+## MM: FIXME:  s / name / main /  {but also change in Rscripts when *calling* this !}
 plot.fittednorMmix <- function(x, name="unnamed", plotbest=FALSE, ...) {
     stopifnot(inherits(x, "fittednorMmix"))
 
-    k <- x$k
     models <- x$models
-    n <- x$n
-    p <- x$p
-
-    bicmat <- BIC(x)[[1]]
-    best <- BIC(x)[[2]]
+    ## k <- x$k
+    ## n <- x$n
+    ## p <- x$p
+    Bx <- BIC(x)
+    bicmat <- Bx[[1]]
+    best   <- Bx[[2]]
 
     cl <- rainbow(length(models))
 
