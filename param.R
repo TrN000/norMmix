@@ -41,6 +41,7 @@ dl. <- function(d,x,p){
 #' @export
 
 nMm2par <- function(obj,
+            trafo=c("clr1", "logit"),
             model=c("EII","VII","EEI","VEI","EVI",
                 "VVI","EEE","VEE","EVV","VVV"),
             meanFUN= mean
@@ -54,6 +55,7 @@ nMm2par <- function(obj,
     k <- obj$k
 
     model <- match.arg(model)
+    trafo <- match.arg(trafo)
 
     av <- match.fun(meanFUN)
 
@@ -81,7 +83,11 @@ nMm2par <- function(obj,
     #output vector of parameter values
 
     c(
-      w <- clr1(w),
+      w <- switch(trafo,
+                  "clr1" = clr1(w),
+                  "logit" = logit(w),
+                  stop("error in nMm2par trafo switch")
+                  ),
       mu, #means
       Sigma <- switch(model, #model dependent covariance values
         "EII" = {
@@ -177,7 +183,7 @@ nMm2par <- function(obj,
 #n2p <-
 ## these were in ./zmarrwandnMm.R :
 #n2m <- # <- drop this name and rather use
-nc2p <- function(obj) nMm2par(obj ,  obj$model)
+nc2p <- function(obj) nMm2par(obj ,  obj$model, trafo="clr1")
 
 
 
@@ -200,10 +206,12 @@ nc2p <- function(obj) nMm2par(obj ,  obj$model)
 
 par2nMm <- function(par., p, k,
             model = c("EII","VII","EEI","VEI","EEE",
-                    "VEE","EVI","VVI","EVV","VVV")
+                    "VEE","EVI","VVI","EVV","VVV"),
+            trafo = c("clr1", "logit")
             )
 {
     model <- match.arg(model)
+    trafo <- match.arg(trafo)
 
     p <- as.integer(p)
     k <- as.integer(k)
@@ -236,7 +244,11 @@ par2nMm <- function(par., p, k,
     #only important ones are f1.2, f1.3, f2.2, f2.3
 
     w.temp <- if(k==1) vector() else par.[1:(k-1)]
-    w <-  clr1inv (w.temp)
+    w <- switch(trafo,
+                "clr1" = clr1inv(w.temp),
+                "logit"= logitinv(w.temp),
+                stop("error in par2nMm, weight switch")
+                )
 
     mu <- matrix(par.[k:(k+p*k-1)], p, k)
 

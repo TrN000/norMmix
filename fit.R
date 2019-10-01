@@ -5,6 +5,7 @@
 
 
 fit.norMmix <- function(x, k=1:10, models=1:10, 
+                        trafo=c("clr1", "logit"),
                         ll = c("nmm", "mvt"),
                     ...
                         )
@@ -16,6 +17,7 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
     p <- ncol(x)
 
     ll <- match.arg(ll)
+    trafo <- match.arg(trafo)
 
     m <- c("EII","VII","EEI","VEI","EVI",
            "VVI","EEE","VEE","EVV","VVV")
@@ -26,7 +28,8 @@ fit.norMmix <- function(x, k=1:10, models=1:10,
 
     for (j in 1:length(k)) {
         for (i in m) {
-            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],model=i,ll=ll,...), error = identity)
+            nMm <- tryCatch(nMm <- norMmixMLE(x,k[j],model=i,ll=ll,trafo=trafo,...), 
+                            error = identity)
             norMmixval[[paste0(i,j)]] <- nMm
         }
     }

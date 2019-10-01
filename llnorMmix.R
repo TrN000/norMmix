@@ -28,9 +28,10 @@
 #' @export
 
 llnorMmix <- function(par., tx, k,
-              model=c("EII","VII","EEI","VEI","EVI",
-                      "VVI","EEE","VEE","EVV","VVV")
-              )
+                      trafo=c("clr1", "logit"),
+                      model=c("EII","VII","EEI","VEI","EVI",
+                              "VVI","EEE","VEE","EVV","VVV")
+                      )
 {
     stopifnot(is.matrix(tx),
               length(k <- as.integer(k)) == 1, k >= 1)
@@ -40,6 +41,7 @@ llnorMmix <- function(par., tx, k,
     # 2. transform
 
     model <- match.arg(model)
+    trafo <- match.arg(trafo)
 
     l2pi <- log(2*pi)
 
@@ -48,7 +50,11 @@ llnorMmix <- function(par., tx, k,
     # get w
 
     if (k==1) w <- 1
-    else w <- clr1inv(par.[1:(k-1)])
+    else w <- switch(trafo,
+                     "clr1" = clr1inv(par.[1:(k-1)]),
+                     "logit"= logitinv(par.[1:(k-1)]),
+                     stop("error in weight switch statement")
+                     )
 
 
     # start of relevant parameters:
@@ -217,7 +223,8 @@ llnorMmix <- function(par., tx, k,
         }
     },
     ## otherwise
-    stop("invalid model:", model))
+    stop("invalid model:", model)
+    )
 
     ## return  sum_{i=1}^n log( f(tx_i) ) :
     sum(log(invl))
@@ -225,12 +232,13 @@ llnorMmix <- function(par., tx, k,
 
 
 
-sllnorMmix <- function(x, obj) {
+sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
     tx <- t(x)
     k <- obj$k
     model <- obj$model
+    trafo <- match.arg(trafo)
 
-    llnorMmix(nMm2par(obj, model=model), tx=tx, k=k, model=model)
+    llnorMmix(nMm2par(obj, model=model), tx=tx, k=k, model=model, trafo=trafo)
 }
 
 
@@ -249,6 +257,7 @@ sllnorMmix <- function(x, obj) {
 #'
 #' @export
 llmvtnorm <- function(par., x, k,
+                      trafo=c("clr1", "logit"),
               model=c("EII","VII","EEI","VEI","EEE",
                   "VEE","EVI","VVI","EVV","VVV")
               )
@@ -256,9 +265,10 @@ llmvtnorm <- function(par., x, k,
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
     model <- match.arg(model)
+    trafo <- match.arg(trafo)
     p <- ncol(x)
 
-    nmm <- par2nMm(par., p, k, model=model)
+    nmm <- par2nMm(par., p, k, model=model, trafo=trafo)
     ## FIXME (speed!):  dmvnorm(*, sigma= S) will do a chol(S) for each component
     ## -----  *instead* we already have LDL' and  chol(S) = sqrt(D) L' !!
     ## another par2*() function should give L and D, or from that chol(Sagma), rather than Sigma !

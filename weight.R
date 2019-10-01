@@ -28,7 +28,6 @@ logitinv <- function(e) {
     if (length(e)==0) {return(c(1))}
     stopifnot(is.numeric(e))
     e<- plogis(e)
-    if (sum(e) > 1) stop("weights sum to >1, logitinv")
     sp. <- sum(e)
     w <- c((1-sp.), e)
 }
