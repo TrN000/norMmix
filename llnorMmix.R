@@ -53,13 +53,12 @@ llnorMmix <- function(par, tx, k,
          else switch(trafo,
                      "clr1" = clr1inv (par[1:(k-1)]),
                      "logit"= logitinv(par[1:(k-1)]),
-                     stop("invalid 'trafo': ", trafo))
-
+                     stop("invalid 'trafo': ", trafo)
+         )
 
     # start of relevant parameters:
 
     f <- k + p*k # weights -1 + means +1 => start of alpha
-
     # get mu
     mu <- matrix(par[k:(f-1L)], p,k)
 
