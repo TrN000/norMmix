@@ -9,6 +9,7 @@ fit.norMmix <- function(x, k, models=1:10,
                     ...
                         )
 {
+    k <- as.integer(k)
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
               0 < models, models <= 10,
@@ -59,8 +60,8 @@ logLik.fittednorMmix <- function(object, ...)
     rownames(val) <- k
     colnames(val) <- models
 
-    for (i in k) {
-        for (j in models) {
+    for (i in seq_along(k)) {
+        for (j in seq_along(models)) {
             nm <- object$nMm[i,j][[1]]
             # need to catch errors, if nm is string return NA
             val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, NA, -nm$optr$value)
@@ -77,10 +78,10 @@ displayError.fittednorMmix <- function(obj)
     k <- obj$k
     models <- obj$models
 
-    for (i in k) {
-        for (j in models) {
+    for (i in seq_along(k)) {
+        for (j in seq_along(models)) {
             nm <- obj$nMm[i,j][[1]]
-            if (is.character(nm[[1]])&&length(nm)==2) cat(i,j, "\t", paste(nm), "\n\n")
+            if (is.character(nm[[1]])&&length(nm)==2) cat(k[i],models[j], "\t", paste(nm), "\n\n")
         }
     }
 }
@@ -97,9 +98,9 @@ parlen.fittednorMmix <- function(obj)
     rownames(val) <- k
     colnames(val) <- models
 
-    for (i in k) {
-        for (j in models) {
-            val[i,j] <- parlen(i,p,j)
+    for (i in seq_along(k)) {
+        for (j in seq_along(models)) {
+            val[i,j] <- parlen(k[i],p,models[j])
         }
     }
 
@@ -157,11 +158,11 @@ cond.fittednorMmix <- function(obj)
     rownames(val) <- k
     colnames(val) <- models
 
-    for (i in k) {
-        for (j in models) {
+    for (i in seq_along(k)) {
+        for (j in seq_along(models)) {
             nm <- obj$nMm[i,j][[1]]
             # need to catch errors, if nm is string return NA
-            val[i,j] <- nm$cond
+            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, NA, nm$cond)
         }
     }
 
