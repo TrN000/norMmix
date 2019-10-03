@@ -77,13 +77,14 @@ nMm2par <- function(obj
 
     #output vector of parameter values
 
-    c(
-      w <- switch(trafo,
+    c(# weights 'w' (= \pi_j ):
+      switch(trafo,
                   "clr1" = clr1(w),
                   "logit" = logit(w),
                   stop("error in nMm2par() trafo: ", trafo)),
-      mu, #means
-      Sigma <- switch(model, #model dependent covariance values
+      mu, # means
+      ## Sigma :
+      switch(model, # model dependent covariance values
         "EII" = {
             D. <- apply(sig,3, function(j) ldl(j)$D)
             av(log(D.))

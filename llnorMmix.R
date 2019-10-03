@@ -20,7 +20,7 @@
 #' description
 #'
 #' @param par parameter vector
-#' @param tx sample matrix
+#' @param tx transposed sample matrix
 #' @param k number of clusters
 #' @param trafo either centered log ratio or logit
 #' @param model assumed distribution model of normal mixture
@@ -62,26 +62,26 @@ llnorMmix <- function(par, tx, k,
     # get mu
     mu <- matrix(par[k:(f-1L)], p,k)
 
-    f1 <- f # end of alpha if uniform
+    f1 <- f      # end of alpha if uniform
     f2 <- f+k-1L # end of alpha if var
 
-    f1.1 <- f1 +1L #start of D. if alpha unif.
-    f2.1 <- f1 + k # start of D. if alpha varialbe
+    f1.1 <- f1 +1L # start of D. if alpha unif.
+    f2.1 <- f1 + k # start of D. if alpha variable
 
-    f11 <- f1 + p -1# end of D. if D. uniform and alpha uniform
-    f12 <- f1 + p*k -k# end D. if D. var and alpha unif.
-    f21 <- f2 + p -1# end of D. if D. uniform and alpha variable
-    f22 <- f2 + p*k -k# end of D. if D.var and alpha var
+    f11 <- f1 + p-1    # end of D. if D. uniform and alpha uniform
+    f12 <- f1 +(p-1)*k # end    D. if D.   var   and alpha unif.
+    f21 <- f2 + p-1    # end of D. if D. uniform and alpha variable
+    f22 <- f2 +(p-1)*k # end of D. if D.   var   and alpha var.
 
-    f11.1 <- f11 +1L # start of L if alpha unif D unif
-    f21.1 <- f21 +1L # start of L if alpha var D unif
-    f12.1 <- f12 +1L # start of L if alpha unif D var
-    f22.1 <- f22 +1L # start of L if alpha var D var
+    f11.1 <- f11 +1L # start of L if alpha unif  D unif
+    f21.1 <- f21 +1L # start of L if alpha var   D unif
+    f12.1 <- f12 +1L # start of L if alpha unif  D var
+    f22.1 <- f22 +1L # start of L if alpha var   D var
 
-    f111 <- f11 + p*(p-1)/2 # end of L if alpha unif D unif
-    f211 <- f21 + p*(p-1)/2 # end of L if alpha var D unif
-    f121 <- f12 + k*p*(p-1)/2 # end of L if alpha unif D var
-    f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
+    f111 <- f11 +   p*(p-1)/2 # end of L if alpha unif  D unif
+    f211 <- f21 +   p*(p-1)/2 # end of L if alpha var   D unif
+    f121 <- f12 + k*p*(p-1)/2 # end of L if alpha unif  D var
+    f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var   D var
 
 
     # initialize f(tx_i) i=1..n  vector of density values
@@ -196,7 +196,7 @@ llnorMmix <- function(par, tx, k,
         alpha <- par[f]
         D. <- matrix(par[f1.1:f12],p-1,k)
         D. <- apply(D.,2, function(j) c(-sum(j), j))
-	    D. <- apply(D.,2, function(j) j-sum(j)/p)
+        D. <- apply(D.,2, function(j) j-sum(j)/p)
         L.temp <- matrix(par[f12.1:f121],p*(p-1)/2,k)
         for (i in 1:k) {
             L. <- diag(1,p)
