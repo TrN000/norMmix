@@ -49,6 +49,8 @@ fit.norMmix <- function(x, k, models=1:10,
     ret
 }
 
+nobs.fittednorMmix <- function(object, ...) object$n
+
 logLik.fittednorMmix <- function(object, ...)
 {
     ## returns log-likelihood of fittednorMmix object
@@ -68,6 +70,8 @@ logLik.fittednorMmix <- function(object, ...)
         }
     }
 
+    #attributes(val) <- list(df=c(5,4,3), nobs=nobs(object))
+    #class(val) <- c("logLik", "matrix")
     val
 }
 
@@ -169,3 +173,12 @@ cond.fittednorMmix <- function(obj)
     val
 }
 
+logLik.norMmixfit <- function(object, ...) {
+    r <- object$optr$value
+    attributes(r) <- list(df=object$parlen, nobs=nobs(object))
+    class(r) <- "logLik"
+    r
+}
+
+nobs.norMmixfit <- function(object, ...) object$n
+    
