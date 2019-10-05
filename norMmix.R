@@ -286,3 +286,18 @@ mods <- function() {
     return(models)
 }
 
+
+print.norMmix <- function(x, ...) {
+    name <- attr(x, "name")
+    mo <- x$model
+    we <- x$weight
+    co <- x$k
+    dim <- x$dim
+
+    cat("norMmix object: \n\n")
+    cat("multivariate normal mixture model with the following attributes:\n")
+    cat("name: \t\t", name, "\n",
+        "dimension:\t", dim, "\n",
+        "components:\t", co, "\n")
+    cat("weight of components", we, "\n")
+}

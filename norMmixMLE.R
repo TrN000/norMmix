@@ -106,7 +106,7 @@ norMmixMLE <- function(
         #nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
     initpar. <- nMm2par(obj=nMm.temp, model=model, trafo=trafo, meanFUN=mean)
     # save degrees of freedom
-    parlen <- length(initpar.)
+    npar <- length(initpar.)
 
     # 3.
 
@@ -126,8 +126,19 @@ norMmixMLE <- function(
     # 4.
 
     ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
-                optr=optr, parlen=parlen, n=n,
+                optr=optr, npar=npar, n=n,
                 cond = parcond(x, k=k, model=model))
     class(ret) <- "norMmixfit"
     ret
 }
+
+
+
+logLik.norMmixfit <- function(object, ...) {
+    r <- object$optr$value
+    attributes(r) <- list(df=object$npar, nobs=nobs(object))
+    class(r) <- "logLik"
+    r
+}
+
+nobs.norMmixfit <- function(object, ...) object$n

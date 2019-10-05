@@ -3,7 +3,7 @@
 #' @include norMmixMLE.R
 
 
-fit.norMmix <- function(x, k, models=1:10, 
+fitnMm <- function(x, k, models=1:10, 
                         trafo=c("clr1", "logit"),
                         ll = c("nmm", "mvt"),
                     ...
@@ -90,7 +90,7 @@ displayError.fittednorMmix <- function(obj)
     }
 }
 
-parlen.fittednorMmix <- function(obj)
+npar.fittednorMmix <- function(obj)
 {
     stopifnot(inherits(obj, "fittednorMmix"))
 
@@ -104,7 +104,7 @@ parlen.fittednorMmix <- function(obj)
 
     for (i in seq_along(k)) {
         for (j in seq_along(models)) {
-            val[i,j] <- parlen(k[i],p,models[j])
+            val[i,j] <- npar(k[i],p,models[j])
         }
     }
 
@@ -119,9 +119,9 @@ BIC.fittednorMmix <- function(object, ...)
     n <- object$n
     k <- object$k
     models <- object$models
-    parlen <- parlen.fittednorMmix(object)
+    npar <- npar.fittednorMmix(object)
     ll <- logLik.fittednorMmix(object)
-    val <- parlen*log(n) - 2*ll
+    val <- npar*log(n) - 2*ll
     mi <- which.min(val)
     bestnMm <- object$nMm[mi][[1]]
     mirow <- mi%%length(k)
@@ -138,9 +138,9 @@ AIC.fittednorMmix <- function(object, ..., k = 2)
 
     ## n <- object$n
     models <- object$models
-    parlen <- parlen.fittednorMmix(object)
+    npar <- npar.fittednorMmix(object)
     ll <- logLik.fittednorMmix(object)
-    val <- parlen*k - 2*ll
+    val <- npar*k - 2*ll
     mi <- which.min(val)
     k <- object$k # overwriting the AIC k (typically = 2)
     mirow <- mi%%length(k)
@@ -173,12 +173,34 @@ cond.fittednorMmix <- function(obj)
     val
 }
 
-logLik.norMmixfit <- function(object, ...) {
-    r <- object$optr$value
-    attributes(r) <- list(df=object$parlen, nobs=nobs(object))
-    class(r) <- "logLik"
+extracttimes <- function(object, ...) {
+    stopifnot(inherits(object, "fittednorMmix"))
+    ti <- unlist(object$nMmtime)
+    na <- names(ti)[1:5]
+    co <- object$k
+    mo <- object$models
+
+    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
+    r <- array(ti, lengths(list(co, mo, na)))
+    dimnames(r) <- list(k=co, models=mo, proc_time=na)
+    class(r) <- "fittednorMmix_time"
     r
 }
-
-nobs.norMmixfit <- function(object, ...) object$n
     
+print.fittednorMmix <- function(x, ...) {
+    n <- nobs(x)
+    co <- x$k
+    mo <- x$models
+    dim <- x$p
+    ti <- apply(extracttimes(x), 3, sum)
+    bics <- BIC(x)
+
+    cat("\nfitted normal mixture:\n",
+        "dimension of dataset: \tvariables", dim, "\tobservations:", n, "\n",
+        "fitted components and models: \n", co, "\n", mo, "\n")
+
+    cat("total time: \t",ti, "\n")
+    cat("\nbest fit:\t", bics[2][[1]], "\n",
+        "logLik: \t", bics$bestnMm$optr$value)
+
+}

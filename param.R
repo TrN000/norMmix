@@ -380,7 +380,7 @@ nparSigma <- function(k, p,
         )
 
 
-parlen <- function(k, p,
+npar <- function(k, p,
                    model=c("EII","VII","EEI","VEI","EVI",
                            "VVI","EEE","VEE","EVV","VVV")
                    )
@@ -404,7 +404,7 @@ parcond <- function(x,
     n <- nrow(x)
     p <- ncol(x)
     model <- match.arg(model)
-    pars <- parlen(k,p, model=model)
+    pars <- npar(k,p, model=model)
 
     n/pars
 }
