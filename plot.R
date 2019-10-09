@@ -100,16 +100,22 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 }
 
 
+plot.norMmixfit <- function(x, y=NULL, points=TRUE, ...) {
+    plot(x$norMmix)
+    if (points) points(x$x)
+}
+
+
 #' plot function for norMmix objects
 #'
 #' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 #'
 #' @export
-plot.norMmix <- function(x, data=NULL, ... ) {
+plot.norMmix <- function(x, y=NULL, ... ) {
     ## TODO: make so data can also be missing
     stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
-        plot2d.norMmix(x, data, ... )
+        plot2d.norMmix(x, y, ... )
     else ## if (p>2)
         plotnd.norMmix(x, ...)
 }
@@ -139,9 +145,11 @@ plot.fittednorMmix <- function(x, main="unnamed", plotbest=FALSE, ...) {
         legend("topright" , models, fill=cl, lty=1:10)
         mtext(paste("best fit = ", best[1], best[2]))
     } else {
+        # TODO: like massplot
         bk <- as.integer(best[1])
         bmodel <- best[2]
         plot(x$nMm[bk,bmodel][[1]]$norMmix, ...)
+        points(x$x)
         title(main=main)
         mtext(paste("best fit = ", best[1], best[2]))
     }
