@@ -202,5 +202,5 @@ print.fittednorMmix <- function(x, ...) {
     cat("total time: \t",ti, "\n")
     cat("\nbest fit:\t", bics[2][[1]], "\n",
         "logLik: \t", bics$bestnMm$optr$value)
-
+    invisible(x)
 }
