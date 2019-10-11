@@ -129,17 +129,26 @@ norMmixMLE <- function(
                 optr=optr, npar=npar, n=n,
                 x=x,
                 cond = parcond(x, k=k, model=model))
-    class(ret) <- "norMmixfit"
+
+    r <- structure(.Data=par2nMm(optr$par, p, k, model=model),
+                   optr=optr,
+                   npar=npar,
+                   n=n,
+                   x=x,
+                   cond=parcond(x, k=k, model=model),
+                   class=c("norMmixMLE", "norMmix")
+                   )
+    class(ret) <- "norMmixMLE"
     ret
 }
 
 
 
-logLik.norMmixfit <- function(object, ...) {
+logLik.norMmixMLE <- function(object, ...) {
     r <- object$optr$value
     attributes(r) <- list(df=object$npar, nobs=nobs(object))
     class(r) <- "logLik"
     r
 }
 
-nobs.norMmixfit <- function(object, ...) object$n
+nobs.norMmixMLE <- function(object, ...) object$n

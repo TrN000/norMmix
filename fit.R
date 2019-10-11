@@ -45,7 +45,7 @@ fitnMm <- function(x, k, models=1:10,
     colnames(norMmixtime) <- m
 
     ret <- list(nMm=norMmixval, nMmtime=norMmixtime, k=k, models=m, n=n, p=p, x=x)
-    class(ret) <- c("fittednorMmix", "norMmix")
+    class(ret) <- "fittednorMmix"
     ret
 }
 

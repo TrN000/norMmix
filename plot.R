@@ -100,7 +100,7 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 }
 
 
-plot.norMmixfit <- function(x, y=NULL, points=TRUE, ...) {
+plot.norMmixMLE <- function(x, y=NULL, points=TRUE, ...) {
     plot(x$norMmix)
     if (points) points(x$x)
 }
