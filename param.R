@@ -203,6 +203,7 @@ par2nMm <- function(par, p, k
                   , model = c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
                   , trafo = c("clr1", "logit")
+                  , name = sprintf("model = %s , clusters = %s", model, k)
                     )
 {
     model <- match.arg(model)
@@ -351,8 +352,6 @@ par2nMm <- function(par, p, k
     stop("error in Sigma switch statement")
     )
 
-    name <- sprintf("model = %s , clusters = %s", model, k)
-
     structure(
         name = name,
         class = "norMmix",
@@ -400,12 +399,10 @@ parcond <- function(x,
                     model=c("EII","VII","EEI","VEI","EVI",
                             "VVI","EEE","VEE","EVV","VVV")
                     ) {
-
+    stopifnot(is.matrix(x), length(k) == 1, k == as.integer(k), k >= 1)
     n <- nrow(x)
     p <- ncol(x)
     model <- match.arg(model)
-    pars <- npar(k,p, model=model)
-
-    n/pars
+    n / npar(k, p, model=model)
 }
 

@@ -153,7 +153,6 @@ forcePositive <- function(nMm, eps0=1e-10)
 
     nMm$Sigma <- sig
     nMm
-
 }
 
 
@@ -177,7 +176,7 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
     mu <- obj$mu
     Sigma <- obj$Sigma
     weight <- obj$weight
-    p <- obj$dim
+    ## p <- obj$dim
     nj <- rmultinom(n=1, size=n, prob = weight)
 ### FIXME: again this does  chol(Sigma_j)  j = 1...k .. when actually we could've rather stored  chol(Sigma) instead of Sigma
     a <- do.call(rbind,
@@ -186,10 +185,7 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
         cl <- rep(seq_along(weight), times=nj)
         a <- cbind(cl, a)
     }
-    if(permute)
-        a <- a[sample.int(n),]
-    else
-        a
+    if(permute) a[sample.int(n),] else a
 }
 
 
@@ -242,8 +238,7 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
                 order.
             },
 
-        stop("error in matchby statement")
-        )
+        stop("invalid 'matchby': ", matchby))
 
 
     deltamu <- apply(m1-m2[,order.],2,norm,type=type)
@@ -262,7 +257,7 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
 
     penalty <- sum( pmu+psig+pweight )
 
-    list(order.=order., deltamu=deltamu, deltasig=deltasig, 
+    list(order.=order., deltamu=deltamu, deltasig=deltasig,
          deltaweight=deltaweight, penalty=penalty)
 
 }
@@ -280,11 +275,9 @@ mcl2nMm <- function() {
 
 
 
-mods <- function() {
-    models <- c("EII","VII","EEI","VEI","EVI",
-         	    "VVI","EEE","VEE","EVV","VVV")
-    return(models)
-}
+mods <- function() ## just return
+    c("EII","VII","EEI","VEI","EVI",
+      "VVI","EEE","VEE","EVV","VVV")
 
 
 print.norMmix <- function(x, ...) {
@@ -300,4 +293,5 @@ print.norMmix <- function(x, ...) {
         "dimension:\t", dim, "\n",
         "components:\t", co, "\n")
     cat("weight of components", we, "\n")
+    invisible(x) # << standard for all "good citizen" print() methods
 }
