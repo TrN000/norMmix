@@ -98,6 +98,7 @@ epfl <- function(files, savdir, subt=11) {
         main <- substring(fi[1], 1, nchar(fi[1])-subt)
         f <- massbic(fi, savdir)
         g <- massbicm(fi, savdir)
+        saveRDS(g, file=file.path(savdir, paste0(main, "_mcl.rds")))
         pdf(file=paste0(main,".pdf"))
         massplot(f, main=main)
         dev.off()
