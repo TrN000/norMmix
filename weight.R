@@ -16,9 +16,7 @@ clr1inv <- function(p) {
 }
 
 
-##
-## not used anymore
-##
+## not used anymore, but included for illustrative purposes
 logit <- function(e) {
     stopifnot(is.numeric(e) ,all(e >= 0), all.equal(sum(e),1))
     qlogis(e[-1L])

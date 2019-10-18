@@ -1,8 +1,8 @@
 ## functions that handle RDS files, that contain fittednorMmix objects
 
+
 # extract BIC from files, return array with sensible dimnames
 massbic <- function(string, DIR) {
-
     nm1 <- readRDS(file=file.path(DIR,string[1]))
     cl <- nm1$fit$k
     mo <- nm1$fit$models
@@ -15,12 +15,13 @@ massbic <- function(string, DIR) {
         val[,,i] <- BIC(nm$fit)[[1]]
         dims[i] <- nm$fit$p
     }
-    dimnames(val) <- list(clusters=cl, models=mo, simulation=string)
+    dimnames(val) <- list(components=cl, models=mo, simulation=string)
     attr(val, "dims") <- dims
 
     ## TODO: add more info to result, give it a class maybe
     val
 }
+
 
 # applies mclust along a model selection of fitnMm
 massbicm <- function(string, DIR) {
@@ -35,56 +36,66 @@ massbicm <- function(string, DIR) {
         valm[,,i] <- mclust::Mclust(x, G=cl, modelNames=mo)$BIC
         dims[i] <- nm$fit$p
     }
-    dimnames(valm) <- list(clusters=cl, models=mo, files=string)
+    dimnames(valm) <- list(components=cl, models=mo, files=string)
     attr(valm, "dims") <- dims
     -valm
 }
 
+
 # plot array of massbic
-massplot <- function(f, main="unnamed") {
+massplot <- function(f, main="unnamed", 
+                     adj=exp(-0.002*size), col=nMmcols[1],
+                     mar=0.1+c(1.4,2,3,1),
+                  ...) {
     ran <- extendrange(f)
     size <- dim(f)[3]
-    cl <- as.numeric(dimnames(f)$clusters)
+    cl <- as.numeric(dimnames(f)$components)
     p <- attr(f, "dims")
-    adj <- exp(-0.002*size) # set so at n=1000 alpha value is ~0.1
+    adj <- adj 
     models <- mods()
     ## FIXME: should not assume all models present.
-    op <- sfsmisc::mult.fig(mfrow=c(4,5), main=main, mar= 0.1 +c(2,4,4,1))
+    op <- sfsmisc::mult.fig(mfrow=c(4,5), main=main, mar=mar)
     for (i in 1:10) {
         if (!is.null(p)) {
-            matplot(f[,i,], lty=1, col=adjustcolor(rainbow(10)[i],adj), 
-                    type="l", ylim=ran,main=models[i])
+            matplot(f[,i,], lty=1, col=adjustcolor(col,adj), 
+                    type="l", ylim=ran, ylab='', ...)
+            title(main=models[i], line=2)
             axis(3, at=seq_along(cl), 
-                 labels=npar(cl,p[1],models[i]))
+                 labels=dfnMm(cl,p[1],models[i]))
         } else {
-            matplot(f[,i,], lty=1, col=adjustcolor(rainbow(10)[i],adj), 
-                    main=models[i], type="l", ylim=ran)
+            matplot(f[,i,], lty=1, col=adjustcolor(col,adj), 
+                    type="l", ylim=ran, ylab='',  ...)
+            title(main=models[i], line=3)
         }
     }
     for (i in 1:10) {
-        boxplot(t(f[,i,]), lty=1, col=adjustcolor(rainbow(10)[i],0.4), 
+        boxplot(t(f[,i,]), lty=1, col=adjustcolor(col,0.4), 
                 main=models[i], type="l", ylim=ran)
     }
     par(op$old.par)
 }
 
+
 # compare two massbic arrays
-compplot <- function(f, g, main="unnamed") {
+compplot <- function(f, g, main="unnamed", 
+                     adj=1/dim(f)[3], col=nMmcols[1:2], 
+                     mar=0.1+c(1.4,2,3,1),
+                  ...) {
     ylim <- extendrange(c(f,g))
     adj <- 0.4
-    op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar= 0.1 +c(2,4,4,1))
+    op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar=mar)
     models <- dimnames(f)$models
     for (i in 1:10) {
-        matplot(f[,i,], lty=1, col=adjustcolor(rainbow(20)[i],adj), 
-                main=models[i], type="l", ylim=ylim)
-        matplot(g[,i,], lty=1, col=adjustcolor(rainbow(20)[i+10],adj), 
-                main=models[i], type="l", ylim=ylim, add=TRUE)
+        matplot(f[,i,], lty=1, col=adjustcolor(col[1],adj), 
+                main=models[i], type="l", ylim=ylim, ylab='', ...)
+        matplot(g[,i,], lty=1, col=adjustcolor(col[2],adj), 
+                main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
     }
     par(op$old.par)
 }
 
 
-epfl <- function(files, savdir, subt=11) {
+epfl <- function(files, savdir, subt=11, ...) {
     # files: list of character vectors
     # savdir: string, specifies directory
     # subt: how many characters to subtract from filename
@@ -100,13 +111,13 @@ epfl <- function(files, savdir, subt=11) {
         g <- massbicm(fi, savdir)
         saveRDS(g, file=file.path(savdir, paste0(main, "_mcl.rds")))
         pdf(file=paste0(main,".pdf"))
-        massplot(f, main=main)
+        massplot(f, main=main, ...)
         dev.off()
         pdf(file=paste0(main,"_mcl.pdf"))
-        massplot(g, main=paste0(main, "_mcl"))
+        massplot(g, main=paste0(main, "_mcl"), ...)
         dev.off()
         pdf(file=paste0(main,"_comp.pdf"))
-        compplot(f,g, main=paste0(main, "_comp"))
+        compplot(f,g, main=paste0(main, "_comp"), ...)
         dev.off()
     }
 }

@@ -1,11 +1,20 @@
 ### plotting methods for norMmix objects
 
 
-plot2d.norMmix <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
-                           type="l", lty=2, newWindow=TRUE, npoints=250,
-                           col="red",  fill=TRUE, fillcolor="red",
-	                   ... )
-{
+## colors:
+nMmcols <- c("#4363d8", "#f58231", "#800000", "#ffe119", "#000075", 
+             "#fabebe", "#e6beff", "#a9a9a9", "#ffffff", "#000000")
+## chosen to be distinguishable and accesible for the colorblind,
+## according to this site:
+## https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+## slightly rearranged, so that the first five colors stand out well
+## on white background.
+
+
+plot2d <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
+                   type="l", lty=2, newWindow=TRUE, npoints=250,
+                   col=nMmcols[1],  fill=TRUE, fillcolor="red",
+	           ... ) {
     w <- nMm$weight
     mu <- nMm$mu
     sig <- nMm$Sigma
@@ -37,7 +46,7 @@ plot2d.norMmix <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
         if (fill) polygon(x[,1], x[,2], col=fco, border= NA )
     }
 
-    ## label clusters
+    ## label components
     text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
     if (!is.null(data)) {
         points(data[,c(1,2)])
@@ -47,10 +56,8 @@ plot2d.norMmix <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
 }
 
 
-
-plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
-                           alpha=0.05, ...)
-{
+plotnd <- function(nMm,npoints=500, fillcolor=nMmcols[1],
+                   alpha=0.05, ...) {
     stopifnot( inherits(nMm, "norMmix") )
     w <- nMm$weight
     mu <- nMm$mu
@@ -58,7 +65,6 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
     k <- nMm$k
     p <- nMm$dim
     npoints <- npoints*p
-
     ## calculate ellipses by randomly generating a hull
     coord <- list()
     coarr <- matrix(0,k*npoints,p)
@@ -101,31 +107,23 @@ plotnd.norMmix <- function(nMm,npoints=500, fillcolor="red",
 
 
 plot.norMmixMLE <- function(x, y=NULL, points=TRUE, ...) {
-    plot(x$norMmix)
+    plot(x$norMmix, ...)
     if (points) points(x$x)
 }
 
 
-#' plot function for norMmix objects
-#'
-#' \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
-#'
-#' @export
+# plot function for norMmix objects
+# \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 plot.norMmix <- function(x, y=NULL, ... ) {
     ## TODO: make so data can also be missing
     stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
-        plot2d.norMmix(x, y, ... )
+        plot2d(x, y, ... )
     else ## if (p>2)
-        plotnd.norMmix(x, ...)
+        plotnd(x, ...)
 }
 
 
-
-############################################################
-
-## MM: fixme:  s / name / main /  {but also change in Rscripts when *calling* this !}
-## NT: done
 plot.fittednorMmix <- function(x, main="unnamed", plotbest=FALSE, ...) {
     stopifnot(inherits(x, "fittednorMmix"))
 
@@ -140,7 +138,7 @@ plot.fittednorMmix <- function(x, main="unnamed", plotbest=FALSE, ...) {
     cl <- rainbow(length(models))
 
     if (!plotbest) {
-        matplot(bicmat, type="l", xlab="clusters", ylab="BIC", col=cl, lty=1:10, ...)
+        matplot(bicmat, type="l", xlab="components", ylab="BIC", col=cl, lty=1:10, ...)
         title(main=main)
         legend("topright" , models, fill=cl, lty=1:10)
         mtext(paste("best fit = ", best[1], best[2]))

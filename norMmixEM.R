@@ -1,32 +1,12 @@
-### EM-algorithm for norMmix datasets
+#### EM-algorithm for norMmix datasets
 
 ## following the description in McLachlan & Peel (2000) p.82
-
-## nomenclature used throughout:
-## n  sample size
-## k  number of clusters
-## p  dimension of sample
-
-#library(mixtools)
-
-
-#initPar <- function(tau, mu, Sigma, weight){
-#
-#    #checking inputs here
-#
-#    par <- structure(class="par", .Data=list(tau=tau, mu=mu, Sigma=Sigma, weight=weightr))
-#
-#}
-#
-
 ## M step
 mstep.nMm <- function(x, tau) {
-
-    stopifnot(is.matrix(x), is.matrix(tau))
-    n <- nrow(x) # x   is  n x p matrix
+    stopifnot(is.matrix(x), is.matrix(tau), nrow(tau) == (n <- nrow(x)))
+    # x   is  n x p matrix
     p <- ncol(x)
     k <- ncol(tau) # tau is  n x k
-    stopifnot(nrow(tau) == n)
 
     ## calculating T_i
     T1 <- colSums(tau) # vec of length k, integer sum, stable
@@ -38,52 +18,13 @@ mstep.nMm <- function(x, tau) {
         }
     }
 
-
-    #mu
-
     mu <- t(T2)/rep(T1,each=p)
-
-    #sigma
-
     Sigma <- array(0, c(p,p,k))
     for (i in 1:k){
         Sigma[,,i] <- ( T3[,,i] - tcrossprod(T2[i,],T2[i,])/T1[i]) / T1[i]
     }
-
-    # weight
     weight <- T1/nrow(x)
 
     ##return params
-#    list(weight=weight, mu=mu, Sigma=Sigma, k=k, dim=p)
-
     norMmix(mu=mu, Sigma=Sigma, weight=weight, model="VVV")
-
 }
-
-# estep doesn't work yet, also not necessary.
-
-#estep.nMm <- function(x, par){
-#
-#    mu <- par$mu
-#    Sigma <- par$Sigma
-#    weight <- par$weight
-#    k <- par$k
-#
-#    phi <- matrix(0,k,n)
-#
-#    for (i in 1:k){
-#    phi[i,] <- dmvnorm(x, mu=mu[i,], sigma=Sigma[,,i]) # a k x n vec
-#    }
-#
-#    T5 <- rep(0,n)
-#    T5 <- colSums( phi %*% diag(weight))^-1
-#
-#    tau <- (weight %*% phi) %*% T5
-#
-#
-#    ## return params
-#    par$tau <- tau
-#    par
-#}
-#
-

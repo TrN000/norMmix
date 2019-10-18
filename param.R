@@ -1,9 +1,6 @@
 #### functions handling parameter manipulation. par2nM nM2par etc
 
-### for info on models see Celeux and Govaert 1995
-
-#' @include Cholesky.R
-#' @include weight.R
+### for information on models see Celeux and Govaert 1995
 
 
 ## map lower.tri to vec
@@ -19,35 +16,26 @@ dl. <- function(d,x,p){
 }
 
 
-#' normal multivariate mixture model to parameter for MLE
-#'
-#' \code{nMm2par} returns vector of parameters of norMmix objects
-#'
-#' This transformation forms a vector from the parameters of a normal
-#' mixture. These consist of weights, means and covariance matrices.
-#' Weights are transformed according to 'trafo' param; means are
-#' unchanged.
-#' Cov mats are given as D and L from the LDLt decomposition
-#'
-#' @seealso n2p
-#'
-#' @param obj list containing sig= covariance matrix array, mu= mean vector matrix, w= weights, k= number of clusters, p= dimension
-#' @param trafo either "clr1" or "logit"
-#' @param model one of "asdf..."
-#' @examples
-#' A  <- MW2nm4
-#' nMm2par( A, trafo="clr1", model=A$model )
-#'
-#' @export
-
+# nMm2par returns vector of parameters of norMmix objects
+#
+# This transformation forms a vector from the parameters of a normal
+# mixture. These consist of weights, means and covariance matrices.
+# Weights are transformed according to 'trafo' param; means are
+# unchanged.
+# Cov mats are given as D and L from the LDLt decomposition
+#
+# see also n2p
+#
+# obj:   list containing sig= covariance matrix array, mu= mean vector matrix, 
+#        w= weights, k= number of components, p= dimension
+# trafo: either "clr1" or "logit"
+# model: one of "EII","VII","EEI","VEI","EVI","VVI","EEE","VEE","EVV" or "VVV"
 nMm2par <- function(obj
                   , trafo = c("clr1", "logit")
                   , model = c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
                   , meanFUN = mean
-                    )
-{
-    #transferring values of obj to handier variables
+                    ) {
     w <- obj$weight
     mu <- obj$mu
     sig <- obj$Sigma
@@ -68,7 +56,7 @@ nMm2par <- function(obj
 
 
     # mu
-    stopifnot(is.matrix(mu), dim(mu) == c(p,k), is.numeric(mu), is.finite(mu) )
+    stopifnot(is.matrix(mu), dim(mu) == c(p,k), is.numeric(mu), is.finite(mu))
 
     # Sigma
     stopifnot(is.array(sig), dim(sig) == c(p,p,k), is.numeric(sig),
@@ -170,42 +158,31 @@ nMm2par <- function(obj
 }
 
 
-#' wrapper function for nMm objs in zmarrwandMm
-#'
-#' \code{n2p} returns same as nMm2par with clr1
-#'
-#' @export
-#n2p <-
-## these were in ./zmarrwandnMm.R :
-#n2m <- # <- drop this name and rather use
+# wrapper function for nMm objs in zmarrwandMm
+# n2p returns same as nMm2par with clr1
 nc2p <- function(obj) nMm2par(obj, trafo = "clr1",  model = obj$model)
 
 
-
-
-#' transform of parameter vector to normal mixture
-#'
-#' \code{par2nMm} returns list containing weight, mu, Sigma, k, dim
-#'
-#' this is the inverse function to nMm2par. Given a numeric vector
-#' dimension and cluster number this function reconstructs a normal mixture
-#' object.
-#'
-#' @param par. numeric vector of parameters
-#' @param p dimension of space
-#' @param model See description
-#' @param trafo either "clr1" or "logit"
-#'
-#' @return returns this list: list(weight=w, mu=mu, Sigma=Sigma, k=k, dim=p)
-#' @export
-
+# transform of parameter vector to normal mixture
+#
+# par2nMm returns list containing weight, mu, Sigma, k, dim
+#
+# this is the inverse function to nMm2par. Given a numeric vector
+# dimension and cluster number this function reconstructs a normal mixture
+# object.
+#
+# par:   numeric vector of parameters
+# p:     dimension of space
+# model: See description
+# trafo: either "clr1" or "logit"
+#
+# returns list: list(weight=w, mu=mu, Sigma=Sigma, k=k, dim=p)
 par2nMm <- function(par, p, k
                   , model = c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
                   , trafo = c("clr1", "logit")
-                  , name = sprintf("model = %s , clusters = %s", model, k)
-                    )
-{
+                  , name = sprintf("model = %s , components = %s", model, k)
+                    ) {
     model <- match.arg(model)
     trafo <- match.arg(trafo)
 
@@ -379,11 +356,10 @@ nparSigma <- function(k, p,
         )
 
 
-npar <- function(k, p,
+dfnMm <- function(k, p,
                    model=c("EII","VII","EEI","VEI","EVI",
                            "VVI","EEE","VEE","EVV","VVV")
-                   )
-{
+                   ) {
     stopifnot(is.numeric(k), is.numeric(p))
     model <- match.arg(model)
     w <- k-1
@@ -392,6 +368,9 @@ npar <- function(k, p,
     ## return
     w + mu + sig
 }
+
+
+npar <- function(object, ...) {UseMethod("npar")}
 
 
 parcond <- function(x,
@@ -403,6 +382,6 @@ parcond <- function(x,
     n <- nrow(x)
     p <- ncol(x)
     model <- match.arg(model)
-    n / npar(k, p, model=model)
+    n / dfnMm(k, p, model=model)
 }
 

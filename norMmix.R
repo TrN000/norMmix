@@ -3,9 +3,6 @@
 ## norMmix constructor
 
 
-
-
-
 ## Auxiliary function evals to TRUE if x is sym pos def array, otherwise character string with msg
 okSigma <- function(Sig, tol1 = 1000*.Machine$double.eps, tol2 = 1e-10) {
     if(!is.numeric(Sig) || !is.array(Sig) || length(d <- dim(Sig)) != 3)
@@ -33,24 +30,17 @@ okSigma <- function(Sig, tol1 = 1000*.Machine$double.eps, tol2 = 1e-10) {
 }
 
 
-
-
-
-#' Constructor for nMm 'objects'
-#'
-#' \code{norMmix} returns structure containing defining parameters of a normal
-#' mixture
-#'
-#'
-#'
-#' @param mu matrix of means. should mu be a vector it will assume k=1
-#' to circumvent this behavoiur use as.matrix(mu) beforehand
-#' @param Sigma array of covariance matrices
-#' @param weight weights of mixture model components
-#' @param name gives the option of naming mixture
-#' @param model see desc
-#'
-#' @export
+# Constructor for nMm 'objects'
+#
+# norMmix returns structure containing defining parameters of a normal
+# mixture
+#
+# mu:    matrix of means. should mu be a vector it will assume k=1
+#        to circumvent this behavoiur use as.matrix(mu) beforehand
+# Sigma: array of covariance matrices
+# weight:weights of mixture model components
+# name:  gives the option of naming mixture
+# model: see desc
 
 norMmix <- function(
             mu,
@@ -59,8 +49,7 @@ norMmix <- function(
             name = NULL,
             model= c("EII","VII","EEI","VEI","EVI",
                      "VVI","EEE","VEE","EVV","VVV")
-            )
-{
+            ) {
     ## Purpose: constructor for 'norMmix' (multivariate normix)
     ## makes sure values are sane.
     ## --------------------------------------------------------
@@ -102,7 +91,7 @@ norMmix <- function(
     stopifnot(is.numeric(weight))
     if(length(weight) != k)
         stop("weight is not of length k")
-    if (!(all(weight >= 0) && (abs(sum(weight) - 1) < 1000*.Machine$double.eps)))
+    if (!(all(weight >= 0) && (abs(sum(weight)-1) < 1000*.Machine$double.eps)))
         stop("weight doesn't sum to 1 or isn't positive")
 
     model <- if(missing(model)) "VVV" else match.arg(model)
@@ -117,21 +106,20 @@ norMmix <- function(
                    ) )
 }
 
-
-
-
-
-
-is.norMmix <- function(obj){
-    inherits(obj, "norMmix")
+npar.norMmix <- function(object, ...) {
+    mo <- object$model
+    k <- object$k
+    p <- object$p
+    dfnMm(k,p,mo)
 }
+
+
+is.norMmix <- function(obj) {inherits(obj, "norMmix")}
 
 
 # corrects numerical error in case D in ldl decomp is near-zero
 # takes tolerance, norMmix obj; returns norMmix obj
-
-forcePositive <- function(nMm, eps0=1e-10)
-{
+forcePositive <- function(nMm, eps0=1e-10) {
     stopifnot(is.norMmix(nMm))
 
     sig <- nMm$Sigma
@@ -156,11 +144,8 @@ forcePositive <- function(nMm, eps0=1e-10)
 }
 
 
-### rnorMmix
-
-rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
-{
-
+# rnorMmix
+rnorMmix <- function(n, obj, index=FALSE, permute=TRUE) {
     ## Purpose: generates random values distributed by NMD
     ## -------------------------------------------------------------------
     ## Arguments:
@@ -170,7 +155,6 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
     ## Value: matrix  n x p (columns are vectors)
     ## -------------------------------------------------------------------
     ## Author: nicolas trutmann, Date:2019-06-21
-
     if(!inherits(obj, "norMmix")) stop("argument must be of class \"norMmix\"")
 
     mu <- obj$mu
@@ -178,7 +162,7 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
     weight <- obj$weight
     ## p <- obj$dim
     nj <- rmultinom(n=1, size=n, prob = weight)
-### FIXME: again this does  chol(Sigma_j)  j = 1...k .. when actually we could've rather stored  chol(Sigma) instead of Sigma
+    ### FIXME: again this does  chol(Sigma_j)  j = 1...k .. when actually we could've rather stored  chol(Sigma) instead of Sigma
     a <- do.call(rbind,
                  lapply(seq_along(nj), function(j) mvrnorm(n=nj[j], mu=mu[,j], Sigma=Sigma[,,j])))
     if (index) {
@@ -190,9 +174,7 @@ rnorMmix <- function(n, obj, index=FALSE, permute=TRUE)
 
 
 # density function for norMmix object
-
-dnorMmix <- function(x, nMm)
-{
+dnorMmix <- function(x, nMm) {
     stopifnot(is.norMmix(nMm), is.numeric(x),
               length(p <- nMm$dim) == 1, p >= 1,
               length(k <- nMm$ k ) == 1, k >= 1)
@@ -207,13 +189,7 @@ dnorMmix <- function(x, nMm)
 }
 
 
-
-
-
-
-
-metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
-{
+metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
     stopifnot( is.norMmix(n1), is.norMmix(n2) )
     stopifnot( all.equal(n1$k, n2$k) )
 
@@ -259,9 +235,7 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id"))
 
     list(order.=order., deltamu=deltamu, deltasig=deltasig,
          deltaweight=deltaweight, penalty=penalty)
-
 }
-
 
 
 ## TODO: translation functions to and from mclust mixture objects.
@@ -272,7 +246,6 @@ nMm2mcl <- function() {
 mcl2nMm <- function() {
     warning("not implemented yet")
 }
-
 
 
 mods <- function() ## just return

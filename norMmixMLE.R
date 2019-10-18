@@ -1,29 +1,22 @@
 #### MLE for norMmix objects
 
-#' @include norMmixEM.R
 
-{}
-
-
-##' Compute clara()'s sampsize [ 'ss' := sampsize ;  'L' := Log ]
-##' to be used as argument e.g., of norMmixMLE()
-##' @export
+## Compute clara()'s sampsize [ 'ss' := sampsize ;  'L' := Log ]
+## to be used as argument e.g., of norMmixMLE()
 ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax(1, log(n*p))))
 
 
-#' Maximum likelihood Estimation for normal mixture models
-#'
-#' \code{norMmixMLE} returns fitted nMm obj
-#'
-#' Uses clara() and one M-step from EM-algorithm to initialize parameters
-#' after that uses general optimizer optim() to calculate ML.
-#'
-#' @param x sample matrix
-#' @param k number of clusters
-#' @param trafo transformation to be used
-#' @param model model to be assumed
-#'
-#' @export
+# Maximum likelihood Estimation for normal mixture models
+#
+# norMmixMLE returns fitted nMm obj
+#
+# Uses clara() and one M-step from EM-algorithm to initialize parameters
+# after that uses general optimizer optim() to calculate ML.
+#
+# x:     sample matrix
+# k:     number of components
+# trafo: transformation to be used
+# model: model to be assumed
 norMmixMLE <- function(
                x, k,
                model = c("EII","VII","EEI","VEI","EVI",
@@ -37,14 +30,11 @@ norMmixMLE <- function(
                samples = 128,
                sampsize = ssClaraL,
                traceClara = 0,
-	       ...
-               )
-{
+	       ... ) {
     # 1. san check call
     # 2. prep nMm obj
     # 3. apply optim
     # 4. return
-
 
     # 1.
     trafo <- match.arg(trafo)
@@ -53,7 +43,8 @@ norMmixMLE <- function(
     ll <- match.arg(ll)
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
-    stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1, (n <- nrow(x)) > 1)
+    stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1, 
+              (n <- nrow(x)) > 1)
     p <- ncol(x)
 
     ## init tau : index <- <clustering>
@@ -78,9 +69,6 @@ norMmixMLE <- function(
     tau[cbind(1:n, index)] <- 1
 
     # 2.
-
-    # one M-step  (TODO:done mstep() could *depend* on 'model'; currently does "VVV")
-    ## done
 
     mcl.mstep <- switch(model,
         "EII" = mclust::mstepEII(x, tau),
@@ -133,6 +121,7 @@ norMmixMLE <- function(
     r <- structure(.Data=par2nMm(optr$par, p, k, model=model),
                    optr=optr,
                    npar=npar,
+                   df=npar,
                    n=n,
                    x=x,
                    cond=parcond(x, k=k, model=model),
@@ -143,7 +132,6 @@ norMmixMLE <- function(
 }
 
 
-
 logLik.norMmixMLE <- function(object, ...) {
     r <- object$optr$value
     attributes(r) <- list(df=object$npar, nobs=nobs(object))
@@ -151,4 +139,14 @@ logLik.norMmixMLE <- function(object, ...) {
     r
 }
 
+
 nobs.norMmixMLE <- function(object, ...) object$n
+
+
+npar.norMmixMLE <- function(object, ...) {
+    NextMethod("npar")
+}
+
+print.norMmixMLE <- function(x, ...) {
+    stop("not implemented yet.")
+}

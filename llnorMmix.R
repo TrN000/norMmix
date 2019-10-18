@@ -3,36 +3,18 @@
 
 ## Author: Nicolas Trutmann 2019-07-06
 
-#' @include param.R
-
-
-
-
-{}
-
-
-
-#' Log-likelihood of parameter vector given data
-#'
-#' \code{llnorMmix} returns scalar log-likelihood
-#'
-#'
-#' description
-#'
-#' @param par parameter vector
-#' @param tx transposed sample matrix
-#' @param k number of clusters
-#' @param trafo either centered log ratio or logit
-#' @param model assumed distribution model of normal mixture
-#'
-#' @export
-
+## Log-likelihood of parameter vector given data
+#
+# par:   parameter vector
+# tx:    transposed sample matrix
+# k:     number of components
+# model: assumed distribution model of normal mixture
+# trafo: either centered log ratio or logit
 llnorMmix <- function(par, tx, k,
                       trafo=c("clr1", "logit"),
                       model=c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
-                      )
-{
+                      ) {
     stopifnot(is.matrix(tx),
               length(k <- as.integer(k)) == 1, k >= 1)
     p <- nrow(tx)
@@ -233,29 +215,23 @@ sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
     stopifnot(is.character(model <- obj$model))
     trafo <- match.arg(trafo)
     llnorMmix(nMm2par(obj, model=model),
-              tx = t(x), k = obj$k, model=model, trafo=trafo)
+              tx = t(x), k = obj$k, 
+              model=model, trafo=trafo)
 }
 
 
-
-
-#' log-likelihood function relying on mvtnorm function
-#'
-#' \code{llmvtnorm} returns scalar value of log-likelihood
-#'
-#' @param par parameter vector as calculated by nMm2par
-#' @param x matrix of samples
-#' @param k number of cluster
-#' @param trafo transformation of weights
-#' @param model assumed model of the distribution
-#'
-#' @export
+## log-likelihood function relying on mvtnorm function
+#
+# par:   parameter vector as calculated by nMm2par
+# x:     matrix of samples
+# k:     number of cluster
+# trafo: transformation of weights
+# model: assumed model of the distribution
 llmvtnorm <- function(par, x, k,
                       trafo=c("clr1", "logit"),
                       model=c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
-              )
-{
+              ) {
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
     model <- match.arg(model)

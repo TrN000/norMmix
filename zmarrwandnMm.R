@@ -1,12 +1,8 @@
-### filename starts with 'z' so it gets loaded after norMmix.R
+#### After Steve Marron, adapted for multivariate normal mixtures
 
-### After Steve Marron, adapted for multivariate normal mixtures
-
-
-### 2D mixtures
-
-#' @include norMmix.R
-
+####----------------------------------------------------------------------------
+## 2D mixtures
+####----------------------------------------------------------------------------
 
 MW21 <- norMmix(
     name = "#1 gaussian",
@@ -125,7 +121,6 @@ MW215 <- norMmix(
     Sigma = array(c(2, -2, -2, 4, 1, -1, -1, 2, 2, -2, -2, 4), c(2,2,3)),
     model = "VEE"
     )
-
 
 
 ####----------------------------------------------------------------------------
