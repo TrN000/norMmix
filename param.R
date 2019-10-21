@@ -160,7 +160,7 @@ nMm2par <- function(obj
 
 # wrapper function for nMm objs in zmarrwandMm
 # n2p returns same as nMm2par with clr1
-nc2p <- function(obj) nMm2par(obj, trafo = "clr1",  model = obj$model)
+nc2p <- function(object) nMm2par(object, trafo = "clr1",  model = object$model)
 
 
 # transform of parameter vector to normal mixture
@@ -335,8 +335,6 @@ par2nMm <- function(par, p, k
         list( mu=mu, Sigma=Sigma, weight=w, k=k, dim=p , model=model)
         )
 }
-
-
 
 
 nparSigma <- function(k, p,

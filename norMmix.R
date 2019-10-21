@@ -109,7 +109,7 @@ norMmix <- function(
 npar.norMmix <- function(object, ...) {
     mo <- object$model
     k <- object$k
-    p <- object$p
+    p <- object$dim
     dfnMm(k,p,mo)
 }
 
@@ -260,11 +260,12 @@ print.norMmix <- function(x, ...) {
     co <- x$k
     dim <- x$dim
 
-    cat("norMmix object: \n\n")
+    cat("norMmix object: \n")
     cat("multivariate normal mixture model with the following attributes:\n")
     cat("name: \t\t", name, "\n",
         "dimension:\t", dim, "\n",
         "components:\t", co, "\n")
-    cat("weight of components", we, "\n")
+    cat("weight of components", 
+        sort(signif(we, digits=3), decreasing=TRUE), "\n")
     invisible(x) # << standard for all "good citizen" print() methods
 }

@@ -118,15 +118,15 @@ norMmixMLE <- function(
                 x=x,
                 cond = parcond(x, k=k, model=model))
 
-    r <- structure(.Data=par2nMm(optr$par, p, k, model=model),
-                   optr=optr,
-                   npar=npar,
-                   df=npar,
-                   n=n,
-                   x=x,
-                   cond=parcond(x, k=k, model=model),
-                   class=c("norMmixMLE", "norMmix")
-                   )
+    #r <- structure(.Data=par2nMm(optr$par, p, k, model=model),
+    #               optr=optr,
+    #               npar=npar,
+    #               df=npar,
+    #               n=n,
+    #               x=x,
+    #               cond=parcond(x, k=k, model=model),
+    #               class=c("norMmixMLE", "norMmix")
+    #               )
     class(ret) <- "norMmixMLE"
     ret
 }
@@ -144,9 +144,17 @@ nobs.norMmixMLE <- function(object, ...) object$n
 
 
 npar.norMmixMLE <- function(object, ...) {
-    NextMethod("npar")
+    npar(object$norMmix)
 }
 
 print.norMmixMLE <- function(x, ...) {
-    stop("not implemented yet.")
+    cat("object of class 'norMmixMLE' \n")
+    print(x$norMmix)
+    cat("\nreturned from optim:\n")
+    print(x$optr$counts)
+    cat("\nlog-likelihood:", -x$optr$value, "\n",
+        "\n",
+        "nobs\tnpar\tnobs/npar\n",
+        x$n, "\t", x$npar, "\t", x$cond, "\n")
+    invisible(x)
 }
