@@ -26,6 +26,7 @@ massbic <- function(string, DIR) {
 # applies mclust along a model selection of fitnMm
 massbicm <- function(string, DIR) {
     nm <- readRDS(file.path(DIR, string[1]))
+    x1 <- nm$fit$x
     cl <- nm$fit$k
     mo <- nm$fit$models
     valm <- array(0, lengths(list(cl,mo,string)))
@@ -33,6 +34,7 @@ massbicm <- function(string, DIR) {
     for (i in 1:length(string)) {
         nm <- readRDS(file.path(DIR, string[i]))
         x <- nm$fit$x
+        stopifnot(all.equal(x,x1))
         valm[,,i] <- mclust::Mclust(x, G=cl, modelNames=mo)$BIC
         dims[i] <- nm$fit$p
     }
@@ -77,9 +79,10 @@ massplot <- function(f, main="unnamed",
 
 
 # compare two massbic arrays
-compplot <- function(f, g, main="unnamed", 
-                     adj=1/dim(f)[3], col=nMmcols[1:2], 
+compplot <- function(f, g, h=NULL, main="unnamed", 
+                     adj=1/dim(f)[3], col=nMmcols[1:3], 
                      mar=0.1+c(1.4,2,3,1),
+                     compnames = c("clara", "mclVVV", "Mclust"),
                   ...) {
     ylim <- extendrange(c(f,g))
     adj <- 0.4
@@ -90,6 +93,10 @@ compplot <- function(f, g, main="unnamed",
                 main=models[i], type="l", ylim=ylim, ylab='', ...)
         matplot(g[,i,], lty=1, col=adjustcolor(col[2],adj), 
                 main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
+        if (!is.null(h)) {
+            matplot(h[,i,], lty=1, col=adjustcolor(col[3],adj), 
+                    main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
+        }
     }
     par(op$old.par)
 }
@@ -116,8 +123,8 @@ epfl <- function(files, savdir, subt=11, ...) {
         pdf(file=paste0(main,"_mcl.pdf"))
         massplot(g, main=paste0(main, "_mcl"), ...)
         dev.off()
-        pdf(file=paste0(main,"_comp.pdf"))
-        compplot(f,g, main=paste0(main, "_comp"), ...)
-        dev.off()
+        #pdf(file=paste0(main,"_comp.pdf"))
+        #compplot(f,g, main=paste0(main, "_comp"), ...)
+        #dev.off()
     }
 }
