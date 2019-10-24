@@ -88,9 +88,13 @@ compplot <- function(f, g, h=NULL, main="unnamed",
     adj <- 0.4
     op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar=mar)
     models <- dimnames(f)$models
+    cl <- as.numeric(dimnames(f)$components)
+    p <- attr(f, "dims")
     for (i in 1:10) {
         matplot(f[,i,], lty=1, col=adjustcolor(col[1],adj), 
                 main=models[i], type="l", ylim=ylim, ylab='', ...)
+        axis(3, at=seq_along(cl), 
+             labels=dfnMm(cl,p[1],models[i]))
         matplot(g[,i,], lty=1, col=adjustcolor(col[2],adj), 
                 main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
         if (!is.null(h)) {
