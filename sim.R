@@ -83,10 +83,12 @@ compplot <- function(f, g, h=NULL, main="unnamed",
                      adj=1/dim(f)[3], col=nMmcols[1:3], 
                      mar=0.1+c(1.4,2,3,1),
                      compnames = c("clara", "mclVVV", "Mclust"),
+                     oma=c(7,0,2.8,0),
                   ...) {
     ylim <- extendrange(c(f,g))
     adj <- 0.4
-    op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar=mar)
+    if (is.null(compnames)) {oma <- c(1,0,3,0)}
+    op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar=mar, oma=oma)
     models <- dimnames(f)$models
     cl <- as.numeric(dimnames(f)$components)
     p <- attr(f, "dims")
@@ -103,6 +105,11 @@ compplot <- function(f, g, h=NULL, main="unnamed",
         }
     }
     par(op$old.par)
+    if (!is.null(compnames)) {
+        op <- par(xpd=TRUE)
+        legend("bottom", horiz=TRUE, legend=compnames, fill=col, inset=c(0, -0.05))
+        par(op)
+    }
 }
 
 

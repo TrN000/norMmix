@@ -12,7 +12,7 @@ nMmcols <- c("#4363d8", "#f58231", "#800000", "#ffe119", "#000075",
 
 
 plot2d <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
-                   type="l", lty=2, newWindow=TRUE, npoints=250,
+                   type="l", lty=2, newWindow=TRUE, npoints=250, lab=FALSE,
                    col=nMmcols[1],  fill=TRUE, fillcolor=nMmcols[1],
 	           ... ) {
     w <- nMm$weight
@@ -47,7 +47,7 @@ plot2d <- function(nMm, data, xlim=NULL, ylim=NULL, bounds=0.05,
     }
 
     ## label components
-    text( mu[1,], mu[2,], sprintf("cluster %s", 1:k) )
+    if (lab) {text(mu[1,], mu[2,], sprintf("comp %s", 1:k), adj=c(0.5,-4))}
     if (!is.null(data)) {
         points(data[,c(1,2)])
     }
