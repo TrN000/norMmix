@@ -2,7 +2,7 @@
 
 
 ## colors:
-nMmcols <- c("#4363d8", "#f58231", "#800000", "#ffe119", "#000075", 
+nMmcols <- c("#4363d8", "#f58231", "#800000", "#000075", "#ffe119", 
              "#fabebe", "#e6beff", "#a9a9a9", "#ffffff", "#000000")
 ## chosen to be distinguishable and accesible for the colorblind,
 ## according to this site:

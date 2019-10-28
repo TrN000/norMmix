@@ -83,31 +83,35 @@ compplot <- function(f, g, h=NULL, main="unnamed",
                      adj=1/dim(f)[3], col=nMmcols[1:3], 
                      mar=0.1+c(1.4,2,3,1),
                      compnames = c("clara", "mclVVV", "Mclust"),
-                     oma=c(7,0,2.8,0),
+                     oma=c(7,0,2.8,0), pars=TRUE,
                   ...) {
     ylim <- extendrange(c(f,g))
     adj <- 0.4
     if (is.null(compnames)) {oma <- c(1,0,3,0)}
     op <- sfsmisc::mult.fig(mfrow=c(2,5), main=main, mar=mar, oma=oma)
     models <- dimnames(f)$models
+    if(is.null(models)) {models <- mods()}
     cl <- as.numeric(dimnames(f)$components)
-    p <- attr(f, "dims")
     for (i in 1:10) {
         matplot(f[,i,], lty=1, col=adjustcolor(col[1],adj), 
                 main=models[i], type="l", ylim=ylim, ylab='', ...)
-        axis(3, at=seq_along(cl), 
-             labels=dfnMm(cl,p[1],models[i]))
+        if (pars) {
+            p <- attr(f, "dims")
+            axis(3, at=seq_along(cl), labels=dfnMm(cl,p[1],models[i]))
+        }
         matplot(g[,i,], lty=1, col=adjustcolor(col[2],adj), 
                 main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
         if (!is.null(h)) {
             matplot(h[,i,], lty=1, col=adjustcolor(col[3],adj), 
                     main=models[i], type="l", ylim=ylim, add=TRUE, ylab='', ...)
         }
+        grid()
     }
     par(op$old.par)
     if (!is.null(compnames)) {
         op <- par(xpd=TRUE)
-        legend("bottom", horiz=TRUE, legend=compnames, fill=col, inset=c(0, -0.05))
+        legend("bottom", horiz=TRUE, legend=compnames, fill=col, 
+               inset=c(0, -0.05), bty="n")
         par(op)
     }
 }
