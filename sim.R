@@ -79,7 +79,7 @@ massplot <- function(f, main="unnamed",
 
 
 # compare two massbic arrays
-compplot <- function(f, g, h=NULL, main="unnamed", 
+compplot <- function(f, g, h=NULL, main=NULL, 
                      adj=1/dim(f)[3], col=nMmcols[1:3], 
                      mar=0.1+c(1.4,2,3,1),
                      compnames = c("clara", "mclVVV", "Mclust"),

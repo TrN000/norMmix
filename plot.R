@@ -98,9 +98,10 @@ plotnd <- function(nMm,npoints=500, fillcolor=nMmcols[1],
             ss <- cbind(xs[,i],ys[,i])
             polygon(ss[chull(ss),], col=fco)
         }
+        grid()
     }
 
-    pairs(coarr, panel=ploy)
+    pairs(coarr, panel=ploy, ...)
 
     invisible(coord)
 }

@@ -263,6 +263,7 @@ print.norMmix <- function(x, ...) {
     cat("norMmix object: \n")
     cat("multivariate normal mixture model with the following attributes:\n")
     cat("name: \t\t", name, "\n",
+        "model: \t\t", mo, "\n",
         "dimension:\t", dim, "\n",
         "components:\t", co, "\n")
     cat("weight of components", 
