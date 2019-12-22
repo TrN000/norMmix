@@ -1,0 +1,50 @@
+.
+├── DESCRIPTION
+├── man
+│   ├── compplot.Rd
+│   ├── epfl.Rd
+│   ├── extracttimes.Rd
+│   ├── fitnMm.Rd
+│   ├── fSMI.12.Rd
+│   ├── ldl.Rd
+│   ├── llmvtnorm.Rd
+│   ├── llnorMmix.Rd
+│   ├── MarronWand.Rd
+│   ├── massbicm.Rd
+│   ├── massbic.Rd
+│   ├── massplot.Rd
+│   ├── nc2p.Rd
+│   ├── nMm2par.Rd
+│   ├── norMmixMLE.Rd
+│   ├── norMmix.Rd
+│   ├── npar.Rd
+│   ├── par2nMm.Rd
+│   ├── parlen.Rd
+│   ├── plot.fittednorMmix.Rd
+│   ├── plot.norMmix.Rd
+│   ├── rnorMmix.Rd
+│   └── sllnorMmix.Rd
+├── NAMESPACE
+├── R
+│   ├── Cholesky.R
+│   ├── llnorMmix.R
+│   ├── norMmixMLE.R
+│   ├── norMmix.R
+│   ├── param.R
+│   ├── plot.R
+│   ├── weight.R
+│   └── zmarrwandnMm.R
+├── README.md
+├── tests
+│   ├── testthat
+│   │   ├── test.dummy.R
+│   │   ├── test-llnorMmix-against-llmvtnorm.R
+│   │   ├── test-llnorMmix-correctness.R
+│   │   ├── test-m.step.R
+│   │   ├── test-nm2par-io-correct.R
+│   │   ├── test-par2nMm-io.R
+│   │   └── test-trafo.R
+│   └── testthat.R
+└── tmp
+
+4 directories, 43 files

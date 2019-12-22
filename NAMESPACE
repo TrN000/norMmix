@@ -1,0 +1,101 @@
+### Imports ---------------------------------------------
+
+## from 'standard' packages (but not 'base')
+
+importFrom("grDevices"
+         , adjustcolor
+         , chull
+         , col2rgb
+         , extendrange
+         , rgb
+         , rainbow
+         , pdf
+         , dev.off
+           )
+
+importFrom("graphics", legend, matplot, mtext
+         , pairs
+         , plot, points
+         , polygon, text, title
+         , axis, boxplot, par
+         , grid
+           )
+
+importFrom("stats", median, quantile
+         , optim, nobs
+         , plogis, qchisq, qlogis
+         , rmultinom
+         , AIC, BIC, logLik
+           )
+
+## from 'Recommended' packages:
+
+importFrom("cluster", clara)
+importFrom("MASS", mvrnorm)
+
+## from other CRAN packages :
+
+importFrom("mvtnorm", dmvnorm)
+importFrom("mclust", hclass, hcVVV)
+importFrom("mixtools", ellipse)
+importFrom("sfsmisc", mult.fig)
+
+
+### This package exports ---------------------------------
+
+## Functions
+export(
+    ldl
+     , fitnMm
+     , llmvtnorm
+     , llnorMmix
+     , nMm2par, nc2p
+     , norMmix
+     , norMmixMLE
+     , par2nMm
+     , dfnMm
+     , rnorMmix
+     , sllnorMmix
+     , massbic
+     , massbicm
+     , massplot
+     , compplot
+     , epfl
+     , extracttimes
+     , npar
+       )
+
+## all the "norMmix"  example objects <--> ./R/zmarrwandnMm.R
+export(MW21, MW22
+     , MW23, MW24, MW25
+     , MW26, MW27, MW28, MW29
+     , MW210, MW211, MW212, MW213, MW214
+     , MW215
+      ## 3-d :
+     , MW31, MW32, MW33, MW34
+      ## 5-d :
+     , MW51
+       )
+
+## misc
+export(nMmcols)
+
+
+S3method(print,  norMmix)
+S3method(plot,   norMmix)
+S3method(npar,   norMmix)
+
+S3method(print,  norMmixMLE)
+S3method(plot,   norMmixMLE)
+S3method(logLik, norMmixMLE)
+S3method(nobs,   norMmixMLE)
+S3method(npar,   norMmixMLE)
+
+S3method(print,  fittednorMmix)
+S3method(plot,   fittednorMmix)
+S3method(npar,   fittednorMmix)
+S3method(AIC,    fittednorMmix)
+S3method(BIC,    fittednorMmix)
+S3method(logLik, fittednorMmix)
+S3method(nobs,   fittednorMmix)
+
