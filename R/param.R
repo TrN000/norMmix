@@ -16,6 +16,23 @@ dl. <- function(d,x,p){
 }
 
 
+## centered log ratio
+clr1 <- function(w) {
+    stopifnot(is.numeric(w) ,all(w >= 0), all.equal(sum(w),1))
+    # calculate clr1
+    ln <- log(w)
+    # return:
+    ln[-1L] - mean(ln)
+}
+
+clr1inv <- function(p) {
+    if (length(p)==0) {return(c(1))}
+    stopifnot(is.numeric(p))
+    # calc weights
+    p1 <- exp(c(-sum(p), p))
+    p1/sum(p1)
+}
+
 # nMm2par returns vector of parameters of norMmix objects
 #
 # This transformation forms a vector from the parameters of a normal
