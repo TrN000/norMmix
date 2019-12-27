@@ -5,6 +5,22 @@
 ## to be used as argument e.g., of norMmixMLE()
 ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax(1, log(n*p))))
 
+clarafunc  <- function(x, k) {
+    ## get, mget??
+    n <- eval.parent(n, n=3)
+    p <- get("p", pos=-2)
+    if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
+    stopifnot(length(sampsize) == 1L, sampsize >= 1)
+    clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
+                  samples=samples, sampsize=sampsize, trace=traceClara)
+    index <- clus$clustering
+}
+                                                                        
+## clustering using hc() from the mclust package
+mclVVVfunc <- function(x, k) {
+    mclclus <- hcVVV(x)
+    index <- hclass(mclclus, k)
+}
 
 # Maximum likelihood Estimation for normal mixture models
 #
@@ -21,7 +37,7 @@ norMmixMLE <- function(
                x, k,
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
-               ini = c("clara", "mclVVV"),
+               ini,
                trafo=c("clr1", "logit"),
                ll = c("nmm", "mvt"),
                ## epsilon = 1e-10,
@@ -39,7 +55,6 @@ norMmixMLE <- function(
     # 1.
     trafo <- match.arg(trafo)
     model <- match.arg(model)
-    ini <- match.arg(ini)
     ll <- match.arg(ll)
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
@@ -48,22 +63,24 @@ norMmixMLE <- function(
     p <- ncol(x)
 
     ## init tau : index <- <clustering>
-    switch(ini,
-         ## init tau using clara
-        "clara" = {
-            if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
-            stopifnot(length(sampsize) == 1L, sampsize >= 1)
-            clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
-                          samples=samples, sampsize=sampsize, trace=traceClara)
-            index <- clus$clustering
-        },
+    ##switch(ini,
+    ##     ## init tau using clara
+    ##    "clara" = {
+    ##        if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
+    ##        stopifnot(length(sampsize) == 1L, sampsize >= 1)
+    ##        clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
+    ##                      samples=samples, sampsize=sampsize, trace=traceClara)
+    ##        index <- clus$clustering
+    ##    },
 
-        ## clustering using hc() from the mclust package
-        "mclVVV" = {
-            mclclus <- hcVVV(x)
-            index <- hclass(mclclus, k)
-        },
-        stop("invalid 'ini':", ini))
+    ##    ## clustering using hc() from the mclust package
+    ##    "mclVVV" = {
+    ##        mclclus <- hcVVV(x)
+    ##        index <- hclass(mclclus, k)
+    ##    },
+    ##    stop("invalid 'ini':", ini))
+
+    index <- ini(x,k)
 
     tau <- matrix(0, n,k)
     tau[cbind(1:n, index)] <- 1
