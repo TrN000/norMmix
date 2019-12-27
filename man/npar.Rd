@@ -55,9 +55,6 @@
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-data(fSMI.12)
-npar(fSMI.12)
-
 npar(MW213)
 }
 \keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
