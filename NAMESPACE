@@ -46,7 +46,6 @@ importFrom("sfsmisc", mult.fig)
 ## Functions
 export(
     ldl
-     , fitnMm
      , llmvtnorm
      , llnorMmix
      , nMm2par, nc2p
@@ -56,12 +55,6 @@ export(
      , dfnMm
      , rnorMmix
      , sllnorMmix
-     , massbic
-     , massbicm
-     , massplot
-     , compplot
-     , epfl
-     , extracttimes
      , npar
        )
 
@@ -90,12 +83,3 @@ S3method(plot,   norMmixMLE)
 S3method(logLik, norMmixMLE)
 S3method(nobs,   norMmixMLE)
 S3method(npar,   norMmixMLE)
-
-S3method(print,  fittednorMmix)
-S3method(plot,   fittednorMmix)
-S3method(npar,   fittednorMmix)
-S3method(AIC,    fittednorMmix)
-S3method(BIC,    fittednorMmix)
-S3method(logLik, fittednorMmix)
-S3method(nobs,   fittednorMmix)
-
