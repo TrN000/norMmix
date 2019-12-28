@@ -5,10 +5,13 @@
 ## to be used as argument e.g., of norMmixMLE()
 ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax(1, log(n*p))))
 
-clarafunc  <- function(x, k) {
-    ## get, mget??
-    n <- eval.parent(n, n=3)
-    p <- get("p", pos=-2)
+clarafunc  <- function(x, k,
+                       samples = 128,
+                       sampsize = ssClaraL,
+                       traceClara = 0
+                       ) {
+    n <- nrow(x)
+    p <- ncol(x)
     if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
     stopifnot(length(sampsize) == 1L, sampsize >= 1)
     clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
@@ -43,9 +46,6 @@ norMmixMLE <- function(
                ## epsilon = 1e-10,
                method = "BFGS", maxit = 100, trace = 2,
                optREPORT=10, reltol = sqrt(.Machine$double.eps),
-               samples = 128,
-               sampsize = ssClaraL,
-               traceClara = 0,
 	       ... ) {
     # 1. san check call
     # 2. prep nMm obj
