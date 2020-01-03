@@ -14,12 +14,10 @@
 norMmixMLE(x, k,
            model = c("EII", "VII", "EEI", "VEI", "EVI",
                      "VVI", "EEE", "VEE", "EVV", "VVV"),
-           ini = c("clara", "mclVVV"),
-           trafo = c("clr1", "logit"),
+           ini,
            ll = c("nmm", "mvt"),
            method = "BFGS", maxit = 100, trace = 2,
            optREPORT = 10, reltol = sqrt(.Machine$double.eps),
-           samples = 128, sampsize = ssClaraL, traceClara = 0,
  	   \dots)
 
 ssClaraL(n, k, p)
@@ -29,10 +27,9 @@ ssClaraL(n, k, p)
   \item{k}{positive number of components}
   \item{model}{a \code{\link{character}} string, specifying the model (for
     the \code{k} covariance matrices) to be assumed.}
-  \item{ini}{a \code{\link{character}} string specifying the initialization step.}
-  \item{trafo}{a \code{\link{character}} string specifying the transform to
-    use for the weights \code{w} (\eqn{= \pi_j}{= pi[j]}), currently either
-    \code{"clr1"} or \code{"logit"}.}
+  \item{ini}{a \code{\link{function}}, that takes arguments \code{x} and 
+      \code{k} and returns a clustering index; a vector of length \code{ncol(x)},
+      with entries in \code{1:k}.}
   \item{ll}{a string specifying the method to be used for the likelihood
     computation;  the default, \code{"nmm"} uses \code{\link{llnorMmix}()},
     whereas \code{"mvt"} uses \code{\link{llmvtnorm}()} which is based on
@@ -40,13 +37,6 @@ ssClaraL(n, k, p)
 
   \item{method, maxit, trace, optREPORT, reltol, \dots}{arguments for tuning the
     optimizer \code{\link{optim}(*, method=method, control = list(...))}.}
-
-  \item{samples, sampsize, traceClara}{if \code{ini = "clara"}, arguments for
-    \code{\link[cluster]{clara}()} (package \CRANpkg{cluster}).  Note that
-    \code{clara}'s help page emphasizes that larger and more samples should
-    be used typically.  Here, \code{sampsize} may be a number \emph{or} as
-    by default a \code{\link{function}(n, k, p)} determining the size of
-    the subsamples as a function of the problem dimensionalities.}
 
   \item{n,p}{matrix dimensions \code{\link{nrow}(x)} and \code{\link{ncol}(x)}.}
 }

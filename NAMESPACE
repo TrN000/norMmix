@@ -48,7 +48,7 @@ export(
     ldl
      , llmvtnorm
      , llnorMmix
-     , nMm2par, nc2p
+     , nMm2par
      , norMmix
      , norMmixMLE
      , par2nMm

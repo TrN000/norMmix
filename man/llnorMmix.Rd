@@ -10,7 +10,6 @@
 }
 \usage{
 llnorMmix(par, tx, k,
-          trafo = c("clr1", "logit"),
           model = c("EII", "VII", "EEI", "VEI", "EVI",
                     "VVI", "EEE", "VEE", "EVV", "VVV"))
 }
@@ -20,9 +19,6 @@ llnorMmix(par, tx, k,
     is of dimension \eqn{p \times n}{p x n}; its rows are variables and
     columns are observations.}
   \item{k}{number of mixture components.}
-  \item{trafo}{a \code{\link{character}} string specifying the transform to
-    use for the weights \code{w} (\eqn{= \pi_j}{= pi[j]}), currently either
-    \code{"clr1"} or \code{"logit"}.}
   \item{model}{assumed distribution model of normal mixture}
 }
 \value{

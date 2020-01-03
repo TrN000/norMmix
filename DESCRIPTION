@@ -12,7 +12,7 @@ Authors@R: c(person(given = "Nicolas", family = "Trutmann", role = c("aut", "cre
             )
 Author: Nicolas Trutmann [aut, cre],
     Martin Maechler [aut, ths]
-Maintainer: Nicolas Trutmann <nicolatr@student.ethz.ch>
+Maintainer: Nicolas Trutmann <nicolas.trutmann@gmx.ch>
 Imports: cluster, MASS, mvtnorm, mclust, mixtools, sfsmisc
 Suggests: Matrix, testthat (>= 2.1.0)
 License: GPL-3

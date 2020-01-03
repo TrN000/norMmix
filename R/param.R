@@ -37,18 +37,14 @@ clr1inv <- function(p) {
 #
 # This transformation forms a vector from the parameters of a normal
 # mixture. These consist of weights, means and covariance matrices.
-# Weights are transformed according to 'trafo' param; means are
-# unchanged.
 # Cov mats are given as D and L from the LDLt decomposition
 #
 # see also n2p
 #
 # obj:   list containing sig= covariance matrix array, mu= mean vector matrix, 
 #        w= weights, k= number of components, p= dimension
-# trafo: either "clr1" or "logit"
 # model: one of "EII","VII","EEI","VEI","EVI","VVI","EEE","VEE","EVV" or "VVV"
 nMm2par <- function(obj
-                  , trafo = c("clr1", "logit")
                   , model = c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
                   , meanFUN = mean
@@ -60,7 +56,6 @@ nMm2par <- function(obj
     k <- obj$k
 
     model <- match.arg(model)
-    trafo <- match.arg(trafo)
 
     av <- match.fun(meanFUN)
 
@@ -83,10 +78,7 @@ nMm2par <- function(obj
     #output vector of parameter values
 
     c(# weights 'w' (= \pi_j ):
-      switch(trafo,
-                  "clr1" = clr1(w),
-                  "logit" = logit(w),
-                  stop("error in nMm2par() trafo: ", trafo)),
+      clr1(w),
       mu, # means
       ## Sigma :
       switch(model, # model dependent covariance values
@@ -175,11 +167,6 @@ nMm2par <- function(obj
 }
 
 
-# wrapper function for nMm objs in zmarrwandMm
-# n2p returns same as nMm2par with clr1
-nc2p <- function(object) nMm2par(object, trafo = "clr1",  model = object$model)
-
-
 # transform of parameter vector to normal mixture
 #
 # par2nMm returns list containing weight, mu, Sigma, k, dim
@@ -191,17 +178,14 @@ nc2p <- function(object) nMm2par(object, trafo = "clr1",  model = object$model)
 # par:   numeric vector of parameters
 # p:     dimension of space
 # model: See description
-# trafo: either "clr1" or "logit"
 #
 # returns list: list(weight=w, mu=mu, Sigma=Sigma, k=k, dim=p)
 par2nMm <- function(par, p, k
                   , model = c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
-                  , trafo = c("clr1", "logit")
                   , name = sprintf("model = %s , components = %s", model, k)
                     ) {
     model <- match.arg(model)
-    trafo <- match.arg(trafo)
 
     p <- as.integer(p)
     k <- as.integer(k)
@@ -233,11 +217,8 @@ par2nMm <- function(par, p, k
 
     #only important ones are f1.2, f1.3, f2.2, f2.3
 
-    w.temp <- if(k==1) vector() else par[1:(k-1)]
-    w <- switch(trafo,
-                "clr1" = clr1inv (w.temp),
-                "logit"= logitinv(w.temp),
-                stop("invalid 'trafo' in par2nMm(): ", trafo))
+    w.temp <- if (k==1) vector() else par[1:(k-1)]
+    w <- clr1inv(w.temp)
 
     mu <- matrix(par[k:(k+p*k-1)], p, k)
 

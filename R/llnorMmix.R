@@ -9,9 +9,7 @@
 # tx:    transposed sample matrix
 # k:     number of components
 # model: assumed distribution model of normal mixture
-# trafo: either centered log ratio or logit
 llnorMmix <- function(par, tx, k,
-                      trafo=c("clr1", "logit"),
                       model=c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
                       ) {
@@ -23,7 +21,6 @@ llnorMmix <- function(par, tx, k,
     # 2. transform
 
     model <- match.arg(model)
-    trafo <- match.arg(trafo)
 
     l2pi <- log(2*pi)
 
@@ -32,11 +29,7 @@ llnorMmix <- function(par, tx, k,
     # get w
 
     w <- if (k==1) 1
-         else switch(trafo,
-                     "clr1" = clr1inv (par[1:(k-1)]),
-                     "logit"= logitinv(par[1:(k-1)]),
-                     stop("invalid 'trafo': ", trafo)
-         )
+         else  clr1inv (par[1:(k-1)])
 
     # start of relevant parameters:
 
@@ -211,12 +204,11 @@ llnorMmix <- function(par, tx, k,
 }
 
 
-sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
+sllnorMmix <- function(x, obj) {
     stopifnot(is.character(model <- obj$model))
-    trafo <- match.arg(trafo)
     llnorMmix(nMm2par(obj, model=model),
               tx = t(x), k = obj$k, 
-              model=model, trafo=trafo)
+              model=model)
 }
 
 
@@ -225,23 +217,17 @@ sllnorMmix <- function(x, obj, trafo=c("clr1", "logit")) {
 # par:   parameter vector as calculated by nMm2par
 # x:     matrix of samples
 # k:     number of cluster
-# trafo: transformation of weights
 # model: assumed model of the distribution
 llmvtnorm <- function(par, x, k,
-                      trafo=c("clr1", "logit"),
                       model=c("EII","VII","EEI","VEI","EVI",
                               "VVI","EEE","VEE","EVV","VVV")
               ) {
     stopifnot(is.matrix(x),
               length(k <- as.integer(k)) == 1, k >= 1)
     model <- match.arg(model)
-    trafo <- match.arg(trafo)
     p <- ncol(x)
 
-    nmm <- par2nMm(par, p, k, model=model, trafo=trafo)
-    ## FIXME (speed!):  dmvnorm(*, sigma= S) will do a chol(S) for each component
-    ## -----  *instead* we already have LDL' and  chol(S) = sqrt(D) L' !!
-    ## another par2*() function should give L and D, or from that chol(Sagma), rather than Sigma !
+    nmm <- par2nMm(par, p, k, model=model)
     w <- nmm$w
     mu <- nmm$mu
     sig <- nmm$Sigma

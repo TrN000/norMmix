@@ -3,13 +3,11 @@
 \alias{sllnorMmix}
 \title{Simple wrapper for Log-Likelihood Function or Multivariate Normal Mixture}
 \usage{
-sllnorMmix(x, obj, trafo=c("clr1", "logit"))
+sllnorMmix(x, obj)
 }
 \arguments{
   \item{x}{data \code{\link{matrix}}.}
   \item{obj}{an \R object of class \code{"\link{norMmix}"}.}
-  \item{trafo}{a \code{\link{character}} string specifying the transform to
-    use for the weights, see  \code{\link{llnorMmix}}.}
 }
 \description{
   \code{sllnorMmix()} returns a number, the log-likelihood of the data

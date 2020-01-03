@@ -13,7 +13,6 @@
 \usage{
 par2nMm(par, p, k, model = c("EII","VII","EEI","VEI","EVI",
                              "VVI","EEE","VEE","EVV","VVV")
-      , trafo = c("clr1", "logit")
       , name = sprintf("model = \%s , components = \%s", model, k)
        )
 }
@@ -23,9 +22,6 @@ par2nMm(par, p, k, model = c("EII","VII","EEI","VEI","EVI",
   \item{k}{the number of mixture components, a positive integer.}
   \item{model}{a \code{\link{character}} string, one of those listed; see
     \code{\link{nMm2par}()}'s documentation.}
-  \item{trafo}{a \code{\link{character}} string specifying the transform to
-    use for the weights \code{w} (\eqn{= \pi_j}{= pi[j]}), currently either
-    \code{"clr1"} or \code{"logit"}.}
   \item{name}{a \code{\link{character}} string naming the
     \code{\link{norMmix}} return value.}
 }

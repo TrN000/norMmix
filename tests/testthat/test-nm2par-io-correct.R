@@ -35,77 +35,77 @@ test_that("test length", {
 
 
 
-test_that("test if nc2p(p2n()) == id ", {
+test_that("test if nMm2par(p2n()) == id ", {
 
           tr <- "clr1"
           m <- MW211
-          l <- nc2p(MW211)
+          l <- nMm2par(MW211, MW211$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW212
-          l <- nc2p(MW212)
+          l <- nMm2par(MW212, MW212$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW213
-          l <- nc2p(MW213)
+          l <- nMm2par(MW213, MW213$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW26
-          l <- nc2p(MW26)
+          l <- nMm2par(MW26, MW26$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW27
-          l <- nc2p(MW27)
+          l <- nMm2par(MW27, MW27$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW28
-          l <- nc2p(MW28)
+          l <- nMm2par(MW28, MW28$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW29
-          l <- nc2p(MW29)
+          l <- nMm2par(MW29, MW29$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW21
-          l <- nc2p(MW21)
+          l <- nMm2par(MW21, MW21$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW22
-          l <- nc2p(MW22)
+          l <- nMm2par(MW22, MW22$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW23
-          l <- nc2p(MW23)
+          l <- nMm2par(MW23, MW23$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW24
-          l <- nc2p(MW24)
+          l <- nMm2par(MW24, MW24$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)
 
           m <- MW25
-          l <- nc2p(MW25)
+          l <- nMm2par(MW25, MW25$model)
           k <- nMm2par(par2nMm(l,m$dim,m$k,m$model),
                    model=m$model)
           expect_equal(k,l)

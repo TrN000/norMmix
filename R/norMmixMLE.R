@@ -34,14 +34,12 @@ mclVVVfunc <- function(x, k) {
 #
 # x:     sample matrix
 # k:     number of components
-# trafo: transformation to be used
 # model: model to be assumed
 norMmixMLE <- function(
                x, k,
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
                ini,
-               trafo=c("clr1", "logit"),
                ll = c("nmm", "mvt"),
                ## epsilon = 1e-10,
                method = "BFGS", maxit = 100, trace = 2,
@@ -53,7 +51,6 @@ norMmixMLE <- function(
     # 4. return
 
     # 1.
-    trafo <- match.arg(trafo)
     model <- match.arg(model)
     ll <- match.arg(ll)
 
@@ -109,7 +106,7 @@ norMmixMLE <- function(
 
     # create par. vector out of m-step
         #nMm.temp <- forcePositive(nMm.temp, eps0=epsilon)
-    initpar. <- nMm2par(obj=nMm.temp, model=model, trafo=trafo, meanFUN=mean)
+    initpar. <- nMm2par(obj=nMm.temp, model=model,  meanFUN=mean)
     # save degrees of freedom
     npar <- length(initpar.)
 
@@ -119,8 +116,8 @@ norMmixMLE <- function(
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
     neglogl <- switch(ll,
-        "nmm" = function(P) { -llnorMmix(P, tx=tx, k=k, model=model, trafo=trafo) }, ## max(-10^300, -llnorMmix) for both
-        "mvt" = function(P) { -llmvtnorm(P, x=x, k=k, model=model, trafo=trafo) },
+        "nmm" = function(P) { -llnorMmix(P, tx=tx, k=k, model=model) }, ## max(-10^300, -llnorMmix) for both
+        "mvt" = function(P) { -llmvtnorm(P, x=x, k=k, model=model) },
         stop("error selecting neglogl") )
 
     control <- list(maxit=maxit, reltol=reltol,

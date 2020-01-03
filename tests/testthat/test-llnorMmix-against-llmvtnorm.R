@@ -3,10 +3,8 @@ context("test llnorMmix against llmvtnorm to check values of llnorMmix")
 
 
 test_that("EII llnorMmix against llmvtnorm", {
-          tr <- "clr1"
           mo <- "EII"
-
-          par. <- nc2p(MW21)
+          par. <- nMm2par(MW21, model=mo)
           x <- rnorMmix(511, obj=MW21)
           p <- 2
           k <- 1
@@ -24,7 +22,7 @@ test_that("VII llnorMmix against llmvtnorm", {
           mo <- "VII"
 
           set.seed(2019)
-          par. <- nc2p(MW23)
+          par. <- nMm2par(MW23, model=mo)
           x <- rnorMmix(511, obj=MW23)
           p <- 2
           k <- 3
@@ -42,7 +40,7 @@ test_that("EEI llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "EEI"
 
-          par. <- nc2p(MW26)
+          par. <- nMm2par(MW26, model=mo)
           x <- rnorMmix(511, obj=MW26)
           p <- 2
           k <- 2
@@ -58,7 +56,7 @@ test_that("VEI llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "VEI"
 
-          par. <- nc2p(MW27)
+          par. <- nMm2par(MW27, model=mo)
           x <- rnorMmix(511, obj=MW27)
           p <- 2
           k <- 2
@@ -74,7 +72,7 @@ test_that("EVI llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "EVI"
 
-          par. <- nc2p(MW28)
+          par. <- nMm2par(MW28, model=mo)
           x <- rnorMmix(511, obj=MW28)
           p <- 2
           k <- 3
@@ -90,7 +88,7 @@ test_that("VVI llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "VVI"
 
-          par. <- nc2p(MW29)
+          par. <- nMm2par(MW29, model=mo)
           x <- rnorMmix(511, obj=MW29)
           p <- 2
           k <- 2
@@ -106,7 +104,7 @@ test_that("EEE llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "EEE"
 
-          par. <- nc2p(MW210)
+          par. <- nMm2par(MW210, model=mo)
           x <- rnorMmix(511, obj=MW210)
           p <- 2
           k <- 2
@@ -122,7 +120,7 @@ test_that("VEE llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "VEE"
 
-          par. <- nc2p(MW211)
+          par. <- nMm2par(MW211, model=mo)
           x <- rnorMmix(511, obj=MW211)
           p <- 2
           k <- 2
@@ -138,7 +136,7 @@ test_that("EVV llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "EVV"
 
-          par. <- nc2p(MW212)
+          par. <- nMm2par(MW212, model=mo)
           x <- rnorMmix(511, obj=MW212)
           p <- 2
           k <- 2
@@ -154,7 +152,7 @@ test_that("VVV llnorMmix against llmvtnorm", {
           tr <- "clr1"
           mo <- "VVV"
 
-          par. <- nc2p(MW213)
+          par. <- nMm2par(MW213, model=mo)
           x <- rnorMmix(511, obj=MW213)
           p <- 2
           k <- 2
