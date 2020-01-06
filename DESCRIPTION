@@ -4,7 +4,7 @@ Title: Direct MLE for Multivariate Normal Mixture Distributions
 Description: Compute the MLE for multivariate normal mixtures via smart parametrization using
   the LDLt decomposition.
 Authors@R: c(person(given = "Nicolas", family = "Trutmann", role = c("aut", "cre"),
-                    email = "nicolatr@student.ethz.ch",
+                    email = "nicolas.trutmann@gmx.ch",
                     comment = c(ORCID = "YOUR-ORCID-ID"))
            , person("Martin", "Maechler", role = c("aut", "ths"),# B.Sc. thesis supervisor
                     email = "maechler@stat.math.ethz.ch",
