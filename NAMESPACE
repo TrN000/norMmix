@@ -46,6 +46,7 @@ importFrom("sfsmisc", mult.fig)
 export(
     clr1, clr1inv,
     ldl
+  , ellipsePts
      , llmvtnorm
      , llnorMmix
      , nMm2par
