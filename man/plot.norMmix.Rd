@@ -1,11 +1,14 @@
 \name{plot.norMmix}
-\alias{plot.norMmix}
 \title{Plot Method for "norMmix" Objects}
+\alias{plot.norMmix}
+\alias{nMmcols}
 \description{
   This is the S3 method for plotting \code{"\link{norMmix}"} objects.
 }
 \usage{
 \S3method{plot}{norMmix}(x, y=NULL, ...)
+
+nMmcols %% <<< FIXME: *rename* e.g. 'Trubetskoy10' # because we only use 10 of his
 }
 \arguments{
   \item{x}{an \R object inheriting from \code{"\link{norMmix}"}.}
@@ -14,6 +17,15 @@
 }
 \value{
   \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution.
+}
+\details{
+  The plot method calls one of two auxiliary functions, one for dim=2,
+  another for higher dimensions.% ... FIXME: add more
+
+  \code{nMmcols}: A vector of colors for these plots,
+  chosen to be distinguishable and accessible for the colorblind, according to
+  \url{https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/},
+  slightly rearranged, so that the first five colors stand out well on white background.
 }
 \examples{
 plot(MW212) ## and add a finite sample realization:
