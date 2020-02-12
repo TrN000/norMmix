@@ -18,7 +18,7 @@ clarafunc  <- function(x, k,
                   samples=samples, sampsize=sampsize, trace=traceClara)
     index <- clus$clustering
 }
-                                                                        
+
 ## clustering using hc() from the mclust package
 mclVVVfunc <- function(x, k) {
     mclclus <- hcVVV(x)
@@ -55,8 +55,9 @@ norMmixMLE <- function(
     ll <- match.arg(ll)
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
-    stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1, 
-              (n <- nrow(x)) > 1)
+    stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1,
+              (n <- nrow(x)) > 1,
+              is.function(ini))
     p <- ncol(x)
 
     ## init tau : index <- <clustering>
@@ -96,12 +97,11 @@ norMmixMLE <- function(
         "EVV" = mclust::mstepEVV(x, tau),
         "VVV" = mclust::mstepVVV(x, tau),
 
-        stop("error in mstep, in norMmixMLE")
+        stop("error in mstep in norMmixMLE; model =", model)
     )
 
-    nMm.temp <- norMmix(mcl.mstep$parameters$mean,
-                        Sigma = mcl.mstep$parameters$variance$sigma,
-                        weight = mcl.mstep$parameters$pro,
+    stopifnot(is.list( p <- mcl.mstep$parameters ))
+    nMm.temp <- norMmix(p$mean, Sigma = p$variance$sigma, weight = p$pro,
                         model = mcl.mstep$modelName)
 
     # create par. vector out of m-step

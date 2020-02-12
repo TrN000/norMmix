@@ -24,6 +24,12 @@ ellipsePts <- function(mu, sigma, npoints,
 ## FIXME: also use in plotnd()
 
 
+## FIXME:  plot2d() <--> plotnd()  are *NOT* compatible in their defaults:
+## =====
+## 'npoints' should get the same *effective* default for p=2
+## 'border' had 'NA' for 2D, and polygon()'s default, 'NULL', for p > 2
+
+
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim=2
 plot2d <- function(nMm, data, type="l", lty=2,
                    xlim=NULL, ylim=NULL, f.lim=0.05,
@@ -71,8 +77,8 @@ plot2d <- function(nMm, data, type="l", lty=2,
 }
 
 
-plotnd <- function(nMm,npoints=500, fillcolor=nMmcols[1],
-                   alpha=0.05, ...) {
+plotnd <- function(nMm, npoints=500, alpha=0.05,
+                   fill=TRUE, fillcolor=nMmcols[1], border=NULL, ...) {
     stopifnot( inherits(nMm, "norMmix") )
     w <- nMm$weight
     mu <- nMm$mu
@@ -82,19 +88,20 @@ plotnd <- function(nMm,npoints=500, fillcolor=nMmcols[1],
     npoints <- npoints*p
     ## calculate ellipses by randomly generating a hull
     coord <- list()
-    coarr <- matrix(0,k*npoints,p)
+    coarr <- matrix(0, k*npoints, p)
 
     r0 <- sqrt(qchisq(1-alpha, df = 2))
     for (i in 1:k) {
         r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
         r <- apply(r, 1, function(j) j/norm(j,"2"))
+        ## FIXME?  WRONG ?! use eigen(sig[,,i])
         r <- t(mu[,i] + r0 * (sig[,,i] %*% r))
 
         coord[[i]] <- r # cant use chull yet, only works on planar coords
         coarr[(1+(i-1)*npoints):(i*npoints),] <- r
     }
 
-    ## color
+    if(fill) ## color
     fco <- sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
 
     ploy <- function(x,y) {
@@ -108,13 +115,13 @@ plotnd <- function(nMm,npoints=500, fillcolor=nMmcols[1],
         #points(x,y)
         for (i in 1:k) {
             ss <- cbind(xs[,i],ys[,i])
-            polygon(ss[chull(ss),], col=fco)
+            polygon(ss[chull(ss),], col=fco, border=border)
         }
         grid()
     }
 
     pairs(coarr, panel=ploy, ...)
-
+    ## FIXME ?? not really used (-> save by not storing)
     invisible(coord)
 }
 

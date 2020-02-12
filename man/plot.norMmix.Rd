@@ -27,12 +27,16 @@ nMmcols %% <<< FIXME: *rename* e.g. 'Trubetskoy10' # because we only use 10 of h
   \url{https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/},
   slightly rearranged, so that the first five colors stand out well on white background.
 }
-\examples{
+\examples{% see also  example( norMmix )
 plot(MW212) ## and add a finite sample realization:
 points(rnorMmix(n=500, MW212))
 
 ## or:
 x <- points(rnorMmix(n=500, MW212))
 plot(MW212, x)
+
+
+## Example of dim. = p > 2 :
+plot(MW34)
 }
 \keyword{hplot}
