@@ -18,18 +18,27 @@ dl. <- function(d,x,p){
 
 ## centered log ratio
 clr1 <- function(w) {
-    stopifnot(is.numeric(w) ,all(w >= 0), all.equal(sum(w),1))
+    stopifnot(is.numeric(w), w >= 0, all.equal(sum(w), 1))
     # calculate clr1
     ln <- log(w)
+    ## log(0) == -Inf "kills"  mean(ln) etc:
+    if(any(w0 <- !w)) ln[w0] <- -709 # < log(.Machine$double.xmin) = -708.3964
     # return:
     ln[-1L] - mean(ln)
 }
 
-clr1inv <- function(p) {
-    if (length(p)==0) {return(c(1))}
-    stopifnot(is.numeric(p))
+.logMax <- log(2) * .Machine$double.max.exp # = 709.7827 = log(.Machine$double.xmax)
+
+clr1inv <- function(lp) {
+    stopifnot(is.numeric(lp))
+    if(!length(lp)) return(1)
     # calc weights
-    p1 <- exp(c(-sum(p), p))
+    lp <- c(-sum(lp), lp) # = (lp_1,..., lp_m)
+    if((mlp <- max(lp)) < .logMax) { ## normal case __ FIXME: fails when several lp == max(lp) __
+        p1 <- exp(lp)
+    } else { ## mlp = max(lp) >= .logMax, where exp(lp) would overflow
+        p1 <- exp(lp - mlp)
+    }
     p1/sum(p1)
 }
 
@@ -41,7 +50,7 @@ clr1inv <- function(p) {
 #
 # see also n2p
 #
-# obj:   list containing sig= covariance matrix array, mu= mean vector matrix, 
+# obj:   list containing sig= covariance matrix array, mu= mean vector matrix,
 #        w= weights, k= number of components, p= dimension
 # model: one of "EII","VII","EEI","VEI","EVI","VVI","EEE","VEE","EVV" or "VVV"
 nMm2par <- function(obj
@@ -215,10 +224,9 @@ par2nMm <- function(par, p, k
     f121 <- f12 + k*p*(p-1)/2 # end of L if alpha unif D var
     f221 <- f22 + k*p*(p-1)/2 # end of L if alpha var D var
 
-    #only important ones are f1.2, f1.3, f2.2, f2.3
+    # only important ones are f1.2, f1.3, f2.2, f2.3
 
-    w.temp <- if (k==1) vector() else par[1:(k-1)]
-    w <- clr1inv(w.temp)
+    w <- clr1inv(par[seq_len(k-1L)])
 
     mu <- matrix(par[k:(k+p*k-1)], p, k)
 
