@@ -1,7 +1,7 @@
 \name{MarronWand}
 \title{Marron-Wand-like Specific Multivariate Normal Mixture 'norMmix' Objects}
 %% Note: These are ``datasets'' , but cannot be handled strictly
-%%       as such since they  *require* the nor1mix package.
+%%       as such since they *require* the package.
 \alias{MarronWand}% to use as "link"
 %% --- 2-dim ---
 \alias{MW21}
@@ -61,13 +61,14 @@ MW51    # Gaussian
 }
 %% \source{
 %% }
-%% \author{Martin Maechler for 1D; Nicolas Trutmann for 2-D, 3- and 5-D}
+\author{Martin Maechler for 1D; Nicolas Trutmann for 2-D, 3- and 5-D.}
 %% \references{
 %% }
 \examples{%% FIXME: see also ~/R/Pkgs/nor1mix/man/MarronWand.Rd <<<<<<<<<<<
 MW210
-plot(MW214)
+plot(MW214, main = "plot( MW214 )")% FIXME: show attr(*, "name")  in title
+
+plot(MW51, main = paste("plot( MW51 );  name:", attr(MW51, "name")))
 }
 \keyword{datasets}
 \keyword{distribution}
-

@@ -152,7 +152,7 @@ MW33 <- norMmix(
     )
 
 MW34 <- norMmix(
-    name = "#4 3d VEI",
+    name = "#4 3d VEI", ## FIXME !!!   'VEI' or 'VVI'  ???
     weight = c(0.1, 0.9),
     mu = matrix(rep(0,6), 3,2),
     Sigma = array(c(diag(1:3), 0.2*diag(3:1)), c(3,3,2)),

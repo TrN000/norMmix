@@ -204,7 +204,7 @@ metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
         "id" = 1:k,
 
         "mu" = {
-                order. <- vector()
+                order. <- integer(k)
                 m1 <- n1$mu
                 m2 <- n2$mu
                 for (i in 1:k) {
@@ -266,7 +266,7 @@ print.norMmix <- function(x, ...) {
         "model: \t\t", mo, "\n",
         "dimension:\t", dim, "\n",
         "components:\t", co, "\n")
-    cat("weight of components", 
+    cat("weight of components",
         sort(signif(we, digits=3), decreasing=TRUE), "\n")
     invisible(x) # << standard for all "good citizen" print() methods
 }

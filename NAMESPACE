@@ -37,7 +37,6 @@ importFrom("MASS", mvrnorm)
 
 importFrom("mvtnorm", dmvnorm)
 importFrom("mclust", hclass, hcVVV)
-importFrom("mixtools", ellipse)
 importFrom("sfsmisc", mult.fig)
 
 
@@ -45,7 +44,9 @@ importFrom("sfsmisc", mult.fig)
 
 ## Functions
 export(
+    clr1, clr1inv,
     ldl
+  , ellipsePts
      , llmvtnorm
      , llnorMmix
      , nMm2par
