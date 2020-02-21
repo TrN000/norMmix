@@ -117,8 +117,9 @@ npar.norMmix <- function(object, ...) {
 is.norMmix <- function(obj) {inherits(obj, "norMmix")}
 
 
-# corrects numerical error in case D in ldl decomp is near-zero
-# takes tolerance, norMmix obj; returns norMmix obj
+##-- *not* used currently!
+#' Corrects numerical error in case D in LDL' decomp is near-zero:
+#' takes tolerance, norMmix obj; returns norMmix obj
 forcePositive <- function(nMm, eps0=1e-10) {
     stopifnot(is.norMmix(nMm))
 
@@ -128,15 +129,12 @@ forcePositive <- function(nMm, eps0=1e-10) {
     k <- ncol(D.)
     p <- nrow(D.)
 
-    eps <- eps0 * apply(D.,2, function(j) max(abs(j)))
+    eps <- eps0 * apply(D., 2, function(dj) max(abs(dj)))
 
-    for (i in 1:k) {
-        D.[,i][D.[,i]<=eps[i]] <- eps[i]
-    }
-
-
-    for (i in 1:ncol(D.)) {
-        sig[,,i] <- matrix(L.[,i],p,p)%*%diag(D.[,i])%*%matrix(L.[,i],p,p,byrow=TRUE)
+    for (i in 1:k) { # for each component
+        Di <- pmax(eps[i], D.[,i])
+        ## Sig := L D L' :
+        sig[,,i] <- matrix(L.[,i],p,p) %*% diag(Di) %*% matrix(L.[,i],p,p,byrow=TRUE)
     }
 
     nMm$Sigma <- sig
