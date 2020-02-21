@@ -101,7 +101,7 @@ norMmixMLE <- function(
     )
 
     stopifnot(is.list( par <- mcl.mstep$parameters ))
-    nMm.temp <- norMmix(par$mean, Sigma = p$variance$sigma, weight = par$pro,
+    nMm.temp <- norMmix(par$mean, Sigma = par$variance$sigma, weight = par$pro,
                         model = mcl.mstep$modelName)
 
     # create par. vector out of m-step
