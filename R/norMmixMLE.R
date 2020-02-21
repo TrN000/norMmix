@@ -100,8 +100,8 @@ norMmixMLE <- function(
         stop("error in mstep in norMmixMLE; model =", model)
     )
 
-    stopifnot(is.list( p <- mcl.mstep$parameters ))
-    nMm.temp <- norMmix(p$mean, Sigma = p$variance$sigma, weight = p$pro,
+    stopifnot(is.list( par <- mcl.mstep$parameters ))
+    nMm.temp <- norMmix(par$mean, Sigma = p$variance$sigma, weight = par$pro,
                         model = mcl.mstep$modelName)
 
     # create par. vector out of m-step
