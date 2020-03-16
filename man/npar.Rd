@@ -1,11 +1,8 @@
 \name{npar}
+\title{Degrees of freedom of (Fitted) Multivariate Normal Mixtures}
 \alias{npar}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-    Extract degrees of freedom from objects of the \code{\link{norMmix}} package
-}
 \description{
-    This function is generic; method functions can be written to 
+    This function is generic; method functions can be written to
     handle specific classes of objects. The following classes have
     methods written for them:
 
@@ -16,44 +13,29 @@
     fittednorMmix
 }
 \usage{
-    npar(object, ...)
+npar(object, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{
-      Any object from the list in the Description.
-    }
-  \item{...}{
-      In place to leave room for further arguments.
-      None of the methods for the listed classes take arguments beyond 
-      \code{object}.
-    }
+  \item{object}{any \R object from the list in the \sQuote{Description}.}
+  \item{\dots}{potentially further arguments for methods;
+    Currently, none of the methods for the listed classes do have such.}
 }
-\details{
-    % TODO: description of behaviour.
-%%  ~~ If necessary, more details than the description above ~~
-}
+%% \details{
+%%     % TODO: description of behaviour.
+%% }
 \value{
-    \item{norMmix}{Integer vector of length 1.}
-    \item{norMmixMLE}{Integer vector of length 1.}
-    \item{fittednorMmix}{Integer matrix with dimnames set to k and models.}
+  Depending on \code{object} : %% FIXME? other *syntax* to list value for different *methods*
+  \item{norMmix }{integer number.}
+  \item{norMmixMLE }{integer number.}
+  \item{fittednorMmix }{integer\code{\link{matrix}} with
+    \code{\link{dimnames}} set to k and models.}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-    Nicolas Trutmann
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
+\author{Nicolas Trutmann}
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+  \code{\link{norMmix}}, \code{\link{norMmixMLE}}.
 }
 \examples{
+methods(npar) # list available methods
+
 npar(MW213)
 }
