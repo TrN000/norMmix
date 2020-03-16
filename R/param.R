@@ -4,15 +4,13 @@
 
 
 ## map lower.tri to vec
-ld. <- function(mat){
-    x <- mat[lower.tri(mat, diag=FALSE)]
-}
+ld. <- function(mat) mat[lower.tri(mat, diag=FALSE)]
 
 ## map vec to lower.tri
-dl. <- function(d,x,p){
+dl. <- function(d,x,p) {
     mat <- diag(1,p)
     mat[lower.tri(mat,diag=FALSE)] <- x
-    mat %*% diag(d) %*% t(mat)
+    mat %*% diag(d) %*% t(mat) ## << FIXME: make *fast* for larger 'mat'
 }
 
 

@@ -39,12 +39,12 @@ clr1inv(lp)
 %% \note{
 %% }
 \seealso{
-  The first implementation of these was in \CRANpkg{nor1mix}, in its
+  The first implementation of these was in \CRANpkg{nor1mix}, June 2019, in its
   \code{\link[nor1mix]{par2norMix}()} and
   \code{\link[nor1mix]{nM2par}()} functions.% --> code  in ../../nor1mix/R/norMix.R
 }
 \examples{
-## Apart from error checking and very large number cases, the \R implementation is simply
+## Apart from error checking and very large number cases, the R implementation is simply
 ..clr1 <- function (w) {
   ln <- log(w)
   ln[-1L] - mean(ln)
