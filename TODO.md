@@ -1,5 +1,10 @@
 
 
+0. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
+	several of the BSc thesis simulations.  Provide "better" alternative!
+
+0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
+
 1. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
 
@@ -10,3 +15,5 @@
   {but probably also change the name of the class from
   `"fittednorMmix"` to something like
   `"manyNormixMLE"`
+
+  NB. Get `fit.R` into this github repo from the `Bachelorthesis` **keeping** the git history

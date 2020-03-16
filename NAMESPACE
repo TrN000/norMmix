@@ -42,7 +42,7 @@ importFrom("sfsmisc", mult.fig)
 
 ### This package exports ---------------------------------
 
-## Functions
+## "norMmix" Functions
 export(
     clr1, clr1inv,
     ldl
@@ -56,7 +56,11 @@ export(
      , dfnMm
      , rnorMmix
      , sllnorMmix
-     , npar
+  , npar
+
+    , claraInit
+    , ssClara2kL
+    , mclVVVinit
        )
 
 ## all the "norMmix"  example objects <--> ./R/zmarrwandnMm.R

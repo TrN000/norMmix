@@ -101,17 +101,16 @@ plotnd <- function(nMm, npoints=500, alpha=0.05,
         coarr[(1+(i-1)*npoints):(i*npoints),] <- r
     }
 
-    if(fill) ## color
-    fco <- sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
+    fco <- if(fill) ## color
+               sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
+           else NA  ## don't fill polygons
 
     ploy <- function(x,y) {
         npoints <- eval.parent(npoints, n=2)
-        fco <- eval.parent(fco, n=2)
-        k <- eval.parent(k, n=2)
-        ## w <- eval.parent(w, n=2)
+        fco     <- eval.parent(fco,     n=2)
+        k       <- eval.parent(k,       n=2)
         xs <- matrix(x,npoints,k)
         ys <- matrix(y,npoints,k)
-
         #points(x,y)
         for (i in 1:k) {
             ss <- cbind(xs[,i],ys[,i])
