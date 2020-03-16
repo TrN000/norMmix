@@ -3,26 +3,30 @@
 
 ## Compute clara()'s sampsize [ 'ss' := sampsize ;  'L' := Log ]
 ## to be used as argument e.g., of norMmixMLE()
-ssClaraL <- function(n,k, p) pmin(n, pmax(40, round(10*log(n))) + round(2*k*pmax(1, log(n*p))))
+ssClara2kL <- function(n,k, p)
+    pmin(n,
+         pmax(40, round(10*log(n))) + round(2*k*pmax(1, log(n*p))))
 
-clarafunc  <- function(x, k,
-                       samples = 128,
-                       sampsize = ssClaraL,
-                       traceClara = 0
-                       ) {
+claraInit <- function(x, k,
+                      samples = 128,
+                      sampsize = ssClara2kL, # a number *or* function(n,k,p)
+                      trace = 0)
+{
     n <- nrow(x)
     p <- ncol(x)
     if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
     stopifnot(length(sampsize) == 1L, sampsize >= 1)
     clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
-                  samples=samples, sampsize=sampsize, trace=traceClara)
-    index <- clus$clustering
+                  samples=samples, sampsize=sampsize, trace=trace)
+    ## return index
+    clus$clustering
 }
 
 ## clustering using hc() from the mclust package
-mclVVVfunc <- function(x, k) {
-    mclclus <- hcVVV(x)
-    index <- hclass(mclclus, k)
+mclVVVinit <- function(x, k, ...) {
+    mclclus <- hcVVV(x, ...)
+    ## return index
+    hclass(mclclus, k)
 }
 
 # Maximum likelihood Estimation for normal mixture models
@@ -39,8 +43,9 @@ norMmixMLE <- function(
                x, k,
                model = c("EII","VII","EEI","VEI","EVI",
                          "VVI","EEE","VEE","EVV","VVV"),
-               ini,
+               initFUN = claraInit,
                ll = c("nmm", "mvt"),
+               keep.optr = TRUE, keep.data = keep.optr,
                ## epsilon = 1e-10,
                method = "BFGS", maxit = 100, trace = 2,
                optREPORT=10, reltol = sqrt(.Machine$double.eps),
@@ -56,29 +61,11 @@ norMmixMLE <- function(
 
     if(!is.matrix(x)) x <- data.matrix(x) # e.g. for data frame
     stopifnot(is.numeric(x), length(k <- as.integer(k)) == 1,
-              (n <- nrow(x)) > 1,
-              is.function(ini))
+              k >= 1, (n <- nrow(x)) >= k,
+              is.function(initFUN))
     p <- ncol(x)
 
-    ## init tau : index <- <clustering>
-    ##switch(ini,
-    ##     ## init tau using clara
-    ##    "clara" = {
-    ##        if(is.function(sampsize)) sampsize <- sampsize(n,k,p)
-    ##        stopifnot(length(sampsize) == 1L, sampsize >= 1)
-    ##        clus <- clara(x, k, rngR=TRUE, pamLike=TRUE, medoids.x=FALSE,
-    ##                      samples=samples, sampsize=sampsize, trace=traceClara)
-    ##        index <- clus$clustering
-    ##    },
-
-    ##    ## clustering using hc() from the mclust package
-    ##    "mclVVV" = {
-    ##        mclclus <- hcVVV(x)
-    ##        index <- hclass(mclclus, k)
-    ##    },
-    ##    stop("invalid 'ini':", ini))
-
-    index <- ini(x,k)
+    index <- initFUN(x,k)
 
     tau <- matrix(0, n,k)
     tau[cbind(1:n, index)] <- 1
@@ -115,32 +102,25 @@ norMmixMLE <- function(
     if(ll == "nmm") tx <- t(x)
     # define function to optimize as negative log-lik
     # also reduces the number of arguments to par.
-    neglogl <- switch(ll,
-        "nmm" = function(P) { -llnorMmix(P, tx=tx, k=k, model=model) }, ## max(-10^300, -llnorMmix) for both
-        "mvt" = function(P) { -llmvtnorm(P, x=x, k=k, model=model) },
-        stop("error selecting neglogl") )
+    neglogl <-
+        switch(ll,
+               "nmm" = function(P) -llnorMmix(P, tx=tx, k=k, model=model),
+               ## max(-10^300, -llnorMmix) for both
+               "mvt" = function(P) -llmvtnorm(P,  x= x, k=k, model=model),
+               stop("error selecting neglogl")) # impossible as have ll <- match.arg(.)
 
     control <- list(maxit=maxit, reltol=reltol,
-                    trace=(trace > 0), REPORT= optREPORT,
+                    trace = (trace > 0), REPORT= optREPORT,
     		    ...)
     optr <- optim(initpar., neglogl, method=method, control=control)
 
     # 4.
 
     ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
-                optr=optr, npar=npar, n=n,
-                x=x,
+                npar=npar, n=n,
                 cond = parcond(x, k=k, model=model))
-
-    #r <- structure(.Data=par2nMm(optr$par, p, k, model=model),
-    #               optr=optr,
-    #               npar=npar,
-    #               df=npar,
-    #               n=n,
-    #               x=x,
-    #               cond=parcond(x, k=k, model=model),
-    #               class=c("norMmixMLE", "norMmix")
-    #               )
+    if(keep.optr) ret$optr <- optr
+    if(keep.data) ret$x <- x
     class(ret) <- "norMmixMLE"
     ret
 }

@@ -1,13 +1,9 @@
 
 
-0. `norMmixMLE(.., ini)` changes {*before* package publication}:
+0. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
+	several of the BSc thesis simulations.  Provide "better" alternative!
 
-	- rename `ini` to `initFUN`;
-	- rename clarafun to `claraInit()` and mclVVfunc to `mclVVVinit()`
-      (name should *not* contain  "fun" but "init" (or something better?)
-	- export the 2 *Init functions,
-	- use *default* initFUN = claraInit (our "own"), even though in
-      simulations we use the mclustInit
+0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
 
 1. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
@@ -20,4 +16,4 @@
   `"fittednorMmix"` to something like
   `"manyNormixMLE"`
 
-  NB. Get `fit.R` into this github repo from the `Bachelorthesis` **keeping** the git hiostory
+  NB. Get `fit.R` into this github repo from the `Bachelorthesis` **keeping** the git history
