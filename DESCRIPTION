@@ -13,7 +13,9 @@ Maintainer: Nicolas Trutmann <nicolas.trutmann@gmx.ch>
 Author: Nicolas Trutmann [aut, cre],
   Martin Maechler [aut, ths] (<https://orcid.org/0000-0002-8685-9910>, based on 'nor1mix')
 Imports: cluster, MASS, mvtnorm, mclust, sfsmisc
-Suggests: Matrix, testthat (>= 2.1.0)
+Suggests: 
+    Matrix,
+    testthat (>= 2.1.0),
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

@@ -1,6 +1,4 @@
-#### the extra m stands for multivariate
-
-## norMmix constructor
+## norMmix data structure
 
 
 ## Auxiliary function evals to TRUE if x is sym pos def array, otherwise character string with msg
@@ -31,16 +29,6 @@ okSigma <- function(Sig, tol1 = 1000*.Machine$double.eps, tol2 = 1e-10) {
 
 
 # Constructor for nMm 'objects'
-#
-# norMmix returns structure containing defining parameters of a normal
-# mixture
-#
-# mu:    matrix of means. should mu be a vector it will assume k=1
-#        to circumvent this behavoiur use as.matrix(mu) beforehand
-# Sigma: array of covariance matrices
-# weight:weights of mixture model components
-# name:  gives the option of naming mixture
-# model: see desc
 
 norMmix <- function(
             mu,
@@ -64,7 +52,7 @@ norMmix <- function(
     ##            covariance matrices of distributions
     ##    weight: vector of length k, sums to 1
     ##    name: name attribute
-    ##    type: type of distribution VVV, IVV etc.
+    ##    model: type of distribution VVV, IVV etc.
     ## --------------------------------------------------------
     ## Value: returns objext of class 'norMmix'
     ## --------------------------------------------------------
@@ -72,6 +60,7 @@ norMmix <- function(
 
     stopifnot(is.numeric(mu))
     if(!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
+    #TODO: if no Sigma is supplied might tacitly mistake px1 and 1xp; throw error
     p <- nrow(mu) # p = dimension
     k <- ncol(mu) # k = number of components
 
@@ -184,65 +173,6 @@ dnorMmix <- function(x, nMm) {
         ret <- ret + nMm$weight[i]*mvtnorm::dmvnorm(x, mean=nMm$mu[,i], sigma=nMm$Sigma[,,i])
     }
     ret
-}
-
-
-metric.norMmix <- function(n1,n2, type="2", matchby=c("mu","id")) {
-    stopifnot( is.norMmix(n1), is.norMmix(n2) )
-    stopifnot( all.equal(n1$k, n2$k) )
-
-    matchby <- match.arg(matchby)
-
-    k <- n1$k
-
-    # sort cluster to compare by difference in means
-
-    order. <- switch(matchby,
-
-        "id" = 1:k,
-
-        "mu" = {
-                order. <- integer(k)
-                m1 <- n1$mu
-                m2 <- n2$mu
-                for (i in 1:k) {
-                    diffmu <- apply((m1-m2[,i]),2,norm,type=type)
-                    order.[i] <-  which.min(diffmu)
-                }
-                order.
-            },
-
-        stop("invalid 'matchby': ", matchby))
-
-
-    deltamu <- apply(m1-m2[,order.],2,norm,type=type)
-
-    deltasig <- apply(n1$Sigma-n2$Sigma[,,order.],3,norm,type=type)
-
-    deltaweight <- n1$weight - n2$weight[order.]
-
-    ## some penalty value
-
-    p <- n1$dim
-
-    pmu <- sqrt(deltamu^2)/(p*k)
-    psig <- sqrt(deltasig^2)/(p*p*k)
-    pweight <- sqrt(deltaweight^2)/k
-
-    penalty <- sum( pmu+psig+pweight )
-
-    list(order.=order., deltamu=deltamu, deltasig=deltasig,
-         deltaweight=deltaweight, penalty=penalty)
-}
-
-
-## TODO: translation functions to and from mclust mixture objects.
-nMm2mcl <- function() {
-    warning("not implemented yet")
-}
-
-mcl2nMm <- function() {
-    warning("not implemented yet")
 }
 
 
