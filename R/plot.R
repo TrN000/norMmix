@@ -42,15 +42,14 @@ plot2d <- function(nMm, data, type="l", lty=2,
     sig <- nMm$Sigma
     k <- nMm$k
 
-    if (is.null(xlim) || is.null(ylim) ) { ## calculate smart values for xlim, ylim
-        xy <- matrix(NA, k*npoints, 2)
-        for (i in 1:k) {
-            xy[(i-1)*npoints + 1:npoints, ] <-
-                ellipsePts(mu=mu[,i], sigma=sig[,,i], npoints=npoints)
-        }
-        if (is.null(xlim)) xlim <- extendrange(xy[,1], f=f.lim)
-        if (is.null(ylim)) ylim <- extendrange(xy[,2], f=f.lim)
+    ## calculate smart values for xlim, ylim. if lims are given, variable xy still returned invisibly
+    xy <- matrix(NA, k*npoints, 2)
+    for (i in 1:k) {
+        xy[(i-1)*npoints + 1:npoints, ] <-
+            ellipsePts(mu=mu[,i], sigma=sig[,,i], npoints=npoints)
     }
+    if (is.null(xlim)) xlim <- extendrange(xy[,1], f=f.lim)
+    if (is.null(ylim)) ylim <- extendrange(xy[,2], f=f.lim)
 
     if(fill) ## determine fill color -- FIXME: use *correctly* below: different for components !!
         fco <- sapply(w, function(wj) adjustcolor(fillcolor, wj*0.8 + 0.1))
@@ -72,7 +71,6 @@ plot2d <- function(nMm, data, type="l", lty=2,
     if (!is.null(data))
         points(data[, 1:2])
 
-    ## FIXME! only available *when*  xlim or ylim is NULL -- just forget about it?
     invisible(xy)
 }
 
