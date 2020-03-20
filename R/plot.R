@@ -75,53 +75,6 @@ plot2d <- function(nMm, data=NULL , type="l", lty=2,
 }
 
 
-#plotnd <- function(nMm, npoints=500, alpha=0.05,
-#                   fill=TRUE, fillcolor=nMmcols[1], border=NULL, ...) {
-#    stopifnot( inherits(nMm, "norMmix") )
-#    w <- nMm$weight
-#    mu <- nMm$mu
-#    sig <- nMm$Sigma
-#    k <- nMm$k
-#    p <- nMm$dim
-#    npoints <- npoints*p
-#    ## calculate ellipses by randomly generating a hull
-#    coord <- list()
-#    coarr <- matrix(0, k*npoints, p)
-#
-#    r0 <- sqrt(qchisq(1-alpha, df = 2))
-#    for (i in 1:k) {
-#        r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
-#        r <- apply(r, 1, function(j) j/norm(j,"2"))
-#        ## FIXME?  WRONG ?! use eigen(sig[,,i])
-#        r <- t(mu[,i] + r0 * (sig[,,i] %*% r))
-#
-#        coord[[i]] <- r # cant use chull yet, only works on planar coords
-#        coarr[(1+(i-1)*npoints):(i*npoints),] <- r
-#    }
-#
-#    fco <- if(fill) ## color
-#               sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
-#           else NA  ## don't fill polygons
-#
-#    ploy <- function(x,y) {
-#        npoints <- eval.parent(npoints, n=2)
-#        fco     <- eval.parent(fco,     n=2)
-#        k       <- eval.parent(k,       n=2)
-#        xs <- matrix(x,npoints,k)
-#        ys <- matrix(y,npoints,k)
-#        #points(x,y)
-#        for (i in 1:k) {
-#            ss <- cbind(xs[,i],ys[,i])
-#            polygon(ss[chull(ss),], col=fco, border=border)
-#        }
-#        grid()
-#    }
-#
-#    pairs(coarr, panel=ploy, ...)
-#    ## FIXME ?? not really used (-> save by not storing)
-#    invisible(coord)
-#}
-
 plotnd <- function(nMm, data=NULL,
                    diag.panel=NULL, 
                ...) 
