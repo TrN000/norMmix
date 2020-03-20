@@ -31,7 +31,7 @@ ellipsePts <- function(mu, sigma, npoints,
 
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim=2
-plot2d <- function(nMm, data, type="l", lty=2,
+plot2d <- function(nMm, data=NULL , type="l", lty=2,
                    xlim=NULL, ylim=NULL, f.lim=0.05,
                    newWindow=TRUE, npoints=250, lab=FALSE,
                    col=nMmcols[1],
@@ -75,58 +75,111 @@ plot2d <- function(nMm, data, type="l", lty=2,
 }
 
 
-plotnd <- function(nMm, npoints=500, alpha=0.05,
-                   fill=TRUE, fillcolor=nMmcols[1], border=NULL, ...) {
-    stopifnot( inherits(nMm, "norMmix") )
-    w <- nMm$weight
+#plotnd <- function(nMm, npoints=500, alpha=0.05,
+#                   fill=TRUE, fillcolor=nMmcols[1], border=NULL, ...) {
+#    stopifnot( inherits(nMm, "norMmix") )
+#    w <- nMm$weight
+#    mu <- nMm$mu
+#    sig <- nMm$Sigma
+#    k <- nMm$k
+#    p <- nMm$dim
+#    npoints <- npoints*p
+#    ## calculate ellipses by randomly generating a hull
+#    coord <- list()
+#    coarr <- matrix(0, k*npoints, p)
+#
+#    r0 <- sqrt(qchisq(1-alpha, df = 2))
+#    for (i in 1:k) {
+#        r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
+#        r <- apply(r, 1, function(j) j/norm(j,"2"))
+#        ## FIXME?  WRONG ?! use eigen(sig[,,i])
+#        r <- t(mu[,i] + r0 * (sig[,,i] %*% r))
+#
+#        coord[[i]] <- r # cant use chull yet, only works on planar coords
+#        coarr[(1+(i-1)*npoints):(i*npoints),] <- r
+#    }
+#
+#    fco <- if(fill) ## color
+#               sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
+#           else NA  ## don't fill polygons
+#
+#    ploy <- function(x,y) {
+#        npoints <- eval.parent(npoints, n=2)
+#        fco     <- eval.parent(fco,     n=2)
+#        k       <- eval.parent(k,       n=2)
+#        xs <- matrix(x,npoints,k)
+#        ys <- matrix(y,npoints,k)
+#        #points(x,y)
+#        for (i in 1:k) {
+#            ss <- cbind(xs[,i],ys[,i])
+#            polygon(ss[chull(ss),], col=fco, border=border)
+#        }
+#        grid()
+#    }
+#
+#    pairs(coarr, panel=ploy, ...)
+#    ## FIXME ?? not really used (-> save by not storing)
+#    invisible(coord)
+#}
+
+plotnd <- function(nMm, data=NULL,
+                   diag.panel=NULL, 
+               ...) 
+{
+    # read in vars from norMmix obj
+    w <- nMm$w
     mu <- nMm$mu
-    sig <- nMm$Sigma
+    Sig <- nMm$Sig
     k <- nMm$k
     p <- nMm$dim
-    npoints <- npoints*p
-    ## calculate ellipses by randomly generating a hull
-    coord <- list()
-    coarr <- matrix(0, k*npoints, p)
 
-    r0 <- sqrt(qchisq(1-alpha, df = 2))
-    for (i in 1:k) {
-        r <- MASS::mvrnorm(n=npoints, mu=rep(0,p), sig[,,i])
-        r <- apply(r, 1, function(j) j/norm(j,"2"))
-        ## FIXME?  WRONG ?! use eigen(sig[,,i])
-        r <- t(mu[,i] + r0 * (sig[,,i] %*% r))
-
-        coord[[i]] <- r # cant use chull yet, only works on planar coords
-        coarr[(1+(i-1)*npoints):(i*npoints),] <- r
-    }
-
-    fco <- if(fill) ## color
-               sapply(w, function(j) adjustcolor(fillcolor, j*0.8+0.1))
-           else NA  ## don't fill polygons
-
-    ploy <- function(x,y) {
-        npoints <- eval.parent(npoints, n=2)
-        fco     <- eval.parent(fco,     n=2)
-        k       <- eval.parent(k,       n=2)
-        xs <- matrix(x,npoints,k)
-        ys <- matrix(y,npoints,k)
-        #points(x,y)
-        for (i in 1:k) {
-            ss <- cbind(xs[,i],ys[,i])
-            polygon(ss[chull(ss),], col=fco, border=border)
+    # defining diagonal panel
+    if (is.null(diag.panel)) {
+        diag.panel <- function(i) {
+            frame()
+            box()
+            text(0.5, 0.5, paste("var", i), cex=p)
         }
-        grid()
     }
 
-    pairs(coarr, panel=ploy, ...)
-    ## FIXME ?? not really used (-> save by not storing)
-    invisible(coord)
+    # setting up the plot
+    opar <- par(mfcol=c(p,p) ) ## FIXME: some more: mar, oma
+    on.exit(par(opar))
+
+
+    # preallocating return data
+    pts <- vector("list", p^2)
+    dim(pts) <- c(p,p)
+
+    for (i in 1:p) { 
+        for (j in 1:p) {
+            if (j == i) { # diagonal panel
+                diag.panel(i)
+            } else { # off diag panels, plotted with ellipsePts()
+                pts[i,j][[1]] <- plot(reducednorMmix(nMm, c(i,j)), ...)
+                if (!is.null(data)) points(data[,c(i,j)])
+            }
+        }
+    }
+    
+    invisible(pts)
+}
+
+
+reducednorMmix <- function(nm, u) { 
+    #nm: norMmix obj
+    #u : dimension index
+
+    mu <- nm$mu[u,]
+    Sig <- nm$Sigma[u,u,]
+
+    return(norMmix(mu, Sigma=Sig, nm$weight, model=nm$model))
 }
 
 
 plot.norMmixMLE <- function(x, y=NULL, points=TRUE, ...) {
-    plot(x$norMmix, ...)
+    plot(x$norMmix, data=if (points) x$x else NULL, ...)
     ## FIXME: sub-title or something about MLE (BIC, Likelihood, ..)
-    if (points) points(x$x)
 }
 
 
@@ -136,7 +189,7 @@ plot.norMmix <- function(x, y=NULL, ... ) {
     ## TODO: make so data can also be missing
     stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
-        plot2d(x, y, ... )
+        plot2d(x, ...)
     else ## if (p>2)
         plotnd(x, ...)
 }

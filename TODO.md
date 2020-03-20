@@ -17,3 +17,7 @@
   `"manyNormixMLE"`
 
   NB. Get `fit.R` into this github repo from the `Bachelorthesis` **keeping** the git history
+  
+  
+3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures. 
+   deciding criteria needed.
