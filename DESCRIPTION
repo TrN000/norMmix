@@ -16,6 +16,9 @@ Imports: cluster, MASS, mvtnorm, mclust, sfsmisc
 Suggests: 
     Matrix,
     testthat (>= 2.1.0),
+    knitr,
+    rmarkdown
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr

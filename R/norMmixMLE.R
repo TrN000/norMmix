@@ -116,17 +116,30 @@ norMmixMLE <- function(
 
     # 4.
 
-    ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
-                npar=npar, n=n,
-                cond = parcond(x, k=k, model=model))
-    if(keep.optr) ret$optr <- optr
-    if(keep.data) ret$x <- x
-    class(ret) <- "norMmixMLE"
+    # old data structure
+    ##ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
+    ##            npar=npar, n=n,
+    ##            cond = parcond(x, k=k, model=model))
+    ##if(keep.optr) ret$optr <- optr
+    ##if(keep.data) ret$x <- x
+    ##class(ret) <- "norMmixMLE"
+
+    # new data structure
+    ret <- structure(par2nMm(optr$par, p, k, model=model),
+                     class=c("norMmixMLE","norMmix"),
+                     nobs=n,
+                     npar=npar,
+                     cond=parcond(x, k=k, model=model))
+    if (keep.optr) attr(ret, "optr") <- optr
+    if (keep.data) attr(ret, "x") <- x
     ret
 }
 
+is.norMmixMLE <- function(x) inherits(x, "normixMLE")
+
 
 logLik.norMmixMLE <- function(object, ...) {
+    if (attr(object, "optr") == NULL) stop("norMmixMLE was not created with 'keep.optr=TRUE'")
     r <- object$optr$value
     attributes(r) <- list(df=object$npar, nobs=nobs(object))
     class(r) <- "logLik"
@@ -134,7 +147,7 @@ logLik.norMmixMLE <- function(object, ...) {
 }
 
 
-nobs.norMmixMLE <- function(object, ...) object$n
+nobs.norMmixMLE <- function(object, ...) attr(object, "nobs")
 
 
 npar.norMmixMLE <- function(object, ...) {

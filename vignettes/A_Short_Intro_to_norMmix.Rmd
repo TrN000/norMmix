@@ -1,0 +1,166 @@
+---
+title: "A_Short_Intro_to_norMmix"
+output:
+    html_document:
+        fig_caption: yes
+        theme: cerulean
+        toc: yes
+        toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{A_Short_Intro_to_norMmix}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE,
+  tidy = FALSE,
+  cache = FALSE
+)
+```
+
+```{r setup}
+library(norMmix)
+``` 
+
+## Ultra quick start
+
+This section is for those who want a quick whiff of what the package can do.
+For the proper start to this vignette, see next section.
+
+A normal mixture model is a probability distribution constructed of normal distributions with weight coefficients
+
+$$
+f({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k) 
+$$
+$$
+\text{ with } \sum \pi_k = 1, \quad \Phi(-; \mu_k, \Sigma_k) \text{ normal distribution with mean: } \mu_k \text{ and covariance matrix} \Sigma_k 
+$$
+
+`norMmix()` creates an object codifying such a distribution:
+
+```{r}
+w <- c(0.5, 0.3, 0.2)
+mu <- matrix(1:6, 2, 3)
+sig <- array(c(2,1,1,2,3,2,2,3,4,3,3,4), c(2,2,3))
+
+nm <- norMmix(mu, Sigma=sig, weight=w)
+plot(nm)
+```
+
+`rnorMmix()` generates data from the distribution:
+```{r}
+x <- rnorMmix(500, nm)
+plot(nm)
+points(x)
+```
+
+`norMmixMLE()` fits a distribution to data:
+```{r}
+ret <- norMmixMLE(x, 3, model="VVV", initFUN=claraInit)
+plot(ret)
+```
+
+Use `?norMmixMLE` for details and see the section below.
+
+
+## Why this package exists:
+
+#### Rough outline:
+* quickly contrast EM and alternative
+* simple explanation of alt:
+    + clara → m step → general optimiser
+    + benefits of ldlt and loglik fctn as opposed to EM
+
+
+* this document organised by major classes in package
+    + norMmix: base class/base data model
+    + norMmixMLE: return value of algo, holds results
+
+This document is organised by the major classes in this package.
+These are the 'norMmix', 'norMmixMLE' and (soon) 'manynorMmix' classes.
+
+Of these, norMmix is the base class, that codifies a multivariate normal mixture,
+with weights, means and covariance matrices.
+
+Stacked on top of norMmix is norMmixMLE, which is the output of our main 
+feature, the MLE implementation. It contains first and foremost a norMmix 
+object, namely the result of the MLE. After that, it also has additional 
+information about the specifics of the fitting, like number of parameters and 
+sample size. 
+
+## On the base class 'norMmix'
+
+* how to make a norMmix model
+
+It is easiest to introduce the tool by using the tool, so here is a quick tour:
+
+```{r}
+# suppose we wanted some mixture model, let
+mu <- matrix(1:6, 2,3)      # 2x3 matrix -> 3 means of dimension 2
+w <- c(0.5, 0.3, 0.2)       # needs to sum to 1
+diags <- c(4, 3, 5)         # these will be the entries of the diagonal of the covariance matrices (see below)
+
+nm <- norMmix(mu, Sigma=diags, weight=w)
+print(nm)
+str(nm)
+```
+
+A norMmix object is a list of 6: 
+* a char denoting the model
+* a matrix of means
+* a vector of weights
+* an array of covariance matrices
+* an int: the number of components
+* an int: the number of dimensions
+
+The means and covariance matrices look like this:
+```{r}
+nm$mu
+nm$Sigma
+```
+Compare that to mu and diags defined at the start of this section.
+
+The norMmix() function serves as initializer for a norMmix object. While you 
+could specify covariance matrices explicitly, norMmix() as a few nifty ways of 
+constructing simpler matrices from smaller givens.
+This happens according to the dimension of the given value for the Sigma argument:
+
+0. for a single value `l`, norMmix() assumes all matrices to be diagonal with entries `l`
+
+1. for a vector `v`, `norMmix()` assumes all matrices to be diagonal with the i-th matrix having diagonal entries `v[i]`
+
+2. for a matrix `m`, `norMmix()` assumes all matrices to be diagonal with diagonal vector `m[,i]` (i.e. it goes by columns)
+
+3. an array is assumed to be the covariance matrices, given explicitly.
+
+
+### Issues with k or dim = 1
+
+**IMPORTANT ISSUE**
+
+* available functions for inspecting these
+* what to do with them
+
+## On 'norMmixMLE'
+
+* the norMmixMLE function and its arguments
+* Examples
+
+Several development atavisms are still present in the code. 
+These are exposed to the user in the package's namespace.
+I will quickly show what these could be used for.
+
+
+## On 'manyMLE' (as soon as we have reintegrated that)
+
+## Details about the source code
+
+* what else is in the code?
+* grep -roP '\w+(?= <- function)' works well to get function names
+    * grep -rn '<- function' also good

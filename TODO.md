@@ -21,3 +21,5 @@
   
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures. 
    deciding criteria needed.
+   
+4. norMmix.Rd does not document use of non-array covar. mats. as init. values

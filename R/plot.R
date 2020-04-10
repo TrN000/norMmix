@@ -21,8 +21,6 @@ ellipsePts <- function(mu, sigma, npoints,
         tcrossprod(r * cbind(cos(theta), sin(theta)), # v1
                    es$vectors * sqrt(es$values)[c(1L,1L,2L,2L)]) # e1
 }
-## FIXME: also use in plotnd()
-
 
 ## FIXME:  plot2d() <--> plotnd()  are *NOT* compatible in their defaults:
 ## =====
@@ -77,13 +75,7 @@ plot2d <- function(nMm, data=NULL , type="l", lty=2,
 
 plotnd <- function(nMm, data=NULL,
                    diag.panel=NULL, 
-               ...) 
-{
-    # read in vars from norMmix obj
-    w <- nMm$w
-    mu <- nMm$mu
-    Sig <- nMm$Sig
-    k <- nMm$k
+               ...) {
     p <- nMm$dim
 
     # defining diagonal panel
@@ -120,12 +112,13 @@ plotnd <- function(nMm, data=NULL,
 
 
 reducednorMmix <- function(nm, u) { 
-    #nm: norMmix obj
-    #u : dimension index
+    # nm: norMmix obj
+    # u : dimension index
+    #
+    # returns: norMmix with reduced dimensions according to index vector u
 
     mu <- nm$mu[u,]
     Sig <- nm$Sigma[u,u,]
-
     return(norMmix(mu, Sigma=Sig, nm$weight, model=nm$model))
 }
 
@@ -133,13 +126,14 @@ reducednorMmix <- function(nm, u) {
 plot.norMmixMLE <- function(x, y=NULL, points=TRUE, ...) {
     plot(x$norMmix, data=if (points) x$x else NULL, ...)
     ## FIXME: sub-title or something about MLE (BIC, Likelihood, ..)
+    # maybe something like title(sub="asdf"), might have to modify 
+    # par()
 }
 
 
 # plot function for norMmix objects
 # \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution
 plot.norMmix <- function(x, y=NULL, ... ) {
-    ## TODO: make so data can also be missing
     stopifnot(is.list(x), length(p <- x$dim) == 1)
     if (p == 2)
         plot2d(x, ...)

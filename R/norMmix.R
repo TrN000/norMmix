@@ -103,32 +103,32 @@ npar.norMmix <- function(object, ...) {
 }
 
 
-is.norMmix <- function(obj) {inherits(obj, "norMmix")}
+is.norMmix <- function(x) {inherits(x, "norMmix")}
 
 
 ##-- *not* used currently!
 #' Corrects numerical error in case D in LDL' decomp is near-zero:
 #' takes tolerance, norMmix obj; returns norMmix obj
-forcePositive <- function(nMm, eps0=1e-10) {
-    stopifnot(is.norMmix(nMm))
-
-    sig <- nMm$Sigma
-    D. <- apply(sig,3, function(j) ldl(j)$D )
-    L. <- apply(sig,3, function(j) ldl(j)$L)
-    k <- ncol(D.)
-    p <- nrow(D.)
-
-    eps <- eps0 * apply(D., 2, function(dj) max(abs(dj)))
-
-    for (i in 1:k) { # for each component
-        Di <- pmax(eps[i], D.[,i])
-        ## Sig := L D L' :
-        sig[,,i] <- matrix(L.[,i],p,p) %*% diag(Di) %*% matrix(L.[,i],p,p,byrow=TRUE)
-    }
-
-    nMm$Sigma <- sig
-    nMm
-}
+#forcePositive <- function(nMm, eps0=1e-10) {
+#    stopifnot(is.norMmix(nMm))
+#
+#    sig <- nMm$Sigma
+#    D. <- apply(sig,3, function(j) ldl(j)$D )
+#    L. <- apply(sig,3, function(j) ldl(j)$L)
+#    k <- ncol(D.)
+#    p <- nrow(D.)
+#
+#    eps <- eps0 * apply(D., 2, function(dj) max(abs(dj)))
+#
+#    for (i in 1:k) { # for each component
+#        Di <- pmax(eps[i], D.[,i])
+#        ## Sig := L D L' :
+#        sig[,,i] <- matrix(L.[,i],p,p) %*% diag(Di) %*% matrix(L.[,i],p,p,byrow=TRUE)
+#    }
+#
+#    nMm$Sigma <- sig
+#    nMm
+#}
 
 
 # rnorMmix
