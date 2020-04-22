@@ -15,6 +15,7 @@ importFrom("grDevices"
 
 importFrom("graphics"
          , axis, box, boxplot
+         , frame
          , grid
          , legend, matplot, mtext
          , pairs
