@@ -47,8 +47,9 @@ $$
 ```{r}
 w <- c(0.5, 0.3, 0.2)
 mu <- matrix(1:6, 2, 3)
-sig <- array(c(2,1,1,2,3,2,2,3,4,3,3,4), c(2,2,3))
-
+sig <- array(c(2,1,1,2,
+               3,2,2,3,
+               4,3,3,4), c(2,2,3))
 nm <- norMmix(mu, Sigma=sig, weight=w)
 plot(nm)
 ```
@@ -63,7 +64,10 @@ points(x)
 `norMmixMLE()` fits a distribution to data:
 ```{r}
 ret <- norMmixMLE(x, 3, model="VVV", initFUN=claraInit)
-plot(ret)
+if(FALSE) ### FIXME
+plot(ret) # gives error !!
+if(FALSE) ### FIXME
+ret # print(ret)  # also gives an error !
 ```
 
 Use `?norMmixMLE` for details and see the section below.

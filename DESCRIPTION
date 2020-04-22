@@ -1,5 +1,5 @@
 Package: norMmix
-Version: 0.0-2
+Version: 0.0-3
 Title: Direct MLE for Multivariate Normal Mixture Distributions
 Description: Compute the MLE for multivariate normal mixtures via smart parametrization using
   the LDLt decomposition.
@@ -13,7 +13,7 @@ Maintainer: Nicolas Trutmann <nicolas.trutmann@gmx.ch>
 Author: Nicolas Trutmann [aut, cre],
   Martin Maechler [aut, ths] (<https://orcid.org/0000-0002-8685-9910>, based on 'nor1mix')
 Imports: cluster, MASS, mvtnorm, mclust, sfsmisc
-Suggests: 
+Suggests:
     Matrix,
     testthat (>= 2.1.0),
     knitr,
