@@ -16,23 +16,23 @@ dl. <- function(d,x,p) {
 
 ## centered log ratio
 clr1 <- function(w) {
-    stopifnot(is.numeric(w), w >= 0, all.equal(sum(w), 1))
+    stopifnot(length(w) >= 1L, w >= 0, all.equal(sum(w), 1))
     # calculate clr1
     ln <- log(w)
     ## log(0) == -Inf "kills"  mean(ln) etc:
     if(any(w0 <- !w)) ln[w0] <- -709 # < log(.Machine$double.xmin) = -708.3964
-    # return:
+    ## return:
     ln[-1L] - mean(ln)
 }
 
 .logMax <- log(2) * .Machine$double.max.exp # = 709.7827 = log(.Machine$double.xmax)
 
 clr1inv <- function(lp) {
-    stopifnot(is.numeric(lp))
+    ## stopifnot(is.numeric(lp))
     if(!length(lp)) return(1)
-    # calc weights
+    ## calc weights
     lp <- c(-sum(lp), lp) # = (lp_1,..., lp_m)
-    if((mlp <- max(lp)) < .logMax) { ## normal case __ FIXME: fails when several lp == max(lp) __
+    if((mlp <- max(lp))*length(lp) < .logMax) { ## normal case
         p1 <- exp(lp)
     } else { ## mlp = max(lp) >= .logMax, where exp(lp) would overflow
         p1 <- exp(lp - mlp)
