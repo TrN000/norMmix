@@ -13,12 +13,14 @@ importFrom("grDevices"
          , dev.off
            )
 
-importFrom("graphics", legend, matplot, mtext
+importFrom("graphics"
+         , axis, box, boxplot
+         , grid
+         , legend, matplot, mtext
          , pairs
+         , par
          , plot, points
          , polygon, text, title
-         , axis, boxplot, par
-         , grid
            )
 
 importFrom("stats", median, quantile
