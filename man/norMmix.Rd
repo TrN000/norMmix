@@ -3,7 +3,7 @@
 \alias{norMmix}
 \title{Constructor for Multivariate Normal Mixture Objects}
 \description{
-  \code{norMmix()} creates a multivariate normal (aka Gaussian) mixture
+  \code{norMmix} creates a multivariate normal (aka Gaussian) mixture
   object, conceptually a mixture of \eqn{k} multivariate
   (\eqn{p}-dimensional) Gaussians
   \eqn{\mathcal{N}(\mu_j, \Sigma_j)}{N(mu_j, Sigma_j)}, for \eqn{j=1, \dots, k}.
@@ -16,7 +16,9 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
 \arguments{
     \item{mu}{matrix of means, or a vector in which case \eqn{k = 1} is
       assumed.  Otherwise use \code{as.matrix(mu)}.}
-    \item{Sigma}{array (k x p x p) of covariance matrices}
+    \item{Sigma}{NULL, float, vector (length = k), matrix (dim = p x k),
+        array (p x p x k). See details.
+    }
     \item{weight}{weights of mixture model components}
     \item{name}{gives the option of naming mixture}
     \item{model}{see \sQuote{Details}}
@@ -39,6 +41,19 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
   \code{model} must be specified by one of the (currently 10)
   \code{\link{character}} strings shown in the default.
   (In a future version, \code{model} may become \emph{optional}).% TODO - "smart"
+
+  \code{norMmix} as a few nifty ways of constructing simpler matrices from    
+  smaller givens. This happens according to the dimension of the given 
+  value for the Sigma argument:
+
+  0. for a single value \code{l} or NULL, \code{norMmix} assumes all matrices to be diagonal with entries \code{l} or \code{1}, respectively.
+
+  1. for a vector \code{v}, \code{norMmix} assumes all matrices to be diagonal with the i-th matrix having diagonal entries \code{v[i]}.
+
+  2. for a matrix \code{m}, \code{norMmix} assumes all matrices to be diagonal with diagonal vector \code{m[,i]} (i.e. it goes by columns).
+
+  3. an array is assumed to be the covariance matrices, given explicitly.
+  
 
   FIXME ... give "all" the details ... (from Bachelor's thesis ???)
   %% ~/Betreute-Arbeiten/NicolasTrutmann/BSc_thesis+MM/chapter1.Rnw
