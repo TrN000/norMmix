@@ -22,4 +22,16 @@
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures. 
    deciding criteria needed.
    
+5. decide on par args in ndplot and how to leave it exposed to the user. 
+   maybe do.call(par, parargs) construct?? and put parargs=NULL in arguments.
+   user can then overwrite first call to par().
+   
+6. Documentation for plot methods now completely broken. Arguments like 
+   newWindow no longer supported. Needs to be rewritten for 2d and >2d. 
+
+
+==============================================================================
+DONE:
+
 4. norMmix.Rd does not document use of non-array covar. mats. as init. values
+
