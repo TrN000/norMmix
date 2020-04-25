@@ -26,7 +26,12 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(norMmix)
+set.seed(2020)
 ``` 
+
+to dev and compile:
+devtools::load_all()
+rmarkdown::render("~/lib/norMmix/vignettes/A_Short_Intro_to_norMmix.Rmd")
 
 ## Ultra quick start
 
@@ -70,11 +75,24 @@ if(FALSE) ### FIXME
 ret # print(ret)  # also gives an error !
 ```
 
-Use `?norMmixMLE` for details and see the section below.
+Voilà.
+
+Now again but more thorough:
 
 
 ## Why this package exists:
 
+This package was originally created for the purposes of a bachelor's thesis 
+from author Nicolas Trutmann. The credit for the idea rests solely with Prof. 
+Martin Mächler.
+
+In brief: The current popular choice for the fitting of normal mixtures is the
+EM-algorithm; in part because of it's proven convergence.
+But, there are pathological cases where convergence slows down and, in most 
+implementations of the EM-algorithm, break off.
+
+This alternative, while not without flaws, is not hampered by this particular
+shortcoming.
 #### Rough outline:
 * quickly contrast EM and alternative
 * simple explanation of alt:
@@ -135,11 +153,12 @@ could specify covariance matrices explicitly, norMmix() as a few nifty ways of
 constructing simpler matrices from smaller givens.
 This happens according to the dimension of the given value for the Sigma argument:
 
-0. for a single value `l`, norMmix() assumes all matrices to be diagonal with entries `l`
 
-1. for a vector `v`, `norMmix()` assumes all matrices to be diagonal with the i-th matrix having diagonal entries `v[i]`
+0. for a single value `l` or NULL, norMmix() assumes all matrices to be diagonal with entries `l` or `1`, respectively.
 
-2. for a matrix `m`, `norMmix()` assumes all matrices to be diagonal with diagonal vector `m[,i]` (i.e. it goes by columns)
+1. for a vector `v`, `norMmix()` assumes all matrices to be diagonal with the i-th matrix having diagonal entries `v[i]`.
+
+2. for a matrix `m`, `norMmix()` assumes all matrices to be diagonal with diagonal vector `m[,i]` (i.e. it goes by columns).
 
 3. an array is assumed to be the covariance matrices, given explicitly.
 

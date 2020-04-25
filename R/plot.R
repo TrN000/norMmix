@@ -29,11 +29,13 @@ ellipsePts <- function(mu, sigma, npoints,
 
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim=2
-plot2d <- function(nMm, data=NULL , type="l", lty=2,
+plot2d <- function(nMm, data=NULL , 
+                   main=deparse(sys.call()), sub=NULL,
+                   type="l", lty=2,
                    xlim=NULL, ylim=NULL, f.lim=0.05,
                    newWindow=TRUE, npoints=250, lab=FALSE,
                    col=nMmcols[1],
-                   fill=TRUE, fillcolor=nMmcols[1], border=NA,
+                   fill=TRUE, fillcolor=col, border=NA,
 	           ...)  {
     w <- nMm$weight
     mu <- nMm$mu
@@ -74,7 +76,9 @@ plot2d <- function(nMm, data=NULL , type="l", lty=2,
 
 
 plotnd <- function(nMm, data=NULL,
+                   main=deparse(sys.call()), sub=NULL,
                    diag.panel=NULL, 
+                   parargs=NULL,
                ...) {
     p <- nMm$dim
 
@@ -87,10 +91,18 @@ plotnd <- function(nMm, data=NULL,
         }
     }
 
-    # setting up the plot
-    opar <- par(mfcol=c(p,p) ) ## FIXME: some more: mar, oma
-    on.exit(par(opar))
+    # par presets
+    mar=c(2, 2, 1, 2) # bottom left top right
+    oma=c(2, 1, 5, 1)
 
+    # setting up the plot
+    oldpar <- par(mfcol=c(p,p), mar=mar, oma=oma) # setting up first `par` layer
+    on.exit(par(oldpar))
+
+    if (!is.null(parargs)) { # over writes previous `par` call
+        oldpar_parargs <- do.call(par, parargs)
+        on.exit(par(oldpar_parargs), add=TRUE, after=FALSE) # `first in last out` on.exit expression stack
+    }
 
     # preallocating return data
     pts <- vector("list", p^2)
@@ -100,13 +112,13 @@ plotnd <- function(nMm, data=NULL,
         for (j in 1:p) {
             if (j == i) { # diagonal panel
                 diag.panel(i)
-            } else { # off diag panels, plotted with ellipsePts()
+            } else { # off diag panels, plotted with 2dplot and ellipsePts()
                 pts[i,j][[1]] <- plot(reducednorMmix(nMm, c(i,j)), ...)
                 if (!is.null(data)) points(data[,c(i,j)])
             }
         }
     }
-    
+
     invisible(pts)
 }
 
@@ -116,7 +128,6 @@ reducednorMmix <- function(nm, u) {
     # u : dimension index
     #
     # returns: norMmix with reduced dimensions according to index vector u
-
     mu <- nm$mu[u,]
     Sig <- nm$Sigma[u,u,]
     return(norMmix(mu, Sigma=Sig, nm$weight, model=nm$model))
