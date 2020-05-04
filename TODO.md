@@ -25,7 +25,15 @@
 5. decide on par args in ndplot and how to leave it exposed to the user. 
    maybe do.call(par, parargs) construct?? and put parargs=NULL in arguments.
    user can then overwrite first call to par().
+
+   ==> MM: Using sfsmisc::mult.fig()  and allow the user to change defaults
+   for  mult.fig() is easier.
    
+  ===> MUCH BETTER is really to change the setup completely, use  
+	   graphics :: pairs.default(.)
+    by providing a correct  panel = function(.)   function !!!
+   
+     
 6. Documentation for plot methods now completely broken. Arguments like 
    newWindow no longer supported. Needs to be rewritten for 2d and >2d. 
 

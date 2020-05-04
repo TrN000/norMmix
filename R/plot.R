@@ -29,7 +29,7 @@ ellipsePts <- function(mu, sigma, npoints,
 
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim=2
-plot2d <- function(nMm, data=NULL , 
+plot2d <- function(nMm, data=NULL ,
                    main=deparse(sys.call()), sub=NULL,
                    type="l", lty=2,
                    xlim=NULL, ylim=NULL, f.lim=0.05,
@@ -76,69 +76,76 @@ plot2d <- function(nMm, data=NULL ,
 
 
 plotnd <- function(nMm, data=NULL,
-                   main=deparse(sys.call()), sub=NULL,
-                   diag.panel=NULL, 
-                   parargs=NULL,
-               ...) {
-    p <- nMm$dim
+###
+### FIXME: (see ../TODO.md) use pairs() with correct panel = function(.).....
+###
+                   main=deparse(sys.call()), # MM: prefer main=NULL
+                   ## sub=NULL,
+                   diag.panel=NULL,
+                   ## for now, important arguments to mult.fig()
+                   marP = rep(0, 4),
+                   mgp = c(if (par("las") != 0) 2 else 1.5, 0.6, 0),
+                   mar = marP + 0.1 + c(4, 4, 2, 1),
+                   ...)
+{
+    stopifnot(length(p <- nMm$dim) == 1, p >= 0)
+
+    # preallocating result (a "matrix" list):
+    pts <- vector("list", p*p)
+    dim(pts) <- c(p,p)
+    if(p == 0) return(invisible(pts))
+
 
     # defining diagonal panel
     if (is.null(diag.panel)) {
-        diag.panel <- function(i) {
+        diag.panel <- function(i, p) {
             frame()
             box()
-            text(0.5, 0.5, paste("var", i), cex=p)
+            text(0.5, 0.5, paste("var", i, cex=p)) # rather cex=2 (??)
         }
-    }
+    } else # a function with at least one argument :
+        stopifnot(is.function(diag.panel), length(formals(diag.panel)) >= 2)
 
-    # par presets
-    mar=c(2, 2, 1, 2) # bottom left top right
-    oma=c(2, 1, 5, 1)
+    # setting up the plot _______ FIXME Use  pairs() with panel in the future !!
+    opar <- mult.fig(mfcol=c(p,p), marP=marP, mgp=mgp, mar=mar) $ opar
+    on.exit(par(opar))
 
-    # setting up the plot
-    oldpar <- par(mfcol=c(p,p), mar=mar, oma=oma) # setting up first `par` layer
-    on.exit(par(oldpar))
-
-    if (!is.null(parargs)) { # over writes previous `par` call
-        oldpar_parargs <- do.call(par, parargs)
-        on.exit(par(oldpar_parargs), add=TRUE, after=FALSE) # `first in last out` on.exit expression stack
-    }
-
-    # preallocating return data
-    pts <- vector("list", p^2)
-    dim(pts) <- c(p,p)
-
-    for (i in 1:p) { 
+    for (i in 1:p) {
         for (j in 1:p) {
             if (j == i) { # diagonal panel
-                diag.panel(i)
-            } else { # off diag panels, plotted with 2dplot and ellipsePts()
-                pts[i,j][[1]] <- plot(reducednorMmix(nMm, c(i,j)), ...)
-                if (!is.null(data)) points(data[,c(i,j)])
+                diag.panel(i, p)
+            } else { # off diag panels, plot 2-dim projections using ellipsePts()
+                pts[i,j][[1L]] <- plot2d(norMmixProj(nMm, c(i,j)), data = data[, c(i,j)], ...)
             }
         }
     }
-
     invisible(pts)
 }
 
 
-reducednorMmix <- function(nm, u) { 
-    # nm: norMmix obj
-    # u : dimension index
-    #
-    # returns: norMmix with reduced dimensions according to index vector u
-    mu <- nm$mu[u,]
-    Sig <- nm$Sigma[u,u,]
-    return(norMmix(mu, Sigma=Sig, nm$weight, model=nm$model))
+##' @title norMmix Projection on Coordinate Axes
+##' @param nm norMmix obj
+##' @param i # coordinate indices on which to project; integer vector, 1 <= i[k] <= p:= nm$dim
+##' @return norMmix projected with reduced dimensions according to  ij
+norMmixProj <- function(nm, ij) {
+    nm$mu    <-  nm$ mu   [ij,     , drop=FALSE]
+    nm$Sigma <-  nm$ Sigma[ij, ij, , drop=FALSE]
+    nm$dim <- length(ij)
+    nm
 }
 
 
-plot.norMmixMLE <- function(x, y=NULL, points=TRUE, ...) {
-    plot(x$norMmix, data=if (points) x$x else NULL, ...)
-    ## FIXME: sub-title or something about MLE (BIC, Likelihood, ..)
-    # maybe something like title(sub="asdf"), might have to modify 
-    # par()
+plot.norMmixMLE <- function(x, y=NULL,
+                            show.x = TRUE,
+                            main = sprintf("norMmixMLE(*, model=\"%s\") fit to n=%d observations in %d dim.",
+                                           x$model, x$nobs, x$dim),
+                            sub = paste0(sprintf("log likelihood: %g; npar=%d", x$logLik, x$npar),
+                                         if(!is.null(opt <- x$optr))
+                                             paste("; optim() counts:", named2char(opt$counts))),
+                            ...)
+{
+    plot.norMmix(x$norMix, data = if(show.x) x$x,# else NULL
+                 main=main, sub=sub, ...)
 }
 
 
@@ -181,5 +188,3 @@ plot.fittednorMmix <- function(x, main="unnamed", plotbest=FALSE, ...) {
     title(main=main)
     mtext(paste("best fit = ", best[1], best[2]))
 }
-
-

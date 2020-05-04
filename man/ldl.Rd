@@ -100,18 +100,22 @@ chkLDL <- function(n, ..., verbose=FALSE, tol = 1e-14) {
 
 (chkLDL(7))
 
+\donttest{
 N <- 99 ## test  N  random cases
 set.seed(101)
 for(i in 1:N) {
     cat(sprintf("i=\%3d, ",i))
     chkLDL(rpois(1, lambda = 20), verbose=TRUE)
 }
+}% dont
 
+\donttest{
 system.time(chkLDL( 500)) # 0.62
 
 try( ## this almost never "works":
 system.time(chkLDL( 500, rF = rnorm, rFD = function(n) 10 + runif(n))) # 0.64
 )
+}% dont
 
 if(interactive())
    system.time(chkLDL( 600)) # 1.09

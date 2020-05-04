@@ -49,7 +49,8 @@ norMmixMLE <- function(
                ## epsilon = 1e-10,
                method = "BFGS", maxit = 100, trace = 2,
                optREPORT=10, reltol = sqrt(.Machine$double.eps),
-	       ... ) {
+	       ... )
+{
     # 1. san check call
     # 2. prep nMm obj
     # 3. apply optim
@@ -114,15 +115,16 @@ norMmixMLE <- function(
     		    ...)
     optr <- optim(initpar., neglogl, method=method, control=control)
 
-    # 4.
+    ## 4.  return ()
 
-    # old data structure
-    ret <- list(norMmix = par2nMm(optr$par, p, k, model=model),
-                npar=npar, n=n,
-                cond = parcond(x, k=k, model=model))
-    if(keep.optr) ret$optr <- optr
-    if(keep.data) ret$x <- x
-    class(ret) <- "norMmixMLE"
+    # newer data structure, but still not inheriting from "norMmix" but rather with 'x$norMmix':
+    structure(class = "norMmixMLE",
+              list(norMmix = par2nMm(optr$par, p, k, model=model)
+                 , npar = npar
+                 , n = n
+                 , cond = parcond(x, k=k, model=model)
+                 , optr = if(keep.optr) optr
+                 , x    = if(keep.data) x))
 
     ##new data structure
     ##ret <- structure(par2nMm(optr$par, p, k, model=model),
@@ -132,37 +134,35 @@ norMmixMLE <- function(
     ##                 cond=parcond(x, k=k, model=model))
     ##if (keep.optr) attr(ret, "optr") <- optr
     ##if (keep.data) attr(ret, "x") <- x
-    
-    ret
+    ## ret
 }
 
-is.norMmixMLE <- function(x) inherits(x, "normixMLE")
+## superfluous:
+## is.norMmixMLE <- function(x) inherits(x, "norMmixMLE")
 
 
 logLik.norMmixMLE <- function(object, ...) {
-    if (attr(object, "optr") == NULL) stop("norMmixMLE was not created with 'keep.optr=TRUE'")
-    r <- object$optr$value
-    attributes(r) <- list(df=object$npar, nobs=nobs(object))
-    class(r) <- "logLik"
-    r
+    structure(object$logLik,
+            , class = "logLik"
+            , df    = object$npar
+            , nobs  = object$nobs)
 }
 
+nobs.norMmixMLE <- function(object, ...) object$nobs
 
-nobs.norMmixMLE <- function(object, ...) attr(object, "nobs")
+npar.norMmixMLE <- function(object, ...) npar(object$norMmix)
 
-
-npar.norMmixMLE <- function(object, ...) {
-    npar(object$norMmix)
-}
+##' format 'x' with names into  "<name1> = <x1>, <name2> = <x2>, ..."
+named2char <- function(x, sep = " = ", collapse = ", ")
+    paste(names(x), x, sep=sep, collapse=collapse)
 
 print.norMmixMLE <- function(x, ...) {
-    cat("object of class 'norMmixMLE' \n")
-    print(x$norMmix)
-    cat("\nreturned from optim:\n")
-    print(x$optr$counts)
-    cat("\nlog-likelihood:", -x$optr$value, "\n",
-        "\n",
-        "nobs\tnpar\tnobs/npar\n",
-        x$n, "\t", x$npar, "\t", x$cond, "\n")
+    cat("'norMmixMLE' normal mixture MLE fit;  fitted 'norMmix' normal mixture:\n")
+    print.norMmix(x, ...)
+    cat("log-likelihood:", x$logLik, "\n\n",
+        "nobs\t npar\t nobs/npar\n",
+        x$nobs, "\t", x$npar, "\t", x$cond, "\n")
+    if(!is.null(optr <- x$optr))
+        cat("\n optim() counts:", named2char(optr$counts),"\n")
     invisible(x)
 }
