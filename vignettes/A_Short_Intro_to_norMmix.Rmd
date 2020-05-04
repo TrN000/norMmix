@@ -1,5 +1,5 @@
 ---
-title: "A_Short_Intro_to_norMmix"
+title: "A Short Intro to `norMmix`"
 output:
     html_document:
         fig_caption: yes
@@ -27,29 +27,41 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(norMmix)
 set.seed(2020)
-``` 
+```
 
-to dev and compile:
+<!-- to dev and compile (don't *show* !): -->
+```{r dev-and-compile, echo = FALSE, eval = FALSE}
 devtools::load_all()
-rmarkdown::render("~/lib/norMmix/vignettes/A_Short_Intro_to_norMmix.Rmd")
+rmarkdown::render("~/R/Pkgs/norMmix/vignettes/A_Short_Intro_to_norMmix.Rmd")
+````
 
 ## Ultra quick start
 
 This section is for those who want a quick whiff of what the package can do.
 For the proper start to this vignette, see next section.
 
-A normal mixture model is a probability distribution constructed of normal distributions with weight coefficients
+A normal mixture model is a multivariate probability distribution constructed of normal distributions and mixture weights.
+Its (probability) density and (cumulative) distribution functions (aka PDF and CDF), $f()$ and $F()$ are
+\[
+f({\bf x}) = \sum_{k=1}^{K} \pi_k \phi({\bf x};\mu_k, \Sigma_k), \hspace*{2em} and
+F({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k),
+\]
+
+\[
+ \text{ with } \pi_k \ge 0, \sum \pi_k = 1, \quad \phi(.) and \Phi(\cdot; \mu_k, \Sigma_k)
+ \text{ the density and distribution function of a multivariate normal (aka *Gaussian*) distribution with mean }
+ \mu_k  \text{ and covariance matrix } \Sigma_k,
+\]
+for details, see e.g., <https://en.wikipedia.org/wiki/Multivariate_normal_distribution> .
 
 $$
-f({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k) 
+f({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k)
 $$
 $$
-\text{ with } \sum \pi_k = 1, \quad \Phi(-; \mu_k, \Sigma_k) \text{ normal distribution with mean: } \mu_k \text{ and covariance matrix} \Sigma_k 
+\text{ with } \sum \pi_k = 1, \quad \Phi(-; \mu_k, \Sigma_k) \text{ normal distribution with mean: } \mu_k \text{ and covariance matrix} \Sigma_k
 $$
 
-`norMmix()` creates an object codifying such a distribution:
-
-```{r}
+```{r norMmix}
 w <- c(0.5, 0.3, 0.2)
 mu <- matrix(1:6, 2, 3)
 sig <- array(c(2,1,1,2,
@@ -59,20 +71,24 @@ nm <- norMmix(mu, Sigma=sig, weight=w)
 plot(nm)
 ```
 
-`rnorMmix()` generates data from the distribution:
-```{r}
+`rnorMmix()` generates data (random observations) from such distributions:
+
+```{r norMmix_data}
 x <- rnorMmix(500, nm)
-plot(nm)
+plot(nm, xlim = c(-5,10), ylim = c(-5, 12),
+     main = "500 observations from a mixture of 3 bivariate Gaussians")
 points(x)
 ```
 
 `norMmixMLE()` fits a distribution to data:
+
 ```{r}
 ret <- norMmixMLE(x, 3, model="VVV", initFUN=claraInit)
-if(FALSE) ### FIXME
-plot(ret) # gives error !!
-if(FALSE) ### FIXME
-ret # print(ret)  # also gives an error !
+ret # -> print.norMmixMLE(ret)
+```
+and the fitted object, of class `"norMixMLE"` has a nice `plot()` method:
+```{r, plot-MLE}
+plot(ret)
 ```
 
 Voilà.
@@ -82,13 +98,13 @@ Now again but more thorough:
 
 ## Why this package exists:
 
-This package was originally created for the purposes of a bachelor's thesis 
-from author Nicolas Trutmann. The credit for the idea rests solely with Prof. 
+This package was originally created for the purposes of a bachelor's thesis
+from author Nicolas Trutmann. The credit for the idea rests solely with Prof.
 Martin Mächler.
 
 In brief: The current popular choice for the fitting of normal mixtures is the
 EM-algorithm; in part because of it's proven convergence.
-But, there are pathological cases where convergence slows down and, in most 
+But, there are pathological cases where convergence slows down and, in most
 implementations of the EM-algorithm, break off.
 
 This alternative, while not without flaws, is not hampered by this particular
@@ -110,11 +126,11 @@ These are the 'norMmix', 'norMmixMLE' and (soon) 'manynorMmix' classes.
 Of these, norMmix is the base class, that codifies a multivariate normal mixture,
 with weights, means and covariance matrices.
 
-Stacked on top of norMmix is norMmixMLE, which is the output of our main 
-feature, the MLE implementation. It contains first and foremost a norMmix 
-object, namely the result of the MLE. After that, it also has additional 
-information about the specifics of the fitting, like number of parameters and 
-sample size. 
+Stacked on top of norMmix is norMmixMLE, which is the output of our main
+feature, the MLE implementation. It contains first and foremost a norMmix
+object, namely the result of the MLE. After that, it also has additional
+information about the specifics of the fitting, like number of parameters and
+sample size.
 
 ## On the base class 'norMmix'
 
@@ -133,7 +149,7 @@ print(nm)
 str(nm)
 ```
 
-A norMmix object is a list of 6: 
+A norMmix object is a list of 6:
 * a char denoting the model
 * a matrix of means
 * a vector of weights
@@ -148,8 +164,8 @@ nm$Sigma
 ```
 Compare that to mu and diags defined at the start of this section.
 
-The norMmix() function serves as initializer for a norMmix object. While you 
-could specify covariance matrices explicitly, norMmix() as a few nifty ways of 
+The norMmix() function serves as initializer for a norMmix object. While you
+could specify covariance matrices explicitly, norMmix() as a few nifty ways of
 constructing simpler matrices from smaller givens.
 This happens according to the dimension of the given value for the Sigma argument:
 
@@ -175,7 +191,7 @@ This happens according to the dimension of the given value for the Sigma argumen
 * the norMmixMLE function and its arguments
 * Examples
 
-Several development atavisms are still present in the code. 
+Several development atavisms are still present in the code.
 These are exposed to the user in the package's namespace.
 I will quickly show what these could be used for.
 

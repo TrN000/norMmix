@@ -93,14 +93,30 @@ ssClara2kL(n, k, p)
   after that uses general optimizer \code{\link{optim}()} to calculate the MLE.
 }
 \examples{
-    str(MW214)
-    set.seed(105)
-    x <- rnorMmix(1000, MW214)
-    ## Fitting assuming we know the true parametric model
-    fm1  <- norMmixMLE(x, k = 6, model = "VII", initFUN=claraInit)
-    fm1M <- norMmixMLE(x, k = 6, model = "VII", initFUN=mclVVVinit)
-    if(interactive()) ## Fitting "wrong" overparametrized model: typically need more iterations:
+MW214
+set.seed(105)
+x <- rnorMmix(1000, MW214)
 
+\donttest{## Fitting assuming we know the true parametric model
+fm1  <- norMmixMLE(x, k = 6, model = "VII", initFUN=claraInit)
+fm1 # {using print.norMmixMLE() method}
+fm1M <- norMmixMLE(x, k = 6, model = "VII", initFUN=mclVVVinit)
+
+if(interactive()) ## Fitting "wrong" overparametrized model: typically need more iterations:
     fmW <- norMmixMLE(x, k = 7, model = "VVV", maxit = 200, initFUN=claraInit)
-    # default maxit=100 is often too small
+    # default maxit=100 is often too small     ^^^^^^^^^^^
+}% dont
+
+x <- rnorMmix(2^12, MW51)
+fM5 <- norMmixMLE(x, k = 4) # k = 3 is sufficient
+fM5
+c(logLik = logLik(fM5), AIC = AIC(fM5), BIC = BIC(fM5))
+plot(fM5, show.x=FALSE)
+plot(fM5, lwd=3, pch.data=".")
+
+\donttest{# this takes several seconds
+ fM5big <- norMmixMLE(x, model = "VVV", k = 4, maxit = 300) # k = 3 is sufficient
+ fM5big ; c(logLik = logLik(fM5big), AIC = AIC(fM5big), BIC = BIC(fM5big))
+ plot(fM5big, show.x=FALSE)
+}%dont
 }

@@ -121,7 +121,7 @@ norMmixMLE <- function(
     structure(class = "norMmixMLE",
               list(norMmix = par2nMm(optr$par, p, k, model=model)
                  , npar = npar
-                 , n = n
+                 , nobs = n
                  , cond = parcond(x, k=k, model=model)
                  , optr = if(keep.optr) optr
                  , x    = if(keep.data) x))
@@ -142,7 +142,7 @@ norMmixMLE <- function(
 
 
 logLik.norMmixMLE <- function(object, ...) {
-    structure(object$logLik,
+    structure( - object$optr$value
             , class = "logLik"
             , df    = object$npar
             , nobs  = object$nobs)
@@ -150,7 +150,7 @@ logLik.norMmixMLE <- function(object, ...) {
 
 nobs.norMmixMLE <- function(object, ...) object$nobs
 
-npar.norMmixMLE <- function(object, ...) npar(object$norMmix)
+npar.norMmixMLE <- function(object, ...) object$npar ## ==!?== npar(object$norMmix)
 
 ##' format 'x' with names into  "<name1> = <x1>, <name2> = <x2>, ..."
 named2char <- function(x, sep = " = ", collapse = ", ")
@@ -158,7 +158,7 @@ named2char <- function(x, sep = " = ", collapse = ", ")
 
 print.norMmixMLE <- function(x, ...) {
     cat("'norMmixMLE' normal mixture MLE fit;  fitted 'norMmix' normal mixture:\n")
-    print.norMmix(x, ...)
+    print.norMmix(x$norMmix, ...)
     cat("log-likelihood:", x$logLik, "\n\n",
         "nobs\t npar\t nobs/npar\n",
         x$nobs, "\t", x$npar, "\t", x$cond, "\n")

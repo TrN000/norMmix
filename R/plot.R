@@ -30,11 +30,14 @@ ellipsePts <- function(mu, sigma, npoints,
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim=2
 plot2d <- function(nMm, data=NULL ,
-                   main=deparse(sys.call()), sub=NULL,
-                   type="l", lty=2,
+                   main=deparse(sys.call()), # <- rather main=NULL ?
+                   sub=NULL,
+                   type="l", lty=2, lwd = if(!is.null(data)) 2 else 1,
                    xlim=NULL, ylim=NULL, f.lim=0.05,
-                   newWindow=TRUE, npoints=250, lab=FALSE,
+                   npoints=250, lab=FALSE,
                    col=nMmcols[1],
+                   col.data = adjustcolor(par("col"), 1/2),
+                   cex.data = par("cex"), pch.data = par("pch"),
                    fill=TRUE, fillcolor=col, border=NA,
 	           ...)  {
     w <- nMm$weight
@@ -58,9 +61,10 @@ plot2d <- function(nMm, data=NULL ,
     for (i in 1:k) {
         x <- ellipsePts(mu=mu[,i], sigma=sig[,,i], npoints=npoints)
         if(i == 1)
-            plot(x, type=type, xlim=xlim, ylim=ylim, lty=lty, col=col, ...)
+            plot.default(x, type=type, xlim=xlim, ylim=ylim,
+                         main=main, sub=sub, lty=lty, col=col, ...)
         else # i > 1
-            points(x, type=type, lty=lty, col=col, ...)
+            lines(x, type=type, lty=lty, col=col, ...)
 
         if (fill) polygon(x, col=fco, border=border)
     }
@@ -69,7 +73,7 @@ plot2d <- function(nMm, data=NULL ,
     if (lab)
         text(mu[1,], mu[2,], sprintf("comp %s", 1:k), adj=c(0.5,-4))
     if (!is.null(data))
-        points(data[, 1:2])
+        points(data[, 1:2], cex = cex.data, col = col.data, pch = pch.data)
 
     invisible(xy)
 }
@@ -79,13 +83,12 @@ plotnd <- function(nMm, data=NULL,
 ###
 ### FIXME: (see ../TODO.md) use pairs() with correct panel = function(.).....
 ###
-                   main=deparse(sys.call()), # MM: prefer main=NULL
-                   ## sub=NULL,
+                   main = NULL, ## better than main=deparse(sys.call()),
                    diag.panel=NULL,
                    ## for now, important arguments to mult.fig()
                    marP = rep(0, 4),
                    mgp = c(if (par("las") != 0) 2 else 1.5, 0.6, 0),
-                   mar = marP + 0.1 + c(4, 4, 2, 1),
+                   mar = marP + c(1.5, 2, .25, 0.5),
                    ...)
 {
     stopifnot(length(p <- nMm$dim) == 1, p >= 0)
@@ -106,16 +109,18 @@ plotnd <- function(nMm, data=NULL,
     } else # a function with at least one argument :
         stopifnot(is.function(diag.panel), length(formals(diag.panel)) >= 2)
 
-    # setting up the plot _______ FIXME Use  pairs() with panel in the future !!
-    opar <- mult.fig(mfcol=c(p,p), marP=marP, mgp=mgp, mar=mar) $ opar
-    on.exit(par(opar))
+    simplot2d <- function(nm, data, main, sub, xlab, ylab, ...) # swallow 'main', 'sub',...
+        plot2d(nm, data=data, main=NULL, sub=NULL, xlab=NA, ylab=NA, ...)
 
+    # setting up the plot _______ FIXME Use  pairs() with panel in the future !!
+    opar <- mult.fig(mfcol=c(p,p), marP=marP, mgp=mgp, mar=mar, main=main) $ opar
+    on.exit(par(opar))
     for (i in 1:p) {
         for (j in 1:p) {
             if (j == i) { # diagonal panel
                 diag.panel(i, p)
             } else { # off diag panels, plot 2-dim projections using ellipsePts()
-                pts[i,j][[1L]] <- plot2d(norMmixProj(nMm, c(i,j)), data = data[, c(i,j)], ...)
+                pts[i,j][[1L]] <- simplot2d(norMmixProj(nMm, c(i,j)), data = data[, c(i,j)], ...)
             }
         }
     }
@@ -138,14 +143,16 @@ norMmixProj <- function(nm, ij) {
 plot.norMmixMLE <- function(x, y=NULL,
                             show.x = TRUE,
                             main = sprintf("norMmixMLE(*, model=\"%s\") fit to n=%d observations in %d dim.",
-                                           x$model, x$nobs, x$dim),
+                                           nm$model, x$nobs, nm$dim),
                             sub = paste0(sprintf("log likelihood: %g; npar=%d", x$logLik, x$npar),
                                          if(!is.null(opt <- x$optr))
                                              paste("; optim() counts:", named2char(opt$counts))),
+                            cex.data = par("cex")/4, pch.data = 4,
                             ...)
 {
-    plot.norMmix(x$norMix, data = if(show.x) x$x,# else NULL
-                 main=main, sub=sub, ...)
+    nm <- x$norMmix
+    plot.norMmix(nm, data = if(show.x) x$x, # else NULL
+                 main=main, sub=sub, cex.data=cex.data, pch.data=pch.data, ...)
 }
 
 

@@ -17,10 +17,10 @@ importFrom("graphics"
          , axis, box, boxplot
          , frame
          , grid
-         , legend, matplot, mtext
+         , legend, lines, matplot, mtext
          , pairs
          , par
-         , plot, points
+         , plot, plot.default, points
          , polygon, text, title
            )
 
