@@ -43,23 +43,17 @@ For the proper start to this vignette, see next section.
 A normal mixture model is a multivariate probability distribution constructed of normal distributions and mixture weights.
 Its (probability) density and (cumulative) distribution functions (aka PDF and CDF), $f()$ and $F()$ are
 \[
-f({\bf x}) = \sum_{k=1}^{K} \pi_k \phi({\bf x};\mu_k, \Sigma_k), \hspace*{2em} and
-F({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k),
+ f({\bf x}) = \sum_{k=1}^{K} \pi_k \phi({\bf x};\mu_k, \Sigma_k), \text{  and } \\
+ F({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k),
 \]
 
-\[
- \text{ with } \pi_k \ge 0, \sum \pi_k = 1, \quad \phi(.) and \Phi(\cdot; \mu_k, \Sigma_k)
- \text{ the density and distribution function of a multivariate normal (aka *Gaussian*) distribution with mean }
- \mu_k  \text{ and covariance matrix } \Sigma_k,
-\]
-for details, see e.g., <https://en.wikipedia.org/wiki/Multivariate_normal_distribution> .
+with $\pi_k \ge 0$,  $\sum \pi_k = 1$,   and
+$\phi(\cdot; \mu_k, \Sigma_k)$  and
+$\Phi(\cdot; \mu_k, \Sigma_k)$  are
+the density and distribution function of a multivariate normal (aka *Gaussian*) distribution with
+mean $\mu_k$ and covariance matrix $\Sigma_k$.
+For details, see e.g., <https://en.wikipedia.org/wiki/Multivariate_normal_distribution> .
 
-$$
-f({\bf x}) = \sum_{k=1}^{K} \pi_k \Phi({\bf x};\mu_k, \Sigma_k)
-$$
-$$
-\text{ with } \sum \pi_k = 1, \quad \Phi(-; \mu_k, \Sigma_k) \text{ normal distribution with mean: } \mu_k \text{ and covariance matrix} \Sigma_k
-$$
 
 ```{r norMmix}
 w <- c(0.5, 0.3, 0.2)
