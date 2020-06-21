@@ -33,7 +33,7 @@ set.seed(2020)
 ```{r dev-and-compile, echo = FALSE, eval = FALSE}
 devtools::load_all()
 rmarkdown::render("~/R/Pkgs/norMmix/vignettes/A_Short_Intro_to_norMmix.Rmd")
-````
+```
 
 ## Ultra quick start
 
@@ -54,6 +54,27 @@ the density and distribution function of a multivariate normal (aka *Gaussian*) 
 mean $\mu_k$ and covariance matrix $\Sigma_k$.
 For details, see e.g., <https://en.wikipedia.org/wiki/Multivariate_normal_distribution> .
 
+To begin, pick your favorite dataset and how many components you want to fit.
+For the most general model, let `model="VVV"`.
+Use `claraInit` as the default method.
+
+run `norMmixMLE`:
+
+```{r}
+faith <- norMmixMLE(faithful, 3, model="VVV", initFUN=claraInit)
+```
+
+and inspect the results:
+
+```{r}
+plot(faith)
+```
+
+This is all you need to know for just the bare bones functionality of the package.
+We can also go about the whole thing the other way around, by starting out by 
+defining a normal mixture from scratch.
+
+Use the `norMmix()` function; the constructor function for normal mixtures.
 
 ```{r norMmix}
 w <- c(0.5, 0.3, 0.2)
@@ -185,11 +206,8 @@ This happens according to the dimension of the given value for the Sigma argumen
 * the norMmixMLE function and its arguments
 * Examples
 
-Several development atavisms are still present in the code.
-These are exposed to the user in the package's namespace.
-I will quickly show what these could be used for.
-
-
+The `norMmixMLE` function
+ 
 ## On 'manyMLE' (as soon as we have reintegrated that)
 
 ## Details about the source code

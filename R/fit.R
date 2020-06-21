@@ -1,7 +1,7 @@
 #### fit function for normal mixture samples
 
 
-fitnMm <- function(x, k, models=1:10, 
+manyMLE <- function(x, k, models=1:10, 
                    trafo=c("clr1", "logit"),
                    ll = c("nmm", "mvt"),
                    savdir=NULL, name=NULL,
@@ -44,7 +44,7 @@ fitnMm <- function(x, k, models=1:10,
 
     ret <- list(nMm=norMmixval, nMmtime=norMmixtime, k=k, 
                 models=m, n=n, p=p, x=x)
-    class(ret) <- "fittednorMmix"
+    class(ret) <- "manyMLE"
 
     if (!is.null(savdir)) {
         savename <- ifelse(is.null(name), 
@@ -56,12 +56,12 @@ fitnMm <- function(x, k, models=1:10,
 }
 
 
-nobs.fittednorMmix <- function(object, ...) {object$n}
+nobs.manyMLE <- function(object, ...) {object$n}
 
 
-logLik.fittednorMmix <- function(object, ...) {
-    ## returns log-likelihood of fittednorMmix object
-    stopifnot(inherits(object, "fittednorMmix"))
+logLik.manyMLE <- function(object, ...) {
+    ## returns log-likelihood of manyMLE object
+    stopifnot(inherits(object, "manyMLE"))
     k <- object$k
     models <- object$models
 
@@ -84,24 +84,24 @@ logLik.fittednorMmix <- function(object, ...) {
     val
 }
 
+## DELETE_ME?
+##displayError <- function(obj) {
+##    stopifnot(inherits(obj, "manyMLE"))
+##    k <- obj$k
+##    models <- obj$models
+##
+##    for (i in seq_along(k)) {
+##        for (j in seq_along(models)) {
+##            nm <- obj$nMm[i,j][[1]]
+##            if (is.character(nm[[1]])&&length(nm)==2) {
+##                cat(k[i],models[j], "\t", paste(nm), "\n\n")
+##            }
+##        }
+##    }
+##}
 
-displayError <- function(obj) {
-    stopifnot(inherits(obj, "fittednorMmix"))
-    k <- obj$k
-    models <- obj$models
 
-    for (i in seq_along(k)) {
-        for (j in seq_along(models)) {
-            nm <- obj$nMm[i,j][[1]]
-            if (is.character(nm[[1]])&&length(nm)==2) {
-                cat(k[i],models[j], "\t", paste(nm), "\n\n")
-            }
-        }
-    }
-}
-
-
-npar.fittednorMmix <- function(object, ...) {
+npar.manyMLE <- function(object, ...) {
     k <- object$k
     p <- object$p
     models <- object$models
@@ -120,7 +120,7 @@ npar.fittednorMmix <- function(object, ...) {
 }
 
 
-BIC.fittednorMmix <- function(object, ...) {
+BIC.manyMLE <- function(object, ...) {
     n <- object$n
     k <- object$k
     models <- object$models
@@ -137,7 +137,7 @@ BIC.fittednorMmix <- function(object, ...) {
 }
 
 
-AIC.fittednorMmix <- function(object, ..., k = 2) {
+AIC.manyMLE <- function(object, ..., k = 2) {
     models <- object$models
     npar <- npar(object)
     ll <- logLik(object)
@@ -151,49 +151,49 @@ AIC.fittednorMmix <- function(object, ..., k = 2) {
     list(val, best=mindex)
 }
 
+## DELETE_ME?:
+##cond <- function(obj) {
+##    stopifnot(inherits(obj, "manyMLE")) # returns matrix of nobs/npar
+##    k <- obj$k
+##    models <- obj$models
+##    val <- matrix(0, length(k), length(models))
+##    rownames(val) <- k
+##    colnames(val) <- models
+##
+##    for (i in seq_along(k)) {
+##        for (j in seq_along(models)) {
+##            nm <- obj$nMm[i,j][[1]]
+##            # need to catch errors, if nm is string return NA
+##            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, 
+##                               NA, 
+##                               nm$cond)
+##        }
+##    }
+##
+##    val
+##}
 
-cond <- function(obj) {
-    stopifnot(inherits(obj, "fittednorMmix")) # returns matrix of nobs/npar
-    k <- obj$k
-    models <- obj$models
-    val <- matrix(0, length(k), length(models))
-    rownames(val) <- k
-    colnames(val) <- models
-
-    for (i in seq_along(k)) {
-        for (j in seq_along(models)) {
-            nm <- obj$nMm[i,j][[1]]
-            # need to catch errors, if nm is string return NA
-            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, 
-                               NA, 
-                               nm$cond)
-        }
-    }
-
-    val
-}
-
-
-extracttimes <- function(object, ...) {
-    stopifnot(inherits(object, "fittednorMmix"))
-    ti <- unlist(object$nMmtime)
-    na <- names(ti)[1:5]
-    co <- object$k
-    mo <- object$models
-    p <- object$p
-    n <- object$n
-
-    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
-    r <- array(ti, lengths(list(co, mo, na)))
-    attr(r, "n") <- n
-    attr(r, "p") <- p
-    dimnames(r) <- list(k=co, models=mo, proc_time=na)
-    class(r) <- "fittednorMmix_time"
-    r
-}
+## DELETE_ME?:
+##extracttimes <- function(object, ...) {
+##    stopifnot(inherits(object, "manyMLE"))
+##    ti <- unlist(object$nMmtime)
+##    na <- names(ti)[1:5]
+##    co <- object$k
+##    mo <- object$models
+##    p  <- object$p
+##    n  <- object$n
+##
+##    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
+##    r <- array(ti, lengths(list(co, mo, na)))
+##    attr(r, "n") <- n
+##    attr(r, "p") <- p
+##    dimnames(r) <- list(k=co, models=mo, proc_time=na)
+##    class(r) <- "manyMLE_time"
+##    r
+##}
     
 
-print.fittednorMmix <- function(x, ...) {
+print.manyMLE <- function(x, ...) {
     n <- nobs(x)
     co <- x$k
     mo <- x$models
