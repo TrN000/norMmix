@@ -173,24 +173,19 @@ AIC.manyMLE <- function(object, ..., k = 2) {
 ##    val
 ##}
 
-## DELETE_ME?:
-##extracttimes <- function(object, ...) {
-##    stopifnot(inherits(object, "manyMLE"))
-##    ti <- unlist(object$nMmtime)
-##    na <- names(ti)[1:5]
-##    co <- object$k
-##    mo <- object$models
-##    p  <- object$p
-##    n  <- object$n
-##
-##    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
-##    r <- array(ti, lengths(list(co, mo, na)))
-##    attr(r, "n") <- n
-##    attr(r, "p") <- p
-##    dimnames(r) <- list(k=co, models=mo, proc_time=na)
-##    class(r) <- "manyMLE_time"
-##    r
-##}
+## Needed in print() method:
+extracttimes <- function(object, ...) {
+    stopifnot(inherits(object, "manyMLE"))
+    ti <- unlist(object$nMmtime)
+    na <- names(ti)[1:5]
+    co <- object$k
+    mo <- object$models
+    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
+    dn <- list(k=co, models=mo, proc_time=na)
+    ## return
+    structure(array(ti, lengths(dn), dimnames=dn),
+              n = object$n, p = object$p, class = "manyMLE_time")
+}
     
 
 print.manyMLE <- function(x, ...) {
