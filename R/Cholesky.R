@@ -4,10 +4,10 @@
 ##' MM:  Now also "works" in the rank deficient case!
 ldl <- function(m) {
     stopifnot(is.matrix(m), is.numeric(m),
-              (n <- nrow(m)) == ncol(m), n >= 1)
+              (n <- nrow(m)) == ncol(m))
     D <- Zn <- numeric(n)# = rep(0,n)
     L <- m
-    for (i in 1:n) {
+    for (i in seq_len(n)) {
         D[i] <- Di <- (mi <- m[,i])[i]
         if(Di != 0) {
             L[,i] <- Li <- mi/Di
