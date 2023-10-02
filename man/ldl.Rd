@@ -12,7 +12,7 @@ ldl(m)
   \item{m}{positive semi-definite square matrix, say of dimension \eqn{n
       \times n}{n x n}.}
 }
-%% \details{
+%% \details{ --->  ../R/Cholesky.R <---
 %% }
 \value{
   a \code{\link{list}} with two components
@@ -57,8 +57,7 @@ L4 <- ldl(F4)
 stopifnot(all.equal(L, L4$L),
           all.equal(D, L4$D))
 
-system.time(for(i in 1:10000) ldl(F4) )
-
+system.time(for(i in 1:10000) ldl(F4) ) # ~ 0.16 sec
 
 ## rank deficient :
 F4.0 <- L \%*\% diag(c(4,1,9,0)) \%*\% t(L)
@@ -70,7 +69,6 @@ F4_0 <- L \%*\% diag(c(4,1,0,9)) \%*\% t(L)
 ((L0 <- ldl(F4_0)))
 stopifnot(all.equal(F4_0,
                     L0$L \%*\% diag(L0$D) \%*\% t(L0$L)))
-
 
 ## Large
 mkLDL <- function(n, rF = function(n) sample.int(n), rFD = function(n) 1+ abs(rF(n))) {
@@ -113,15 +111,15 @@ for(i in 1:N) {
 system.time(chkLDL( 500)) # 0.62
 
 try( ## this almost never "works":
-system.time(chkLDL( 500, rF = rnorm, rFD = function(n) 10 + runif(n))) # 0.64
+    system.time(
+        chkLDL( 500, rF = rnorm, rFD = function(n) 10 + runif(n))
+    ) # 0.64
 )
-}% dont
-
-if(interactive())
-   system.time(chkLDL( 600)) # 1.09
+system.time(chkLDL( 600)) # 1.09
 ## .. then it grows quickly for (on nb-mm4)
 ## for n = 1000  it typically *fails*: The matrix M  is typically very ill conditioned
 ## does not depend much on the RNG ?
+}
 
 "==> much better conditioned L and hence M : "
 set.seed(120)

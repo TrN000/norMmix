@@ -14,7 +14,7 @@ nMmcols <- c("#4363d8", "#f58231", "#800000", "#000075", "#ffe119",
 ellipsePts <- function(mu, sigma, npoints,
                        alpha = 0.05, r = sqrt(qchisq(1-alpha, df=2))) {
     stopifnot(is.matrix(sigma), length(mu) == 2L, dim(sigma) == 2L)
-    theta <- seq(0, 2*pi, len=npoints)
+    theta <- seq(0, 2*pi, length.out = npoints)
     es <- eigen(sigma)
     ## points
     rep(mu, each=npoints) -
