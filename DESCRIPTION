@@ -14,6 +14,7 @@ Author: Nicolas Trutmann [aut, cre],
   Martin Maechler [aut, ths] (<https://orcid.org/0000-0002-8685-9910>, based on 'nor1mix')
 Imports: cluster, MASS, mvtnorm, mclust, sfsmisc
 Suggests:
+    nor1mix,
     Matrix,
     testthat (>= 2.1.0),
     knitr,

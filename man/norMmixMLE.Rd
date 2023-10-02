@@ -9,7 +9,7 @@
   Direct Maximum Likelihood Estimation (MLE) for multivariate normal
   mixture models \code{"\link{norMmix}"}.  Starting from a
   \code{\link[cluster]{clara}} (package \CRANpkg{cluster}) clustering plus
-  one M-step, or alternatively from the default start of (package)
+  one M-step by default, or alternatively from the default start of (package)
   \CRANpkg{mclust}, perform direct likelihood maximization via \code{\link{optim}()}.
 }
 \usage{
@@ -35,7 +35,7 @@ ssClara2kL(n, k, p)
   \item{model}{a \code{\link{character}} string, specifying the model (for
     the \code{k} covariance matrices) to be assumed.}
   \item{initFUN}{a \code{\link{function}}, that takes arguments \code{x} and
-      \code{k} and returns a clustering index; a vector of length \code{ncol(x)},
+    \code{k} and returns a clustering index; a vector of length \eqn{p = }\code{ncol(x)},
       with entries in \code{1:k}.}
   \item{ll}{a string specifying the method to be used for the likelihood
     computation;  the default, \code{"nmm"} uses \code{\link{llnorMmix}()},
@@ -102,10 +102,10 @@ fm1  <- norMmixMLE(x, k = 6, model = "VII", initFUN=claraInit)
 fm1 # {using print.norMmixMLE() method}
 fm1M <- norMmixMLE(x, k = 6, model = "VII", initFUN=mclVVVinit)
 
-if(interactive()) ## Fitting "wrong" overparametrized model: typically need more iterations:
-    fmW <- norMmixMLE(x, k = 7, model = "VVV", maxit = 200, initFUN=claraInit)
-    # default maxit=100 is often too small     ^^^^^^^^^^^
-}% dont
+## Fitting "wrong" overparametrized model: typically need more iterations:
+fmW <- norMmixMLE(x, k = 7, model = "VVV", maxit = 200, initFUN=claraInit)
+## default maxit=100 is often too small    ^^^^^^^^^^^
+}% dont.. %
 
 x <- rnorMmix(2^12, MW51)
 fM5 <- norMmixMLE(x, k = 4) # k = 3 is sufficient
@@ -116,7 +116,8 @@ plot(fM5, lwd=3, pch.data=".")
 
 \donttest{# this takes several seconds
  fM5big <- norMmixMLE(x, model = "VVV", k = 4, maxit = 300) # k = 3 is sufficient
+ summary(warnings())
  fM5big ; c(logLik = logLik(fM5big), AIC = AIC(fM5big), BIC = BIC(fM5big))
  plot(fM5big, show.x=FALSE)
-}%dont
+}%dont.. %
 }
