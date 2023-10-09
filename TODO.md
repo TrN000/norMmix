@@ -18,13 +18,21 @@
    ==> MM: Using sfsmisc::mult.fig()  and allow the user to change defaults
    for  mult.fig() is easier.
 
-  ===> MUCH BETTER is really to change the setup completely, use
+  ===> **MUCH better** is really to change the setup completely, use
 	   graphics :: pairs.default(.)
-    by providing a correct  panel = function(.)   function !!!
+    by providing a correct  panel = function(.)    !!!
 
 
 6. Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
+
+7. norMmix(...) creation does *NOT* check `Sigma` in case of restricted
+   parametrizations,  but just assumes the caller of norMmix() makes no
+   mistake.  This is clearly too optimistic!
+
+8. Currently always use *full* covariance parameter Sigma, even in cases
+   such as EII etc.  Should we allow *both* (full and minimal) parametrizations
+
 
 
 ==============================================================================
@@ -37,7 +45,7 @@ DONE:
   {but probably also change the name of the class from
   `"fittednorMmix"` to something like
   `"manyNormixMLE"`
-     --> Nicolas has done it (Jun 21 2020): name  `manyMLE()` ==> `~/R/D/GH/norMmix/R/fit.R`
+     --> Nicolas Trutmann has done it (Jun 21 2020): name  `manyMLE()` ==> `~/R/D/GH/norMmix/R/fit.R`
 
 4. norMmix.Rd does not document use of non-array covar. mats. as init. values
 

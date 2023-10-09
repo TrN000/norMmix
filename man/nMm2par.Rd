@@ -39,4 +39,11 @@ A <- MW24
 nMm2par(A, model = A$model)
 # [1] -0.3465736  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
 # [7] -2.3025851
+
+## All MW* models in {norMmix} pkg:
+pkg <- "package:norMmix"
+lMW <- mget(ls(pattern = "^MW", pkg), envir=as.environment(pkg))
+lM.par <- lapply(lMW, nMm2par)
+## but these *do* differ  ___ FIXME __ 
+cbind(lengths(lM.par),  sapply(lMW, npar))
 }

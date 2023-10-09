@@ -16,7 +16,7 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
 \arguments{
     \item{mu}{matrix of means, or a vector in which case \eqn{k = 1} is
       assumed.  Otherwise use \code{as.matrix(mu)}.}
-    \item{Sigma}{NULL, float, vector (length = k), matrix (dim = p x k),
+    \item{Sigma}{NULL, number, numeric, vector (length = k), matrix (dim = p x k), or
         array (p x p x k). See details.
     }
     \item{weight}{weights of mixture model components}
@@ -42,21 +42,26 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
   \code{\link{character}} strings shown in the default.
   (In a future version, \code{model} may become \emph{optional}).% TODO - "smart"
 
-  \code{norMmix} as a few nifty ways of constructing simpler matrices from    
-  smaller givens. This happens according to the dimension of the given 
+  \code{norMmix} as a few nifty ways of constructing simpler matrices from
+  smaller givens. This happens according to the dimension of the given
   value for the Sigma argument:
+  \describe{
+    \item{0.}{for a single value \code{d} or \code{NULL}, \code{norMmix()} assumes
+      all covariance matrices to be diagonal with entries \code{d} or \code{1}, respectively. }
+    \item{1.}{for a vector \code{v}, \code{norMmix} assumes all matrices to
+      be diagonal with the i-th matrix having diagonal entries \code{v[i]}.}
+    \item{2.}{for a matrix \code{m}, \code{norMmix} assumes all matrices to
+      be diagonal with diagonal vector \code{m[,i]}, i.e., it goes by
+      columns.}
+    \item{3.}{an array is assumed to be the covariance matrices, given
+      explicitly.}
+  }
 
-  0. for a single value \code{l} or NULL, \code{norMmix} assumes all matrices to be diagonal with entries \code{l} or \code{1}, respectively.
-
-  1. for a vector \code{v}, \code{norMmix} assumes all matrices to be diagonal with the i-th matrix having diagonal entries \code{v[i]}.
-
-  2. for a matrix \code{m}, \code{norMmix} assumes all matrices to be diagonal with diagonal vector \code{m[,i]} (i.e. it goes by columns).
-
-  3. an array is assumed to be the covariance matrices, given explicitly.
-  
 
   FIXME ... give "all" the details ... (from Bachelor's thesis ???)
   %% ~/Betreute-Arbeiten/NicolasTrutmann/BSc_thesis+MM/chapter1.Rnw
+  %% ~/Betreute-Arbeiten/NicolasTrutmann/GH_BachelorArbeit/Bachelorthesis/chapter1.Rnw
+
 
 %%  The '\tabular' command takes two arguments.  The first gives for each
 %% of the columns the required alignment ('l' for left-justification, 'r'
@@ -93,6 +98,15 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
 }
 \examples{
 ## Some of the "MW" objects : % --> ../R/zmarrwandnMm.R
+
+# very simple 2d:
+M21 <- norMmix(mu = cbind(c(0,0)), # 2 x 1 ==> k=2, p=1
+               Sigma = 1, model = "EII")
+stopifnot(identical(M21, # even simpler, Sigma = default :
+                    norMmix(mu = cbind(c(0,0)), model = "EII")))
+
+m2.2 <- norMmix(mu = cbind(c(0, 0), c(5, 0)), Sigma = c(1, 10),
+                weight = c(7,1)/8, model = "EVV")
 
 m22 <- norMmix(
     name = "one component rotated",
