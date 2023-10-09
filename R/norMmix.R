@@ -39,9 +39,9 @@ norMmix <- function(
                      "VVI","EEE","VEE","EVV","VVV")
             ) {
     ## Purpose: constructor for 'norMmix' (multivariate normix)
-    ## makes sure values are sane.
     ## --------------------------------------------------------
-    ## Arguments:
+    ## Arguments:  ===> ../man/norMmix.Rd
+    ##
     ##    mu: matrix with columns as vector means of dist.
     ##    Sigma:     option 0: default, generates all identity
     ##            covariance mat.
@@ -53,18 +53,25 @@ norMmix <- function(
     ##    weight: vector of length k, sums to 1
     ##    name: name attribute
     ##    model: type of distribution VVV, IVV etc.
+
+### FIXME:  1) model is *NOT* checked
+### -----   2) For simple 'model', simple 'Sigma = ..' make sense model-*specifically* !
+## ==> unfinished  guessModel  below
+
     ## --------------------------------------------------------
     ## Value: returns objext of class 'norMmix'
     ## --------------------------------------------------------
     ## Author: nicolas trutmann, Date:2019-06-19
 
     stopifnot(is.numeric(mu))
+    guessModel <- missing(model) # if not specified, may guess it from {p, k, Sigma}
+
     if(!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
     #TODO: if no Sigma is supplied might tacitly mistake px1 and 1xp; throw error
     p <- nrow(mu) # p = dimension
     k <- ncol(mu) # k = number of components
 
-    dS <- c(p,p,k) # == dim(Sigma)
+    dS <- c(p,p,k) # == dim(Sigma) {in full VVV  parametrization !}
     if(is.null(Sigma)) Sigma <- 1  # (option 0)
     else stopifnot(is.numeric(Sigma))
     isArr <- is.array(Sigma) # if not array, is also not matrix
