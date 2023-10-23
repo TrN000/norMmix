@@ -14,7 +14,7 @@ nor1toMmix(object)
 A `norMmix` object if the appropriate S3method has been implemented.
 }
 \details{
-  This package was designed to extend the `nor1mix` package to the case of 
+  This package was designed to extend the `nor1mix` package to the case of
   multivariate mixture models. Therefore we include a utility function to cast
   1-dimensional mixtures as defined in `nor1mix` to `norMmix`.
 }
