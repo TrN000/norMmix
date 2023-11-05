@@ -33,7 +33,7 @@
 8. Currently always use *full* covariance parameter Sigma, even in cases
    such as EII etc.  Should we allow *both* (full and minimal) parametrizations
 
-
+9. install.packages("S7") -- and use its classes (for accessing: @ )
 
 ==============================================================================
 DONE:
