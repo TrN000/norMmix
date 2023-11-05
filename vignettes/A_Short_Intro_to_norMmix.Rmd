@@ -71,7 +71,7 @@ plot(faith)
 ```
 
 This is all you need to know for just the bare bones functionality of the package.
-We can also go about the whole thing the other way around, by starting out by 
+We can also go about the whole thing the other way around, by starting out by
 defining a normal mixture from scratch.
 
 Use the `norMmix()` function; the constructor function for normal mixtures.
@@ -207,7 +207,7 @@ This happens according to the dimension of the given value for the Sigma argumen
 * Examples
 
 The `norMmixMLE` function
- 
+
 ## On 'manyMLE' (as soon as we have reintegrated that)
 
 ## Details about the source code
