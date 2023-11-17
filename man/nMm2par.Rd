@@ -45,5 +45,6 @@ pkg <- "package:norMmix"
 lMW <- mget(ls(pattern = "^MW", pkg), envir=as.environment(pkg))
 lM.par <- lapply(lMW, nMm2par)
 ## but these *do* differ  ___ FIXME __ 
-cbind(lengths(lM.par),  sapply(lMW, npar))
+modMW <- vapply(lMW, `[[`, "model", FUN.VALUE = "XYZ")
+cbind(modMW, lengths(lM.par),  npar = sapply(lMW, npar))[order(modMW),]
 }

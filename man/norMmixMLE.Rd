@@ -97,7 +97,7 @@ MW214
 set.seed(105)
 x <- rnorMmix(1000, MW214)
 
-\donttest{## Fitting assuming we know the true parametric model
+\donttest{## Fitting, assuming to know the true model (k=6, "VII")
 fm1  <- norMmixMLE(x, k = 6, model = "VII", initFUN=claraInit)
 fm1 # {using print.norMmixMLE() method}
 fm1M <- norMmixMLE(x, k = 6, model = "VII", initFUN=mclVVVinit)
