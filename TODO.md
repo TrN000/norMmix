@@ -33,7 +33,14 @@
 8. Currently always use *full* covariance parameter Sigma, even in cases
    such as EII etc.  Should we allow *both* (full and minimal) parametrizations
 
-9. install.packages("S7") -- and use its classes (for accessing: @ )
+9. `manyMLE()` is not yet exported & documented; before doing so, needs
+   tweaks (by MM):
+	- `savdir` and `name` with default name to save as `"*rds"`: nice idea but
+      should *not* be part of `manyMLE` but separate small utility.
+	- modify argument checking; use namespace global
+	  `norModels <- eval(formals(norMmix)$model)`
+
+10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
 
 ==============================================================================
 DONE:

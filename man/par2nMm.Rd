@@ -48,7 +48,7 @@ str(MW213)
 #  $ dim   : int 2
 #  - attr(*, "name")= chr "#13 test VVV"
 #  - attr(*, "class")= chr "norMmix"
-# NULL
+
 para <- nMm2par(MW213, model="EEE")
 par2nMm(para, 2, 2, model="EEE")
 }
