@@ -12,7 +12,6 @@ nMmcols <- c(
 ## slightly rearranged, so that the first five colors stand out well
 ## on white background.
 
-
 ellipsePts <- function(mu, sigma, npoints,
                        alpha = 0.05, r = sqrt(qchisq(1 - alpha, df = 2))) {
     stopifnot(is.matrix(sigma), length(mu) == 2L, dim(sigma) == 2L)
@@ -134,26 +133,20 @@ plotnd <- function(nMm, data = NULL,
                    mar = marP + c(1.5, 2, .25, 0.5),
                    ...) {
     stopifnot(length(p <- nMm$dim) == 1, p >= 0)
+    if (!is.null(diag.panel)) stopifnot(is.function(diag.panel), length(formals(diag.panel)) >= 1)
 
-    # defining diagonal panel
-    if (is.null(diag.panel)) {
-        diag.panel <- function(x, ...) {
-            box()
-        }
-    } else {
-        stopifnot(is.function(diag.panel), length(formals(diag.panel)) >= 1)
-    }
+    xx <- ellipse_range(nMm)
 
     # off-diagonal panel function
     ## closure that captures nMm. we pass indices as 'x', 'y' values.
     ## determine the correct 2d projection per function call.
-    simplot2d <- function(x, y, data = NULL, main, sub, xlab, ylab, ...) { # swallow 'main', 'sub',...
-        nm <- norMmixProj(nMm, c(x, y))
+    simplot2d <- function(x, y, ij, data = NULL, main, sub, xlab, ylab, ...) { # swallow 'main', 'sub',...
+        nm <- norMmixProj(nMm, ij)
         plot2d(nm, data = data, main = NULL, sub = NULL, xlab = NA, ylab = NA, plot = FALSE, ...)
     }
 
-    pairs(
-        matrix(1:p, 1),
+    pairs.indexed(
+        xx,
         # maybe labels?,
         panel = simplot2d,
         diag.panel = diag.panel,
