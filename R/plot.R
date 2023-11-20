@@ -31,6 +31,40 @@ ellipsePts <- function(mu, sigma, npoints,
 ## 'npoints' should get the same *effective* default for p = 2
 ## 'border' had 'NA' for 2D, and polygon()'s default, 'NULL', for p > 2
 
+ellipse_range <- function(nMm) {
+    p <- nMm$dim
+    k <- nMm$k
+
+    ell_range <- matrix(c(Inf, -Inf), 2, p)
+
+    # number of components
+    for (i in 1:p) {
+        for (j in 1:i) {
+            if (i == j) next()
+            ij <- c(i, j)
+            pr <- norMmixProj(nMm, ij)
+            for (comp in 1:k) {
+                ell <- ellipsePts(pr$mu[, comp], pr$Sigma[, , comp], 100)
+                range_i <- extendrange(ell[, 1], f = 0.25)
+                range_j <- extendrange(ell[, 2], f = 0.25)
+                if (ell_range[1, i] > range_i[1]) {
+                    ell_range[1, i] <- range_i[1]
+                }
+                if (ell_range[2, i] < range_i[2]) {
+                    ell_range[2, i] <- range_i[2]
+                }
+                if (ell_range[1, j] > range_j[1]) {
+                    ell_range[1, j] <- range_j[1]
+                }
+                if (ell_range[2, j] < range_j[2]) {
+                    ell_range[2, j] <- range_j[2]
+                }
+            }
+        }
+    }
+    ell_range
+}
+
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim = 2
 plot2d <- function(nMm, data = NULL,
