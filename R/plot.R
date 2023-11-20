@@ -8,7 +8,7 @@ nMmcols <- c(
 )
 ## chosen to be distinguishable and accessible for the colorblind,
 ## according to this site:
-## https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+.colors_source <- "https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/"
 ## slightly rearranged, so that the first five colors stand out well
 ## on white background.
 
