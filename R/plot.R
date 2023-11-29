@@ -127,32 +127,26 @@ plot2d <- function(nMm, data = NULL,
 plotnd <- function(nMm, data = NULL,
                    main = NULL,
                    diag.panel = NULL,
-                   ## for now, important arguments to mult.fig()
-                   marP = rep(0, 4),
-                   mgp = c(if (par("las") != 0) 2 else 1.5, 0.6, 0),
-                   mar = marP + c(1.5, 2, .25, 0.5),
                    ...) {
     stopifnot(length(p <- nMm$dim) == 1, p >= 0)
     if (!is.null(diag.panel)) stopifnot(is.function(diag.panel), length(formals(diag.panel)) >= 1)
 
-    xx <- ellipse_range(nMm)
+    xx <- as.jmatrix(ellipse_range(nMm))
 
     # off-diagonal panel function
-    ## closure that captures nMm. we pass indices as 'x', 'y' values.
-    ## determine the correct 2d projection per function call.
-    simplot2d <- function(x, y, ij, data = NULL, main, sub, xlab, ylab, ...) { # swallow 'main', 'sub',...
-        nm <- norMmixProj(nMm, ij)
-        plot2d(nm, data = data, main = NULL, sub = NULL, xlab = NA, ylab = NA, plot = FALSE, ...)
+    ## determine the correct 2d projection per function call through jmatrix trick.
+    proj_plot2d <- function(x, y, data = NULL, ...) {
+        i <- getJ(x)
+        j <- getJ(y)
+        nm <- norMmixProj(nMm, c(i, j))
+        plot2d(nm, data = data, ...)
     }
 
     pairs.indexed(
         xx,
-        # maybe labels?,
         panel = simplot2d,
         diag.panel = diag.panel,
-        gap = 0,
-        # xlim = c(-3.0, 25.0), TODO: don't know how to set limits properly.
-        # ylim = c(-3.0, 25.0),
+        gap = 0, # TODO: maybe more dynamic choice here.
     )
 }
 
