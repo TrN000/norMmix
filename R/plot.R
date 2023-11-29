@@ -233,6 +233,20 @@ plot.fittednorMmix <- function(x, main = "unnamed", plotbest = FALSE, ...) {
 }
 
 
+
+as.jmatrix <- function(x) {
+    stopifnot(length(d <- dim(x)) == 2)
+    class(x) <- c("jmatrix", class(x))
+    x
+}
+
+`[.jmatrix` <- function(x, i,j, drop=FALSE)
+{
+    ret <- NextMethod()
+    if(missing(i) && length(j) == 1L)
+        structure(ret, j = j, class = "jvector")
+    else
+        structure(ret, class = class(x))
 pairs.indexed <- function(
         x, labels, panel = points, ..., horInd = 1:nc, verInd = 1:nc,
         lower.panel = panel, upper.panel = panel, diag.panel = NULL,
@@ -429,3 +443,19 @@ pairs.indexed <- function(
     }
     invisible(NULL)
 }
+as.vector.jvector <- function(x, ...) x # no-op; needed as pairs.default calls  as.vector(x[,j])
+
+getJ <- function(.) attr(., "j")
+
+panel.ij <- function(x,y, ...) {
+    legend("top", paste0("(i,j) = (", getJ(y), ",", getJ(x),")"),
+           text.col = 2, cex = 1.5, bty="n")
+    points(x,y, ...)
+}
+
+## 3 variables of "artificial data"
+(d <- cbind(c1  = 1:2,
+            c.2 = 2:4,
+            col3= 7:12))
+
+pairs(as.jmatrix(d), panel=panel.ij) ## nice!
