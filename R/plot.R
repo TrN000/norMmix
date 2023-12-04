@@ -43,7 +43,7 @@ ellipse_range <- function(nMm) {
             ij <- c(i, j)
             pr <- norMmixProj(nMm, ij)
             for (comp in 1:k) {
-                ell <- ellipsePts(pr$mu[, comp], pr$Sigma[, , comp], 100)
+                ell <- ellipsePts(pr$mu[, comp], pr$Sigma[, , comp], 1000)
                 range_i <- extendrange(ell[, 1], f = 0.25)
                 range_j <- extendrange(ell[, 2], f = 0.25)
                 if (ell_range[1, i] > range_i[1]) {
@@ -142,9 +142,9 @@ plotnd <- function(nMm, data = NULL,
         plot2d(nm, data = data, ...)
     }
 
-    pairs.indexed(
+    pairs(
         xx,
-        panel = simplot2d,
+        panel = proj_plot2d,
         diag.panel = diag.panel,
         gap = 0, # TODO: maybe more dynamic choice here.
     )
@@ -234,14 +234,14 @@ as.jmatrix <- function(x) {
     x
 }
 
-`[.jmatrix` <- function(x, i,j, drop=FALSE)
-{
+"[.jmatrix" <- function(x, i,j, drop=FALSE) {
     ret <- NextMethod()
     if(missing(i) && length(j) == 1L)
         structure(ret, j = j, class = "jvector")
     else
         structure(ret, class = class(x))
 }
+
 as.vector.jvector <- function(x, ...) x # no-op; needed as pairs.default calls  as.vector(x[,j])
 
 getJ <- function(.) attr(., "j")
@@ -257,4 +257,4 @@ panel.ij <- function(x,y, ...) {
             c.2 = 2:4,
             col3= 7:12))
 
-pairs(as.jmatrix(d), panel=panel.ij) ## nice!
+# pairs(as.jmatrix(d), panel=panel.ij) ## nice!
