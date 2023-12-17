@@ -67,7 +67,7 @@ ellipse_range <- function(nMm) {
 
 ## not exported; called from plot.norMmix() in 2D case, i.e. dim = 2
 plot2d <- function(nMm, data = NULL,
-                   plot = FALSE,
+                   add = FALSE,
                    main = NULL,
                    sub = NULL,
                    type = "l", lty = 2, lwd = if (!is.null(data)) 2 else 1,
@@ -100,12 +100,12 @@ plot2d <- function(nMm, data = NULL,
     for (i in 1:k) {
         x <- ellipsePts(mu = mu[, i], sigma = sig[, , i], npoints = npoints)
         # if (i == 1) {
-        if (plot && i == 1) {
+        if (!add && i == 1) {
             plot.default(x,
                 type = type, xlim = xlim, ylim = ylim,
                 main = main, sub = sub, lty = lty, col = col, ...
             )
-        } else { # i > 1
+        } else { # add || i > 1
             lines(x, type = type, lty = lty, col = col, ...)
         }
 
@@ -133,18 +133,19 @@ plotnd <- function(nMm, data = NULL,
 
     xx <- as.jmatrix(ellipse_range(nMm))
 
-    # off-diagonal panel function
+    getJ <- function(.) attr(., "j")
+
     ## determine the correct 2d projection per function call through jmatrix trick.
-    proj_plot2d <- function(x, y, data = NULL, ...) {
+    panel_2d <- function(x, y, data = NULL, ...) {
         i <- getJ(x)
         j <- getJ(y)
         nm <- norMmixProj(nMm, c(i, j))
-        plot2d(nm, data = data, ...)
+        plot2d(nm, data = data, add=TRUE, ...)
     }
 
     pairs(
         xx,
-        panel = proj_plot2d,
+        panel = panel_2d,
         diag.panel = diag.panel,
         gap = 0, # TODO: maybe more dynamic choice here.
     )
@@ -244,17 +245,4 @@ as.jmatrix <- function(x) {
 
 as.vector.jvector <- function(x, ...) x # no-op; needed as pairs.default calls  as.vector(x[,j])
 
-getJ <- function(.) attr(., "j")
 
-panel.ij <- function(x,y, ...) {
-    legend("top", paste0("(i,j) = (", getJ(y), ",", getJ(x),")"),
-           text.col = 2, cex = 1.5, bty="n")
-    points(x,y, ...)
-}
-
-## 3 variables of "artificial data"
-(d <- cbind(c1  = 1:2,
-            c.2 = 2:4,
-            col3= 7:12))
-
-# pairs(as.jmatrix(d), panel=panel.ij) ## nice!

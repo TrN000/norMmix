@@ -1,13 +1,19 @@
 \name{plot.norMmix}
 \title{Plot Method for "norMmix" Objects}
 \alias{plot.norMmix}
+\alias{plot.norMmixMLE}
+\alias{plot.fittednorMmix}
 \alias{nMmcols}
 \description{
   This is the S3 method for plotting \code{"\link{norMmix}"} objects.
 }
 \usage{
-\S3method{plot}{norMmix}(x, y=NULL, ...)
-
+\S3method{plot}{norMmix}(x, y=NULL, ...) %%-- TODO all arguments
+\S3method{plot}{norMmixMLE}(x, y=NULL, ...)
+\S3method{plot}{fittednorMmix}(x, y=NULL, ...)
+%% Exportieren und Dokumentieren ?
+        %% plot2d(x, ...)
+        %% plotnd(x, ...)
 nMmcols %% <<< FIXME: *rename* e.g. 'Trubetskoy10' # because we only use 10 of his
 }
 \arguments{
