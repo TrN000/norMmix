@@ -60,7 +60,6 @@ export(
      , rnorMmix
      , sllnorMmix
   , npar
-
     , claraInit
     , ssClara2kL
     , mclVVVinit
@@ -91,3 +90,8 @@ S3method(plot,   norMmixMLE)
 S3method(logLik, norMmixMLE)
 S3method(nobs,   norMmixMLE)
 S3method(npar,   norMmixMLE)
+
+# for the plot.norMmix() method -- pairs() panel:
+export(as.jmatrix)
+S3method(`[`, "jmatrix")
+S3method(as.vector, "jvector")
