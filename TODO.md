@@ -3,25 +3,13 @@
 0. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
 	several of the BSc thesis simulations.  Provide "better" alternative!
 
-0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
-
 1. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
 
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures.
    deciding criteria needed.
 
-5. decide on par args in ndplot and how to leave it exposed to the user.
-   maybe do.call(par, parargs) construct?? and put parargs=NULL in arguments.
-   user can then overwrite first call to par().
-
-   ==> MM: Using sfsmisc::mult.fig()  and allow the user to change defaults
-   for  mult.fig() is easier.
-
-  ===> **MUCH better** is really to change the setup completely, use
-	   graphics :: pairs.default(.)
-    by providing a correct  panel = function(.)    !!!
-
+0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
 
 6. Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
@@ -29,6 +17,10 @@
 7. norMmix(...) creation does *NOT* check `Sigma` in case of restricted
    parametrizations,  but just assumes the caller of norMmix() makes no
    mistake.  This is clearly too optimistic!
+   -> split into "private" and public method, where the public method
+   does argument checking and private one assumes correct args.
+   Should use the private one in MLE algorithm as it gets called there in a
+   loop.
 
 8. Currently always use *full* covariance parameter Sigma, even in cases
    such as EII etc.  Should we allow *both* (full and minimal) parametrizations
@@ -56,3 +48,13 @@ DONE:
 
 4. norMmix.Rd does not document use of non-array covar. mats. as init. values
 
+5. decide on par args in ndplot and how to leave it exposed to the user.
+   maybe do.call(par, parargs) construct?? and put parargs=NULL in arguments.
+   user can then overwrite first call to par().
+
+   ==> MM: Using sfsmisc::mult.fig()  and allow the user to change defaults
+   for  mult.fig() is easier.
+
+  ===> **MUCH better** is really to change the setup completely, use
+	   graphics :: pairs.default(.)
+    by providing a correct  panel = function(.)    !!!
