@@ -60,6 +60,7 @@ export(
      , rnorMmix
      , sllnorMmix
   , npar
+  , plot2d, plotnd
     , claraInit
     , ssClara2kL
     , mclVVVinit

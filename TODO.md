@@ -9,7 +9,7 @@
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures.
    deciding criteria needed.
 
-0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
+4. rename nMmcol to Trubetskoy10
 
 6. Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
@@ -58,3 +58,6 @@ DONE:
   ===> **MUCH better** is really to change the setup completely, use
 	   graphics :: pairs.default(.)
     by providing a correct  panel = function(.)    !!!
+
+0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
+

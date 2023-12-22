@@ -3,30 +3,121 @@
 \alias{plot.norMmix}
 \alias{plot.norMmixMLE}
 \alias{plot.fittednorMmix}
+\alias{plot2d}
+\alias{plotnd}
 \alias{nMmcols}
 \description{
   This is the S3 method for plotting \code{"\link{norMmix}"} objects.
 }
 \usage{
 \S3method{plot}{norMmix}(x, y=NULL, ...) %%-- TODO all arguments
-\S3method{plot}{norMmixMLE}(x, y=NULL, ...)
+\S3method{plot}{norMmixMLE}(x, y = NULL,
+                            show.x = TRUE,
+                            main = sprintf(
+                                "norMmixMLE(*, model=\"\%s\") fit to n=\%d observations in \%d dim.",
+                                nm$model, x$nobs, nm$dim
+                            ),
+                            sub = paste0(
+                                sprintf("log likelihood: \%g; npar=\%d", x$logLik, x$npar),
+                                if (!is.null(opt <- x$optr)) paste("; optim() counts:", named2char(opt$counts))
+                            ),
+                            cex.data = par("cex") / 4, pch.data = 4,
+                            ...)
+ 
 \S3method{plot}{fittednorMmix}(x, y=NULL, ...)
-%% Exportieren und Dokumentieren ?
-        %% plot2d(x, ...)
-        %% plotnd(x, ...)
+
+plot2d (nMm, data = NULL,
+        add = FALSE,
+        main = NULL,
+        sub = NULL,
+        type = "l", lty = 2, lwd = if (!is.null(data)) 2 else 1,
+        xlim = NULL, ylim = NULL, f.lim = 0.05,
+        npoints = 250, lab = FALSE,
+        col = nMmcols[1],
+        col.data = adjustcolor(par("col"), 1 / 2),
+        cex.data = par("cex"), pch.data = par("pch"),
+        fill = TRUE, fillcolor = col, border = NA,
+        ...)
+plotnd(nMm, data = NULL,
+       main = NULL,
+       diag.panel = NULL,
+       ...)
 nMmcols %% <<< FIXME: *rename* e.g. 'Trubetskoy10' # because we only use 10 of his
 }
 \arguments{
-  \item{x}{an \R object inheriting from \code{"\link{norMmix}"}.}
+  \item{x, nMm}{an \R object inheriting from \code{"\link{norMmix}"}.}
   \item{y}{further data matrix, first 2 columns will be plotted by \code{"\link{points}"}}
-  \item{\dots}{further arguments to be passed to \code{"\link{plot}"}}
+  \item{\dots}{further arguments to be passed to another plotting function.}
+  \item{data}{
+
+}
+  \item{add}{
+
+}
+  \item{main}{
+
+}
+  \item{sub}{
+
+}
+  \item{type}{
+
+}
+  \item{lty}{
+
+}
+  \item{lwd}{
+
+}
+  \item{xlim}{
+
+}
+  \item{ylim}{
+
+}
+  \item{f.lim}{
+
+}
+  \item{npoints}{
+
+}
+  \item{lab}{
+
+}
+  \item{col}{
+
+}
+  \item{col.data}{
+
+}
+  \item{cex.data}{
+
+}
+  \item{pch.data}{
+
+}
+  \item{fill}{
+
+}
+  \item{fillcolor}{
+
+}
+  \item{border}{
+
+}
 }
 \value{
-  \code{plot.norMmix} returns invisibly coordinates of bounding ellipses of distribution.
+  \code{plot.norMmix} In the 2 dimensional case, returns invisibly coordinates 
+  of bounding ellipses of distribution.
 }
 \details{
   The plot method calls one of two auxiliary functions, one for dim=2,
-  another for higher dimensions.% ... FIXME: add more
+  another for higher dimensions. The method for 2 dimensional plots also takes a
+  \code{add} parameter (\code{FALSE} by default), which allows for the ellipses
+  to be drawn over an existing plot.
+
+  The higher dimensional plot method relies on the \code{pairs.default} function
+  to draw a lattice plot, where the panels are built using the 2 dimensional method.
 
   \code{nMmcols}: A vector of colors for these plots,
   chosen to be distinguishable and accessible for the colorblind, according to
