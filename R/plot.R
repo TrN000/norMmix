@@ -2,7 +2,7 @@
 
 
 ## colors:
-nMmcols <- c(
+Trubetskoy10 <- c(
     "#4363d8", "#f58231", "#800000", "#000075", "#ffe119",
     "#fabebe", "#e6beff", "#a9a9a9", "#ffffff", "#000000"
 )
@@ -73,7 +73,7 @@ plot2d <- function(nMm, data = NULL,
                    type = "l", lty = 2, lwd = if (!is.null(data)) 2 else 1,
                    xlim = NULL, ylim = NULL, f.lim = 0.05,
                    npoints = 250, lab = FALSE,
-                   col = nMmcols[1],
+                   col = Trubetskoy10[1],
                    col.data = adjustcolor(par("col"), 1 / 2),
                    cex.data = par("cex"), pch.data = par("pch"),
                    fill = TRUE, fillcolor = col, border = NA,

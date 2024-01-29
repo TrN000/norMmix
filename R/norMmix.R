@@ -209,7 +209,7 @@ dnorMmixL <- function(obj, x = NULL, log = FALSE, xlim = NULL, n = 511) {
         }
         x <- seq(xlim[1], xlim[2], length = n)
     }
-    list(x = x, y = dnorMmix(x, obj, log = log))
+    list(x = x, y = dnorMmix(x, obj))
 }
 
 
