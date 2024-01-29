@@ -12,17 +12,17 @@
 \usage{
 \S3method{plot}{norMmix}(x, y=NULL, ...) %%-- TODO all arguments
 \S3method{plot}{norMmixMLE}(x, y = NULL,
-                            show.x = TRUE,
-                            main = sprintf(
-                                "norMmixMLE(*, model=\"\%s\") fit to n=\%d observations in \%d dim.",
-                                nm$model, x$nobs, nm$dim
-                            ),
-                            sub = paste0(
-                                sprintf("log likelihood: \%g; npar=\%d", x$logLik, x$npar), 
-                                if (!is.null(opt <- x$optr)) { paste("; optim() counts:", named2char(opt$counts)) }
-                            ),
-                            cex.data = par("cex") / 4, pch.data = 4,
-                            ...)
+     show.x = TRUE,
+     main = sprintf(
+         "norMmixMLE(*, model=\"\%s\") fit to n=\%d observations in \%d dim.",
+         nm$model, x$nobs, nm$dim
+     ),
+     sub = paste0(
+         sprintf("log likelihood: \%g; npar=\%d", x$logLik, x$npar), 
+         if (!is.null(opt <- x$optr)) paste("; optim() counts:", named2char(opt$counts))
+     ),
+     cex.data = par("cex") / 4, pch.data = 4,
+     ...)
  
 \S3method{plot}{fittednorMmix}(x, main = "unnamed", plotbest = FALSE, ...)
 
@@ -34,7 +34,7 @@ plot2d (nMm, data = NULL,
         xlim = NULL, ylim = NULL, f.lim = 0.05,
         npoints = 250, lab = FALSE,
         col = Trubetskoy10[1],
-        col.data = adjustcolor(par("col"), 1 / 2),
+        col.data = adjustcolor(par("col"), 1/2),
         cex.data = par("cex"), pch.data = par("pch"),
         fill = TRUE, fillcolor = col, border = NA,
         ...)
@@ -42,7 +42,7 @@ plotnd(nMm, data = NULL,
        main = NULL,
        diag.panel = NULL,
        ...)
-Trubetskoy10 %% <<< FIXME: *rename* e.g. 'Trubetskoy10' # because we only use 10 of his
+Trubetskoy10
 }
 \arguments{
   \item{x, nMm}{an \R object inheriting from \code{"\link{norMmix}"}.}
