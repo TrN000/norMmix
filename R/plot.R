@@ -172,9 +172,8 @@ plot.norMmixMLE <- function(x, y = NULL,
                             ),
                             sub = paste0(
                                 sprintf("log likelihood: %g; npar=%d", x$logLik, x$npar),
-                                if (!is.null(opt <- x$optr)) {
+                                if (!is.null(opt <- x$optr))
                                     paste("; optim() counts:", named2char(opt$counts))
-                                }
                             ),
                             cex.data = par("cex") / 4, pch.data = 4,
                             ...) {

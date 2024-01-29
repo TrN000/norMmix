@@ -9,9 +9,8 @@
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures.
    deciding criteria needed.
 
-4. rename nMmcol to Trubetskoy10
-
-6. Documentation for plot methods now completely broken. Arguments like
+6. documentation need examples and arguments of plot.... are not described.
+   OUT OF DATE:Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
 
 7. norMmix(...) creation does *NOT* check `Sigma` in case of restricted
@@ -60,4 +59,6 @@ DONE:
     by providing a correct  panel = function(.)    !!!
 
 0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
+
+4. rename nMmcol to Trubetskoy10
 
