@@ -3,3 +3,4 @@ DESCRIPTION\+R
 ^do-.*
 .*-log
 TODO\.md
+.lintr

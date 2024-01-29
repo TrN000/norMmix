@@ -6,10 +6,11 @@
   parameter vector in our MLE parametrization.
 }
 \usage{
-nMm2par(obj,
+  nMm2par(obj,
         model = c("EII", "VII", "EEI", "VEI", "EVI",
                   "VVI", "EEE", "VEE", "EVV", "VVV"),
-        meanFUN = mean)
+        meanFUN = mean.default,
+        checkX = FALSE)
 }
 \arguments{
   \item{obj}{a \code{\link{list}} containing \describe{
@@ -23,6 +24,7 @@ nMm2par(obj,
   \item{model}{a \code{\link{character}} string specifying the (Sigma)
     model, one of those listed above.}
   \item{meanFUN}{a \code{\link{function}} to compute a mean (of variances typically).}
+  \item{checkX}{a boolean. check for positive definiteness of covariance matrix.}
 }
 \details{
     This transformation forms a vector from the parameters of a normal
