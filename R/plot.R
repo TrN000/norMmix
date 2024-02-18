@@ -65,7 +65,6 @@ ellipse_range <- function(nMm) {
 }
 
 
-## not exported; called from plot.norMmix() in 2D case, i.e. dim = 2
 plot2d <- function(nMm, data = NULL,
                    add = FALSE,
                    main = NULL,
@@ -83,7 +82,8 @@ plot2d <- function(nMm, data = NULL,
     sig <- nMm$Sigma
     k <- nMm$k
 
-    ## calculate smart values for xlim, ylim. if lims are given, variable xy still returned invisibly
+    ## calculate smart values for xlim, ylim.
+    ## if lims are given, variable xy still returned invisibly
     xy <- matrix(NA, k * npoints, 2)
     for (i in 1:k) {
         xy[(i - 1) * npoints + 1:npoints, ] <-

@@ -46,51 +46,84 @@ Trubetskoy10
 }
 \arguments{
   \item{x, nMm}{an \R object inheriting from \code{"\link{norMmix}"}.}
-  \item{y}{further data matrix, first 2 columns will be plotted by \code{"\link{points}"}}
+  \item{y}{further data matrix, first 2 columns will be plotted by
+    \code{"\link{points}"}
+  }
   \item{\dots}{further arguments to be passed to another plotting function.}
   \item{show.x}{
+    Option for `plot.norMmixMLE`. Plot data points along with estimated model.
+    Defaults to `TRUE`.
   }
   \item{data}{
+    Data points to plot. %% TODO: what format.
   }
   \item{add}{
+    This argument is used in the internal function, `plot2d`, to control whether
+    to create a new plot or add to an existing one. Should not be set by the user.
+    Defaults to `FALSE`
   }
   \item{main}{
+    Set main title. See `Usage` section for default values.
   }
   \item{sub}{
+    Set subtitle. See `Usage` section for default values.
   }
   \item{type}{
+    Graphing type for ellipses border. Defaults to "l".
   }
   \item{lty}{
+    Line type to go with the `type`. See \code{"\link{par}"}.
   }
   \item{lwd}{
+    Line width as in `lty`.
   }
   \item{xlim}{
+    Set explicit x limits for 2d plots.
   }
   \item{ylim}{
+    As `xlim`.
   }
   \item{f.lim}{
+    Percentage value for how much to extend `xlim` and `ylim`.
+    As in the `f` argument to \code{"\link{extendrange}"}.
   }
   \item{npoints}{
+    How many points to use in the drawn ellipses. Larger values make them prettier
+    but might affect plot times.
   }
   \item{lab}{
+    Whether to print labels for mixture components.
+    Will print "comp %s" with s in 1 through k.
   }
   \item{col}{
+    Fill color for ellipses. Default is "#4363d8".
   }
   \item{col.data}{
+    Color to be used for data points.
   }
   \item{cex.data}{
+    See \code{"\link{par}"}.
   }
   \item{pch.data}{
+    See \code{"\link{par}"}.
   }
   \item{fill}{
+    Leave ellipses blank with outline or fill them in.
   }
   \item{fillcolor}{
+    Color for infill of ellipses.
   }
   \item{border}{
+    %% TODO: I think this should be removed. collides with `type` argument over drawing borders or not. also using lines in any case for border might be sketchy.
   }
   \item{diag.panel}{
+    Function to plot 2d projections of a higher-dimensional mixture model.
+    Used by `plotnd`.
+    Requires function with signature `function(x, y, data = NULL, ...)`
+    Should not be set by the user.
   }
   \item{plotbest}{
+    Used by `fittednorMmix`. Plot best fitting model using `plot.norMmix`.
   }
 }
 \value{
