@@ -59,8 +59,9 @@ export(
      , dfnMm
      , rnorMmix
      , sllnorMmix
+     , dnorMmix
   , npar
-
+  , plot2d, plotnd
     , claraInit
     , ssClara2kL
     , mclVVVinit
@@ -79,7 +80,7 @@ export(MW21, MW22
        )
 
 ## misc
-export(nMmcols)
+export(Trubetskoy10)
 
 
 S3method(print,  norMmix)
@@ -91,3 +92,8 @@ S3method(plot,   norMmixMLE)
 S3method(logLik, norMmixMLE)
 S3method(nobs,   norMmixMLE)
 S3method(npar,   norMmixMLE)
+
+# for the plot.norMmix() method -- pairs() panel:
+# export(as.jmatrix)
+S3method(`[`, "jmatrix")
+S3method(as.vector, "jvector")

@@ -86,6 +86,17 @@ nm <- norMmix(mu, Sigma=sig, weight=w)
 plot(nm)
 ```
 
+higher-dimensional plots are also possible.
+
+```{r norMmix_panels}
+plot(MW32)
+```
+This model is taken from 
+
+  Marron, J. S., and M. P. Wand. “Exact Mean Integrated Squared Error.” The Annals of Statistics 20, no. 2 (June 1, 1992). https://doi.org/10.1214/aos/1176348653.
+
+All the models from this paper are provided in the package as examples.
+
 `rnorMmix()` generates data (random observations) from such distributions:
 
 ```{r norMmix_data}
@@ -124,16 +135,17 @@ implementations of the EM-algorithm, break off.
 
 This alternative, while not without flaws, is not hampered by this particular
 shortcoming.
-#### Rough outline:
-* quickly contrast EM and alternative
-* simple explanation of alt:
-    + clara → m step → general optimiser
-    + benefits of ldlt and loglik fctn as opposed to EM
 
+A general reference for Mixture models and in particular a thorough explanation
+for the EM-algorithm can be found in this reference.
 
-* this document organised by major classes in package
-    + norMmix: base class/base data model
-    + norMmixMLE: return value of algo, holds results
+  McLachlan, Geoffrey, and David Peel. Finite Mixture Models. PDF. Newy York: Wiley-Interscience, 2004.
+
+Our approach allows us for one, to use the Cholesky decomposition of the
+covariance matrix to cut down the number of free parameters from $p^2$ to
+$\frac{p(p-1)}{2}$, and furthermore leverage the diversity of generic optimizer
+solutions to tackle pernicious data, that might otherwise resist approximation
+by the EM-algorithm.
 
 This document is organised by the major classes in this package.
 These are the 'norMmix', 'norMmixMLE' and (soon) 'manynorMmix' classes.
@@ -198,20 +210,26 @@ This happens according to the dimension of the given value for the Sigma argumen
 
 **IMPORTANT ISSUE**
 
-* available functions for inspecting these
-* what to do with them
+`norMmix` does not handle 1-dimensional mixture models properly. Use `nor1mix` if that is your use case.
+
 
 ## On 'norMmixMLE'
 
-* the norMmixMLE function and its arguments
-* Examples
+Direct Maximum Likelihood Estimation (MLE) for multivariate normal mixture
+models. Performs direct likelihood maximization via `optim`.
 
-The `norMmixMLE` function
+  norMmixMLE(x, k,
+           model = c("EII", "VII", "EEI", "VEI", "EVI",
+                     "VVI", "EEE", "VEE", "EVV", "VVV"),
+           initFUN = claraInit,
+           ll = c("nmm", "mvt"),
+           keep.optr = TRUE, keep.data = keep.optr,
+           method = "BFGS", maxit = 100, trace = 2,
+           optREPORT = 10, reltol = sqrt(.Machine$double.eps),
+ 	   \dots)
+
+To use `norMmixMLE`, provide a dataset `x` as a numeric `[n x p]` matrix,
+a number of components to fit, `k`, and a model from the list above.
 
 ## On 'manyMLE' (as soon as we have reintegrated that)
 
-## Details about the source code
-
-* what else is in the code?
-* grep -roP '\w+(?= <- function)' works well to get function names
-    * grep -rn '<- function' also good
