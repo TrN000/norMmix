@@ -13,8 +13,8 @@ okSigma <- function(Sig, tol1 = 1000 * .Machine$double.eps, tol2 = 1e-10) {
         if (d[[2]] != p) {
             "Sigma matrix dimension is not square"
         } else {
-            for (i in 1:k) {
-                Si <- matrix(Sig[, , i], nrow=p, ncol=p) # defend against p=1 case
+            if(p >= 2) for (i in 1:k) {
+                Si <- Sig[, , i]
                 if (!isSymmetric(Si, tol = tol1)) {
                     return(paste0("Sigma[ , ,", i, "] is not symmetric"))
                 }
