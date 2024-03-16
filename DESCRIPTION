@@ -1,5 +1,5 @@
 Package: norMmix
-Version: 0.0-4
+Version: 0.1-0
 Title: Direct MLE for Multivariate Normal Mixture Distributions
 Description: Compute the MLE for multivariate normal mixtures via smart parametrization using
   the LDLt decomposition.

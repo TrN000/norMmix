@@ -33,6 +33,8 @@
 
 10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
 
+11. document or erase mention of `parcond`.
+
 ==============================================================================
 DONE:
 
