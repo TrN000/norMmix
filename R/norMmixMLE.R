@@ -152,7 +152,7 @@ nobs.norMmixMLE <- function(object, ...) object$nobs
 
 npar.norMmixMLE <- function(object, ...) object$npar ## ==!?== npar(object$norMmix)
 
-##' format 'x' with names into  "<name1> = <x1>, <name2> = <x2>, ..."
+# format 'x' with names into  "<name1> = <x1>, <name2> = <x2>, ..."
 named2char <- function(x, sep = " = ", collapse = ", ")
     paste(names(x), x, sep=sep, collapse=collapse)
 

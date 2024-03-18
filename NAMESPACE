@@ -65,7 +65,8 @@ export(
     , claraInit
     , ssClara2kL
     , mclVVVinit
-       )
+    , nor1toMmix
+)
 
 ## all the "norMmix"  example objects <--> ./R/zmarrwandnMm.R
 export(MW21, MW22

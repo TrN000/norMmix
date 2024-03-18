@@ -1,9 +1,9 @@
 
 
-0. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
+1. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
 	several of the BSc thesis simulations.  Provide "better" alternative!
 
-1. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
+2. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
 
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures.
@@ -32,6 +32,8 @@
 	  `norModels <- eval(formals(norMmix)$model)`
 
 10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
+
+11. document or erase mention of `parcond`.
 
 ==============================================================================
 DONE:

@@ -33,7 +33,7 @@
     Covariance matrices are given as D and L from the LDLt decomposition
 }
 \seealso{
-    the \emph{inverse} function of \code{nMm2par()} is \code{\link{par2nMm}()}.
+    the \emph{inverse} function of \code{\link{nMm2par}()} is \code{\link{par2nMm}()}.
 }
 
 \examples{

@@ -15,7 +15,7 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
 }
 \arguments{
     \item{mu}{matrix of means, or a vector in which case \eqn{k = 1} is
-      assumed.  Otherwise use \code{as.matrix(mu)}.}
+      assumed.  Otherwise use \code{\link{as.matrix}(mu)}.}
     \item{Sigma}{NULL, number, numeric, vector (length = k), matrix (dim = p x k), or
         array (p x p x k). See details.
     }
@@ -33,7 +33,7 @@ norMmix(mu, Sigma = NULL, weight = rep(1/k, k), name = NULL,
   \item{\code{Sigma}}{(p x p x k) array of component Covariance matrices
     \code{Sigma[,,j]}.}
   \item{\code{weight}}{p-vector of mixture probability weights;
-    non-negative, summing to one: \code{sum(weight) == 1}.}
+    non-negative, summing to one: \code{\link{sum}(weight) == 1}.}
   \item{k}{integer, the number of components}
   \item{dim}{integer, the dimension \eqn{p}.}
 }

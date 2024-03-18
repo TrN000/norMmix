@@ -25,7 +25,7 @@ ellipsePts(mu, sigma, npoints, alpha = 0.05, r = sqrt(qchisq(1 - alpha, df = 2))
 }
 \author{Martin Maechler}
 \note{
-  This has been inspired by package \CRANpkg{mixtools}'s \code{ellipse()}
+  This has been inspired by package \CRANpkg{mixtools}'s \code{\link[mixtools]{ellipse}()}
   function.
 }
 %% \seealso{

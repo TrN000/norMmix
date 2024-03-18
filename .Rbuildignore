@@ -4,3 +4,4 @@ DESCRIPTION\+R
 .*-log
 TODO\.md
 .lintr
+^LICENSE\.md$

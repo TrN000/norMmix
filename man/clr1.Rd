@@ -7,7 +7,7 @@
   unconstrained mixture weights optimization.
 
   It has been inspired by Aitchison's \bold{c}entered \bold{l}og \bold{r}atio,
-  see also CRAN package \CRANpkg{compositions}' \code{clr()}, and typically
+  see also CRAN package \CRANpkg{compositions}' \code{\link[compositions]{clr}()}, and typically
   other references on modelling proportions.
 }
 \usage{
