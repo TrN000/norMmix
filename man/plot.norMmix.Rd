@@ -140,7 +140,7 @@ Trubetskoy10
   The higher dimensional plot method relies on the \code{pairs.default} function
   to draw a lattice plot, where the panels are built using the 2 dimensional method.
 
-  \code{\link{Trubetskoy10}}: A vector of colors for these plots,
+  \code{Trubetskoy10}: A vector of colors for these plots,
   chosen to be distinguishable and accessible for the colorblind, according to
   \url{https://sashamaps.net/2017/01/11/list-of-20-simple-distinct-colors/},
   slightly rearranged, so that the first five colors stand out well on white background.
