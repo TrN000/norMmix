@@ -9,9 +9,6 @@ Authors@R: c(person(given = "Nicolas", family = "Trutmann", role = c("aut", "cre
                     email = "maechler@stat.math.ethz.ch",
                     comment = c(ORCID = "0000-0002-8685-9910", "based on 'nor1mix'"))
             )
-Maintainer: Nicolas Trutmann <nicolas.trutmann@gmx.ch>
-Author: Nicolas Trutmann [aut, cre],
-  Martin Maechler [aut, ths] (<https://orcid.org/0000-0002-8685-9910>, based on 'nor1mix')
 Imports: cluster, MASS, mvtnorm, mclust, sfsmisc
 Suggests:
     nor1mix,
