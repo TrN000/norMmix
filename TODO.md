@@ -33,8 +33,6 @@
 
 10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
 
-11. document or erase mention of `parcond`.
-
 ==============================================================================
 DONE:
 
@@ -63,4 +61,6 @@ DONE:
 0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
 
 4. rename nMmcol to Trubetskoy10
+
+11. document or erase mention of `parcond`.
 

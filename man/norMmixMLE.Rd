@@ -83,7 +83,7 @@ ssClara2kL(n, k, p)
     optimization, i.e., currently, \code{\link{optim}()}.}
   \item{npar}{the number of free parameters, a function of \eqn{(p, k, model)}.}
   \item{n}{the sample size, i.e., the number of observations or rows of \code{x}.}
-  \item{cond}{the result of \code{parcond(..)}, that is the ratio of sample size
+  \item{cond}{the result of (the hidden function) \code{parcond(..)}, that is the ratio of sample size
     over parameter count.}% fixme
   \item{x}{(if \code{keep.optr} is true:) the \eqn{n \times p}{n x p} data matrix.}
 }
