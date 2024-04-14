@@ -59,6 +59,11 @@ MW34
 ## 5 - dim:
 MW51    # Gaussian
 }
+\value{
+  A normal mixture model. The first digit of the number in the variable name encodes the dimension
+  of the mixture; the following digits merely enumerate models, with some correlation to the
+  complexity of the model.
+}
 %% \source{
 %% }
 \author{Martin Maechler for 1D; Nicolas Trutmann for 2-D, 3- and 5-D.}

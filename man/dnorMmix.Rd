@@ -14,8 +14,10 @@ dnorMmix(x, nMm)
 }
 %% \details{
 %% }
-%% \value{
-%% }
+\value{
+  Returns the density of \code{nMm} at point \code{x}. Iterates over components of the
+  mixture and returns weighted sum of \code{\link[mvtnorm]{dmvnorm}}.
+}
 %% \references{
 %% }
 \author{Nicolas Trutmann}

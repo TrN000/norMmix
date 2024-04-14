@@ -17,6 +17,9 @@ dfnMm(k, p, model = c("EII","VII","EEI","VEI","EVI",
   also the \code{\link{length}(.)} of the parameter vector in our
   parametrization, see \code{\link{nMm2par}()}.
 }
+\value{
+  integer. degrees of freedom of a model with specified dimensions, components and model type.
+}
 \examples{
 (m <- eval(formals(dfnMm)$model)) # list of 10 models w/ differing Sigma
 # A nice table for a given 'p'  and all models, all k in 1:8

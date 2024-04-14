@@ -18,6 +18,9 @@ sllnorMmix(x, obj)
   just a simplified wrapper for \code{\link{llnorMmix}}.
   Removes functionality in favor of ease of use.
 }
+\value{
+  \code{double}. See description.
+}
 \examples{
 set.seed(2019)
 x <- rnorMmix(400, MW27)
