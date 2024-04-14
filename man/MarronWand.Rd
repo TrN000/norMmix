@@ -68,7 +68,7 @@ MW51    # Gaussian
 %% }
 \author{Martin Maechler for 1D; Nicolas Trutmann for 2-D, 3- and 5-D.}
 \references{
-  Steve Marron and Matt Wand (1992) <doi:https://doi.org/10.1214/aos/1176348653>
+  Steve Marron and Matt Wand (1992) <doi:10.1214/aos/1176348653>
 }
 \examples{%% FIXME: see also ~/R/Pkgs/nor1mix/man/MarronWand.Rd <<<<<<<<<<
 MW210
