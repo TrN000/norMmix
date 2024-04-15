@@ -93,7 +93,7 @@ plot(MW32)
 ```
 This model is taken from 
 
-Marron, J. S., and M. P. Wand. “Exact Mean Integrated Squared Error.” (1992). <doi:10.1214/aos/1176348653>.
+Marron, J. S., and  Wand, M. P. (1992) "Exact Mean Integrated Squared Error." <doi:10.1214/aos/1176348653>.
 
 All the models from this paper are provided in the package as examples.
 

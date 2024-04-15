@@ -68,7 +68,10 @@ MW51    # Gaussian
 %% }
 \author{Martin Maechler for 1D; Nicolas Trutmann for 2-D, 3- and 5-D.}
 \references{
-  Steve Marron and Matt Wand (1992) <doi:10.1214/aos/1176348653>
+  Marron, S. and Wand, M. (1992)
+  Exact Mean Integrated Squared Error;
+  \emph{Annals of Statistcs} \bold{20}, 712--736;
+  \doi{10.1214/aos/1176348653}.
 }
 \examples{%% FIXME: see also ~/R/Pkgs/nor1mix/man/MarronWand.Rd <<<<<<<<<<
 MW210
