@@ -12,10 +12,13 @@ dfnMm(k, p, model = c("EII","VII","EEI","VEI","EVI",
     above, see also \sQuote{Description}.}
 }
 \description{
-  \code{npar()} returns an integer (vector, if \code{p} or \code{k} is)
+  \code{\link{npar}()} returns an integer (vector, if \code{p} or \code{k} is)
   with the number of free parameters of the corresponding model, which is
   also the \code{\link{length}(.)} of the parameter vector in our
   parametrization, see \code{\link{nMm2par}()}.
+}
+\value{
+  integer. degrees of freedom of a model with specified dimensions, components and model type.
 }
 \examples{
 (m <- eval(formals(dfnMm)$model)) # list of 10 models w/ differing Sigma

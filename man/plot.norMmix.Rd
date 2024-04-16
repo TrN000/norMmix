@@ -51,41 +51,41 @@ Trubetskoy10
   }
   \item{\dots}{further arguments to be passed to another plotting function.}
   \item{show.x}{
-    Option for `plot.norMmixMLE`. Plot data points along with estimated model.
-    Defaults to `TRUE`.
+    Option for \code{plot.norMmixMLE}. Plot data points along with estimated model.
+    Defaults to \code{TRUE}.
   }
   \item{data}{
     Data points to plot. %% TODO: what format.
   }
   \item{add}{
-    This argument is used in the internal function, `plot2d`, to control whether
+    This argument is used in the internal function, \code{plot2d}, to control whether
     to create a new plot or add to an existing one. Should not be set by the user.
-    Defaults to `FALSE`
+    Defaults to \code{FALSE}
   }
   \item{main}{
-    Set main title. See `Usage` section for default values.
+    Set main title. See \code{Usage} section for default values.
   }
   \item{sub}{
-    Set subtitle. See `Usage` section for default values.
+    Set subtitle. See \code{Usage} section for default values.
   }
   \item{type}{
     Graphing type for ellipses border. Defaults to "l".
   }
   \item{lty}{
-    Line type to go with the `type`. See \code{"\link{par}"}.
+    Line type to go with the \code{type}. See \code{"\link{par}"}.
   }
   \item{lwd}{
-    Line width as in `lty`.
+    Line width as in \code{lty}.
   }
   \item{xlim}{
     Set explicit x limits for 2d plots.
   }
   \item{ylim}{
-    As `xlim`.
+    As \code{xlim}.
   }
   \item{f.lim}{
-    Percentage value for how much to extend `xlim` and `ylim`.
-    As in the `f` argument to \code{"\link{extendrange}"}.
+    Percentage value for how much to extend \code{xlim} and \code{ylim}.
+    As in the \code{f} argument to \code{"\link{extendrange}"}.
   }
   \item{npoints}{
     How many points to use in the drawn ellipses. Larger values make them prettier
@@ -114,16 +114,17 @@ Trubetskoy10
     Color for infill of ellipses.
   }
   \item{border}{
-    %% TODO: I think this should be removed. collides with `type` argument over drawing borders or not. also using lines in any case for border might be sketchy.
+    Argument to be passed to \code{\link{polygon}}.
+    %% TODO: I think this should be removed. collides with \code{type} argument over drawing borders or not. also using lines in any case for border might be sketchy.
   }
   \item{diag.panel}{
     Function to plot 2d projections of a higher-dimensional mixture model.
-    Used by `plotnd`.
-    Requires function with signature `function(x, y, data = NULL, ...)`
+    Used by \code{plotnd}.
+    Requires function with signature \code{function(x, y, data = NULL, ...)}
     Should not be set by the user.
   }
   \item{plotbest}{
-    Used by `fittednorMmix`. Plot best fitting model using `plot.norMmix`.
+    Used by \code{fittednorMmix}. Plot best fitting model using \code{plot.norMmix}.
   }
 }
 \value{

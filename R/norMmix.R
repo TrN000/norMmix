@@ -13,7 +13,7 @@ okSigma <- function(Sig, tol1 = 1000 * .Machine$double.eps, tol2 = 1e-10) {
         if (d[[2]] != p) {
             "Sigma matrix dimension is not square"
         } else {
-            for (i in 1:k) {
+            if(p >= 2) for (i in 1:k) {
                 Si <- Sig[, , i]
                 if (!isSymmetric(Si, tol = tol1)) {
                     return(paste0("Sigma[ , ,", i, "] is not symmetric"))
@@ -127,6 +127,14 @@ is.norMmix <- function(x) {
     inherits(x, "norMmix")
 }
 
+nor1toMmix <- function(object) {
+    mu <- matrix(object[, 1], nrow = 1, byrow = TRUE)
+    sigma <- object[, 2]
+    weights <- object[, 3]
+    name <- attr(object, "name")
+
+    norMmix(mu, Sigma = sigma, weight = weights, name = name, model = "VII")
+}
 
 ## -- *not* used currently!
 #' Corrects numerical error in case D in LDL' decomp is near-zero:

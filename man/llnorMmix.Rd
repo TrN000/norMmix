@@ -27,7 +27,7 @@ llnorMmix(par, tx, k,
 }
 \seealso{
   Our alternative function \code{\link{llmvtnorm}()} (which is based on
-  \code{dmvnorm()} from package \CRANpkg{mvtnorm}).
+  \code{\link[mvtnorm]{dmvnorm}()} from package \CRANpkg{mvtnorm}).
 }
 \examples{
 set.seed(1); tx <- t(rnorMmix(50, MW29))

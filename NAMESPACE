@@ -65,7 +65,8 @@ export(
     , claraInit
     , ssClara2kL
     , mclVVVinit
-       )
+    , nor1toMmix
+)
 
 ## all the "norMmix"  example objects <--> ./R/zmarrwandnMm.R
 export(MW21, MW22
@@ -97,3 +98,6 @@ S3method(npar,   norMmixMLE)
 # export(as.jmatrix)
 S3method(`[`, "jmatrix")
 S3method(as.vector, "jvector")
+
+# export(manyMLE) # not yet
+S3method(npar, manyMLE)

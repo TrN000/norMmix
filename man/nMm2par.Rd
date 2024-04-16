@@ -32,8 +32,13 @@
 
     Covariance matrices are given as D and L from the LDLt decomposition
 }
+\value{
+  vector containing encoded parameters of the mixture.
+  first, the centered log ratio of the weights, then the means, and then the model specific encoding
+  of the covariances.
+}
 \seealso{
-    the \emph{inverse} function of \code{nMm2par()} is \code{\link{par2nMm}()}.
+    the \emph{inverse} function of \code{\link{nMm2par}()} is \code{\link{par2nMm}()}.
 }
 
 \examples{
