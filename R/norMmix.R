@@ -129,7 +129,8 @@ is.norMmix <- function(x) {
 
 nor1toMmix <- function(object) {
     mu <- matrix(object[, 1], nrow = 1, byrow = TRUE)
-    sigma <- object[, 2]
+    k <- length(object[, 2])
+    sigma <- array(object[, 2], c(1, 1, 2))
     weights <- object[, 3]
     name <- attr(object, "name")
 
