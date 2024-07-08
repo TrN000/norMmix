@@ -24,7 +24,7 @@ importFrom("graphics"
          , polygon, text, title
            )
 
-importFrom("stats", median, quantile
+importFrom("stats", median, quantile, var
          , optim, nobs
          , plogis, qchisq, qlogis
          , rmultinom
@@ -40,7 +40,7 @@ importFrom("MASS", mvrnorm)
 
 importFrom("mvtnorm", dmvnorm)
 importFrom("mclust", hclass, hcVVV)
-importFrom("sfsmisc", mult.fig)
+importFrom("sfsmisc", mult.fig, relErrV)
 
 
 ### This package exports ---------------------------------
