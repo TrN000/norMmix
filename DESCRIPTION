@@ -1,5 +1,5 @@
 Package: norMmix
-Version: 0.1-1
+Version: 0.1-2
 Title: Direct MLE for Multivariate Normal Mixture Distributions
 Description: Multivariate Normal (i.e. Gaussian) Mixture Models (S3) Classes.
     Fitting models to data using 'MLE' (maximum likelihood estimation) for
