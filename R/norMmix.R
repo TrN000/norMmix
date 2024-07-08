@@ -186,7 +186,6 @@ norMmix <- function(mu,
     guessModel <- missing(model) # if not specified, may guess it from {p, k, Sigma}
 
     if (!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
-    # TODO: if no Sigma is supplied might tacitly mistake px1 and 1xp; throw error
     p <- nrow(mu) # p = dimension
     k <- ncol(mu) # k = number of components
 
@@ -207,6 +206,7 @@ norMmix <- function(mu,
     }
     if (!isTRUE(m <- okSigma(Sigma))) stop(m)
 
+
     # inspect weight
     stopifnot(is.numeric(weight))
     if (length(weight) != k) {
@@ -220,6 +220,13 @@ norMmix <- function(mu,
     if (is.null(name)) {
         name <- sprintf("model \"%s\", G = %s", model, k)
     }
+
+    if (!isTRUE(m <- sigmaAgainstModel(Sigma, model))) stop(m)
+
+    .norMmix(name, model, mu, Sigma, weight, k, p)
+}
+
+.norMmix <- function(name, model, mu, Sigma, weight, k, p) {
     structure(
         name = name,
         class = "norMmix",
