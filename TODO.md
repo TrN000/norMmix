@@ -13,13 +13,6 @@
    OUT OF DATE:Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
 
-7. norMmix(...) creation does *NOT* check `Sigma` in case of restricted
-   parametrizations,  but just assumes the caller of norMmix() makes no
-   mistake.  This is clearly too optimistic!
-   -> split into "private" and public method, where the public method
-   does argument checking and private one assumes correct args.
-   Should use the private one in MLE algorithm as it gets called there in a
-   loop.
 
 8. Currently always use *full* covariance parameter Sigma, even in cases
    such as EII etc.  Should we allow *both* (full and minimal) parametrizations
@@ -32,6 +25,8 @@
 	  `norModels <- eval(formals(norMmix)$model)`
 
 10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
+
+12. Start a inst/NEWS.md file.
 
 ==============================================================================
 DONE:
@@ -64,3 +59,10 @@ DONE:
 
 11. document or erase mention of `parcond`.
 
+7. norMmix(...) creation does *NOT* check `Sigma` in case of restricted
+   parametrizations,  but just assumes the caller of norMmix() makes no
+   mistake.  This is clearly too optimistic!
+   -> split into "private" and public method, where the public method
+   does argument checking and private one assumes correct args.
+   Should use the private one in MLE algorithm as it gets called there in a
+   loop.
