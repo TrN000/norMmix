@@ -184,6 +184,10 @@ norMmix <- function(mu,
 
     stopifnot(is.numeric(mu))
     guessModel <- missing(model) # if not specified, may guess it from {p, k, Sigma}
+    model <- if (guessModel) "VVV" else match.arg(model)
+    if (is.null(name)) {
+        name <- sprintf("model \"%s\", G = %s", model, k)
+    }
 
     if (!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
     p <- nrow(mu) # p = dimension
@@ -205,7 +209,7 @@ norMmix <- function(mu,
         stop("'Sigma' not among recognized formats")
     }
     if (!isTRUE(m <- okSigma(Sigma))) stop(m)
-
+    if (!isTRUE(m <- sigmaAgainstModel(Sigma, model))) stop(m)
 
     # inspect weight
     stopifnot(is.numeric(weight))
@@ -215,13 +219,6 @@ norMmix <- function(mu,
     if (!(all(weight >= 0) && (abs(sum(weight) - 1) < 1000 * .Machine$double.eps))) {
         stop("weight doesn't sum to 1 or isn't positive")
     }
-
-    model <- if (missing(model)) "VVV" else match.arg(model)
-    if (is.null(name)) {
-        name <- sprintf("model \"%s\", G = %s", model, k)
-    }
-
-    if (!isTRUE(m <- sigmaAgainstModel(Sigma, model))) stop(m)
 
     .norMmix(name, model, mu, Sigma, weight, k, p)
 }
