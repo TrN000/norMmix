@@ -7,7 +7,7 @@ test_that("we can convert models from `nor1mix` to `norMmix`.", {
   coerced <- nor1toMmix(original)
   expect_equal(coerced$mu, matrix(0, 1, 2))
   expect_equal(coerced$dim, 1)
-  expect_equal(class(coerced), "norMmix") ## FIXME: should be expect_true inherits from norMmix
+  expect_true(inherits(coerced, "norMmix"))
 })
 
 test_that("constructor handles p=1 gracefully", {
