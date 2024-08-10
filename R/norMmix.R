@@ -185,13 +185,14 @@ norMmix <- function(mu,
     stopifnot(is.numeric(mu))
     guessModel <- missing(model) # if not specified, may guess it from {p, k, Sigma}
     model <- if (guessModel) "VVV" else match.arg(model)
-    if (is.null(name)) {
-        name <- sprintf("model \"%s\", G = %s", model, k)
-    }
 
     if (!is.matrix(mu)) mu <- as.matrix(mu) # p x 1  typically
     p <- nrow(mu) # p = dimension
     k <- ncol(mu) # k = number of components
+
+    if (is.null(name)) {
+        name <- sprintf("model \"%s\", G = %s", model, k)
+    }
 
     dS <- c(p, p, k) # == dim(Sigma) {in full VVV  parametrization !}
     if (is.null(Sigma)) {

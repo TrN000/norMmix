@@ -5,3 +5,5 @@ DESCRIPTION\+R
 TODO\.md
 .lintr
 ^LICENSE\.md$
+^doc$
+^Meta$
