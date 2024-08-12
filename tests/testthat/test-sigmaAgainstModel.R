@@ -211,7 +211,7 @@ test_that("VEE throws on unequal shape", {
         2*c(1,2,3,5)
     ), c(2,2,2))
     ret <- sigmaAgainstModel(sig, "VEE")
-    expect_message(ret, "")
+    expect_message(ret, "Sigma does not have equal shape")
 })
 
 test_that("VEE accepts correct model", {
@@ -234,7 +234,7 @@ test_that("EVV throws on unequal volume", {
         2*c(1,3,2,4)
     ), c(2,2,2))
     ret <- sigmaAgainstModel(sig, "EVV")
-    expect_message(ret, "")
+    expect_message(ret, "Sigma does not have equal volume")
 })
 
 test_that("EVV accepts correct model", {
