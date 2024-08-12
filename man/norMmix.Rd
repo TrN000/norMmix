@@ -106,7 +106,7 @@ stopifnot(identical(M21, # even simpler, Sigma = default :
                     norMmix(mu = cbind(c(0,0)), model = "EII")))
 
 m2.2 <- norMmix(mu = cbind(c(0, 0), c(5, 0)), Sigma = c(1, 10),
-                weight = c(7,1)/8, model = "EVV")
+                weight = c(7,1)/8, model = "VEI")
 
 m22 <- norMmix(
     name = "one component rotated",
