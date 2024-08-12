@@ -28,6 +28,9 @@
 
 12. Start a inst/NEWS.md file.
 
+13. finish regression test in `test-norMmix.R`. Should test
+    construction of Sigma from various inputs.
+
 ==============================================================================
 DONE:
 
