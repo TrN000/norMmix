@@ -54,7 +54,7 @@ ssClara2kL(n, k, p)
   \item{trace}{\describe{
       \item{in \code{norMmixMLE()}:}{passed to \code{optim(*, control=..)}, see above.}
       \item{in \code{claraInit()}: }{a non-negative integer indicating how
-	much \code{\link{clara}()} calls should be traced.}
+	much \code{\link[cluster]{clara}()} calls should be traced.}
   }}
   \item{\dots}{\describe{
       \item{in \code{norMmixMLE()}:}{passed to \code{optim(*, control=..)}, see above.}
