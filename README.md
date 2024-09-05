@@ -15,8 +15,16 @@ TODO:
 
 On linux machines, using R only:
 
-```
+```{bash}
     git clone https://github.com/TrN000/norMmix.git
     R CMD build norMmix
     R CMD INSTALL norMmix_0.0-2.tar.gz
+```
+
+To build and check the package the following packages are necessary.
+
+```{R}
+    > install.packages(
+        c("mvtnorm", "mclust", "sfsmisc", "nor1mix", "testthat",
+          "knitr", "rmarkdown", "compositions", "mixtools"))
 ```
