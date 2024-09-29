@@ -3,9 +3,6 @@
 1. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
 	several of the BSc thesis simulations.  Provide "better" alternative!
 
-2. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
-   comparisons and MW<n>  from CRAN package  `nor1mix`
-
 3. `norMmix()` has trouble with 1 dimensional and/or 1 component mixtures.
    deciding criteria needed.
 
@@ -69,3 +66,7 @@ DONE:
    does argument checking and private one assumes correct args.
    Should use the private one in MLE algorithm as it gets called there in a
    loop.
+
+2. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
+   comparisons and MW<n>  from CRAN package  `nor1mix`
+
