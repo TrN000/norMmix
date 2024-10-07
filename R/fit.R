@@ -1,11 +1,11 @@
 #### fit function for normal mixture samples
 
 
-manyMLE <- function(x, k, models=1:10, 
-                   trafo=c("clr1", "logit"),
-                   ll = c("nmm", "mvt"),
-                   name=NULL,
-                ... ) {
+manyMLE <- function(x, k, models = 1:10,
+                    trafo = c("clr1", "logit"),
+                    ll = c("nmm", "mvt"),
+                    name = NULL,
+                    ...) {
     k <- as.integer(k)
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
@@ -15,8 +15,8 @@ manyMLE <- function(x, k, models=1:10,
     p <- ncol(x)
     ll <- match.arg(ll)
     trafo <- match.arg(trafo)
-    m <- c("EII","VII","EEI","VEI","EVI",
-           "VVI","EEE","VEE","EVV","VVV")
+    m <- c("EII", "VII", "EEI", "VEI", "EVI",
+           "VVI", "EEE", "VEE", "EVV", "VVV")
     m <- m[models]
 
     norMmixval <- vector("list", length(m) * length(k))
@@ -27,12 +27,12 @@ manyMLE <- function(x, k, models=1:10,
     for (j in seq_along(k)) {
         for (i in seq_along(m)) {
             st <- system.time(
-                nMm <- tryCatch(norMmixMLE(x, k[j], model=m[i],
-                                           ll=ll, trafo=trafo, ...), 
+                nMm <- tryCatch(norMmixMLE(x, k[j], model = m[i],
+                                           ll = ll, trafo = trafo, ...),
                                 error = identity)
-                )
-            norMmixval[[j,i]] <- nMm
-            norMmixtime[[j,i]] <- st
+            )
+            norMmixval[[j, i]] <- nMm
+            norMmixtime[[j, i]] <- st
         }
     }
 
@@ -41,20 +41,20 @@ manyMLE <- function(x, k, models=1:10,
     rownames(norMmixtime) <- k
     colnames(norMmixtime) <- m
 
-    ret <- list(nMm=norMmixval, nMmtime=norMmixtime, k=k, 
-                models=m, n=n, p=p, x=x)
+    ret <- list(nMm = norMmixval, nMmtime = norMmixtime, k = k,
+                models = m, n = n, p = p, x = x)
     class(ret) <- "manyMLE"
 
     ret
 }
 
-saveMLE <- function(object, savdir, basename="fit") {
+saveMLE <- function(object, savdir, basename = "fit") {
     stopifnot(inherits(object, "manyMLE"), dir.exists(savdir))
     savename <- sprintf("%s_dim=%d_n=%d.rds", basename, object$p, object$n)
-    saveRDS(object, file=file.path(normalizePath(savdir),savename))
+    saveRDS(object, file = file.path(normalizePath(savdir), savename))
 }
 
-nobs.manyMLE <- function(object, ...) {object$n}
+nobs.manyMLE <- function(object, ...) object$n
 
 
 logLik.manyMLE <- function(object, ...) {
@@ -69,11 +69,11 @@ logLik.manyMLE <- function(object, ...) {
 
     for (i in seq_along(k)) {
         for (j in seq_along(models)) {
-            nm <- object$nMm[i,j][[1]]
+            nm <- object$nMm[i, j][[1]]
             # need to catch errors, if nm is string return NA
-            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, 
-                               NA, 
-                               -nm$optr$value)
+            val[i, j] <- ifelse(is.character(nm[[1]]) && length(nm) == 2,
+                                NA,
+                                -nm$optr$value)
         }
     }
 
