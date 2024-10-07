@@ -4,14 +4,13 @@
 manyMLE <- function(x, k, models=1:10, 
                    trafo=c("clr1", "logit"),
                    ll = c("nmm", "mvt"),
-                   savdir=NULL, name=NULL,
+                   name=NULL,
                 ... ) {
     k <- as.integer(k)
     stopifnot(is.numeric(x),
               is.vector(models), length(models) <= 10,
               0 < models, models <= 10,
               is.integer(k), 0 < k)
-    if (!is.null(savdir)) {stopifnot(dir.exists(savdir))}
     n <- nrow(x)
     p <- ncol(x)
     ll <- match.arg(ll)
@@ -46,15 +45,14 @@ manyMLE <- function(x, k, models=1:10,
                 models=m, n=n, p=p, x=x)
     class(ret) <- "manyMLE"
 
-    if (!is.null(savdir)) {
-        savename <- ifelse(is.null(name), 
-                           sprintf("fit_dim=%d_n=%d.rds", p, n),
-                           paste0(name, ".rds"))
-        saveRDS(list(fit=ret), file=file.path(normalizePath(savdir),savename))
-    }
     ret
 }
 
+saveMLE <- function(object, savdir, basename="fit") {
+    stopifnot(inherits(object, "manyMLE"), dir.exists(savdir))
+    savename <- sprintf("%s_dim=%d_n=%d.rds", basename, object$p, object$n)
+    saveRDS(object, file=file.path(normalizePath(savdir),savename))
+}
 
 nobs.manyMLE <- function(object, ...) {object$n}
 
@@ -186,7 +184,6 @@ extracttimes <- function(object, ...) {
     structure(array(ti, lengths(dn), dimnames=dn),
               n = object$n, p = object$p, class = "manyMLE_time")
 }
-    
 
 print.manyMLE <- function(x, ...) {
     n <- nobs(x)
