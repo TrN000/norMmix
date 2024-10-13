@@ -2,7 +2,6 @@
 
 
 manyMLE <- function(x, k, models = 1:10,
-                    trafo = c("clr1", "logit"),
                     ll = c("nmm", "mvt"),
                     name = NULL,
                     ...) {
@@ -14,9 +13,7 @@ manyMLE <- function(x, k, models = 1:10,
     n <- nrow(x)
     p <- ncol(x)
     ll <- match.arg(ll)
-    trafo <- match.arg(trafo)
-    m <- c("EII", "VII", "EEI", "VEI", "EVI",
-           "VVI", "EEE", "VEE", "EVV", "VVV")
+    m <- norModels
     m <- m[models]
 
     norMmixval <- vector("list", length(m) * length(k))
@@ -28,7 +25,7 @@ manyMLE <- function(x, k, models = 1:10,
         for (i in seq_along(m)) {
             st <- system.time(
                 nMm <- tryCatch(norMmixMLE(x, k[j], model = m[i],
-                                           ll = ll, trafo = trafo, ...),
+                                           ll = ll, ...),
                                 error = identity)
             )
             norMmixval[[j, i]] <- nMm
