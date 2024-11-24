@@ -28,6 +28,10 @@
 13. finish regression test in `test-norMmix.R`. Should test
     construction of Sigma from various inputs.
 
+14. `manyMLE` used to have an argument to specify what transformation to use for
+	parametrizing wheights. Maybe reintroduce. definitely a "nice to have"
+
+
 ==============================================================================
 DONE:
 

@@ -8,7 +8,7 @@ manyMLE
 Run \code{\link{norMmixMLE}} over various component sizes and model types.
 }
 \usage{
-manyMLE(x, k, models = 1:10, trafo = c("clr1", "logit"), ll = c("nmm", "mvt"), ...)
+manyMLE(x, k, models = 1:10, ll = c("nmm", "mvt"), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
