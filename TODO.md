@@ -1,5 +1,3 @@
-
-
 1. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
 	several of the BSc thesis simulations.  Provide "better" alternative!
 
@@ -17,7 +15,7 @@
 9. `manyMLE()` is not yet exported & documented; before doing so, needs
    tweaks (by MM):
 	- `savdir` and `name` with default name to save as `"*rds"`: nice idea but
-      should *not* be part of `manyMLE` but separate small utility.
+	  should *not* be part of `manyMLE` but separate small utility.
 	- modify argument checking; use namespace global
 	  `norModels <- eval(formals(norMmix)$model)`
 
@@ -26,7 +24,7 @@
 12. Start a inst/NEWS.md file.
 
 13. finish regression test in `test-norMmix.R`. Should test
-    construction of Sigma from various inputs.
+	construction of Sigma from various inputs.
 
 14. `manyMLE` used to have an argument to specify what transformation to use for
 	parametrizing wheights. Maybe reintroduce. definitely a "nice to have"
@@ -42,7 +40,7 @@ DONE:
   {but probably also change the name of the class from
   `"fittednorMmix"` to something like
   `"manyNormixMLE"`
-     --> Nicolas Trutmann has done it (Jun 21 2020): name  `manyMLE()` ==> `~/R/D/GH/norMmix/R/fit.R`
+	 --> Nicolas Trutmann has done it (Jun 21 2020): name  `manyMLE()` ==> `~/R/D/GH/norMmix/R/fit.R`
 
 4. norMmix.Rd does not document use of non-array covar. mats. as init. values
 
@@ -55,7 +53,7 @@ DONE:
 
   ===> **MUCH better** is really to change the setup completely, use
 	   graphics :: pairs.default(.)
-    by providing a correct  panel = function(.)    !!!
+	by providing a correct  panel = function(.)    !!!
 
 0. --> `R/plot.R`: FIXME: plot2d() <--> plotnd() are *NOT* compatible in their defaults
 
@@ -73,4 +71,3 @@ DONE:
 
 2. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
-

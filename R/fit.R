@@ -107,7 +107,7 @@ npar.manyMLE <- function(object, ...) {
 
     for (i in seq_along(k)) {
         for (j in seq_along(models)) {
-            val[i,j] <- dfnMm(k[i],p,models[j])
+            val[i, j] <- dfnMm(k[i], p, models[j])
         }
     }
 
@@ -121,14 +121,14 @@ BIC.manyMLE <- function(object, ...) {
     models <- object$models
     npar <- npar(object)
     ll <- logLik(object)
-    val <- npar*log(n) - 2*ll
+    val <- npar * log(n) - 2 * ll
     mi <- which.min(val)
     bestnMm <- object$nMm[mi][[1]]
-    mirow <- mi%%length(k)
-    micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
-    if (mirow==0) mirow <- length(k)
-    mindex <- c(k[mirow],models[micol])
-    list(val, best=mindex, bestnMm=bestnMm)
+    mirow <- mi %% length(k)
+    micol <- ifelse(mirow > 0, (mi %/% length(k)) + 1, mi %/% length(k))
+    if (mirow == 0) mirow <- length(k)
+    mindex <- c(k[mirow], models[micol])
+    list(val, best = mindex, bestnMm = bestnMm)
 }
 
 
@@ -136,14 +136,14 @@ AIC.manyMLE <- function(object, ..., k = 2) {
     models <- object$models
     npar <- npar(object)
     ll <- logLik(object)
-    val <- npar*k - 2*ll
+    val <- npar * k - 2 * ll
     mi <- which.min(val)
     k <- object$k # overwriting the AIC k (typically = 2)
-    mirow <- mi%%length(k)
-    micol <- ifelse(mirow>0, (mi%/%length(k))+1, mi%/%length(k))
-    if (mirow==0) mirow <- length(k)
+    mirow <- mi %% length(k)
+    micol <- ifelse(mirow > 0, (mi %/% length(k)) + 1, mi %/% length(k))
+    if (mirow == 0) mirow <- length(k)
     mindex <- c(k[mirow], models[micol])
-    list(val, best=mindex)
+    list(val, best = mindex)
 }
 
 ## DELETE_ME?:
@@ -159,8 +159,8 @@ AIC.manyMLE <- function(object, ..., k = 2) {
 ##        for (j in seq_along(models)) {
 ##            nm <- obj$nMm[i,j][[1]]
 ##            # need to catch errors, if nm is string return NA
-##            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2, 
-##                               NA, 
+##            val[i,j] <- ifelse(is.character(nm[[1]])&&length(nm)==2,
+##                               NA,
 ##                               nm$cond)
 ##        }
 ##    }
@@ -175,10 +175,10 @@ extracttimes <- function(object, ...) {
     na <- names(ti)[1:5]
     co <- object$k
     mo <- object$models
-    ti <- c(matrix(ti, ncol=5, byrow=TRUE))
-    dn <- list(k=co, models=mo, proc_time=na)
+    ti <- c(matrix(ti, ncol = 5, byrow = TRUE))
+    dn <- list(k = co, models = mo, proc_time = na)
     ## return
-    structure(array(ti, lengths(dn), dimnames=dn),
+    structure(array(ti, lengths(dn), dimnames = dn),
               n = object$n, p = object$p, class = "manyMLE_time")
 }
 
@@ -194,7 +194,7 @@ print.manyMLE <- function(x, ...) {
         "dimension of dataset: \tvariables", dim, "\tobservations:", n, "\n",
         "fitted components and models: \n", co, "\n", mo, "\n")
 
-    cat("total time: \t",ti, "\n")
+    cat("total time: \t", ti, "\n")
     cat("\nbest fit:\t", bics[2][[1]], "\n",
         "logLik: \t", bics$bestnMm$optr$value, "\n")
     invisible(x)
