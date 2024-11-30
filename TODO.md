@@ -1,3 +1,5 @@
+# TODO
+
 1. `ssClara2kL()` {was 'ssClaraL'}: seems to give too small samples in
 	several of the BSc thesis simulations.  Provide "better" alternative!
 
@@ -7,17 +9,6 @@
 6. documentation need examples and arguments of plot.... are not described.
    OUT OF DATE:Documentation for plot methods now completely broken. Arguments like
    newWindow no longer supported. Needs to be rewritten for 2d and >2d.
-
-
-8. Currently always use *full* covariance parameter Sigma, even in cases
-   such as EII etc.  Should we allow *both* (full and minimal) parametrizations
-
-9. `manyMLE()` is not yet exported & documented; before doing so, needs
-   tweaks (by MM):
-	- `savdir` and `name` with default name to save as `"*rds"`: nice idea but
-	  should *not* be part of `manyMLE` but separate small utility.
-	- modify argument checking; use namespace global
-	  `norModels <- eval(formals(norMmix)$model)`
 
 10. *BUG* in either `npar()` or `nMm2par()` -- see 'FIXME' in `man/nMm2par.Rd`
 
@@ -31,7 +22,8 @@
 
 
 ==============================================================================
-DONE:
+
+# DONE:
 
 2. Also port most of the "fit.R" from `norMmix_Bthesis`; i.e., the  `fitnMm()`
   function {with better name!} -->
@@ -71,3 +63,13 @@ DONE:
 
 2. Provide  as.norMmix() generic and   as.norMmix.nor1mix()  to get 1-D
    comparisons and MW<n>  from CRAN package  `nor1mix`
+
+8. Currently always use *full* covariance parameter Sigma, even in cases
+   such as EII etc.  Should we allow *both* (full and minimal) parametrizations
+
+9. `manyMLE()` is not yet exported & documented; before doing so, needs
+   tweaks (by MM):
+	- `savdir` and `name` with default name to save as `"*rds"`: nice idea but
+	  should *not* be part of `manyMLE` but separate small utility.
+	- modify argument checking; use namespace global
+	  `norModels <- eval(formals(norMmix)$model)`
